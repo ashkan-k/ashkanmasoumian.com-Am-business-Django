@@ -1,0 +1,186 @@
+{% extends "admin_panel/base.html" %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>{% if lang == 'fa' %}خدمات{% else %}All Services{% endif %}</h3>
+        <button class="btn btn-primary" onclick="openModal('{% if lang == 'fa' %}افزودن خدمت{% else %}Add Service{% endif %}', document.getElementById('addForm').innerHTML)">
+            <i class="ph ph-plus"></i> {% if lang == 'fa' %}افزودن{% else %}Add{% endif %}
+        </button>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>{% if lang == 'fa' %}عنوان (EN){% else %}Title (EN){% endif %}</th>
+                    <th>{% if lang == 'fa' %}عنوان (FA){% else %}Title (FA){% endif %}</th>
+                    <th>{% if lang == 'fa' %}آیکون{% else %}Icon{% endif %}</th>
+                    <th>{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</th>
+                    <th>{% if lang == 'fa' %}وضعیت{% else %}Status{% endif %}</th>
+                    <th>{% if lang == 'fa' %}عملیات{% else %}Actions{% endif %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.pk }}</td>
+                    <td><strong>{{ item.title_en }}</strong></td>
+                    <td dir="rtl">{{ item.title_fa }}</td>
+                    <td><span class="badge badge-accent">{{ item.icon }}</span></td>
+                    <td>{{ item.order }}</td>
+                    <td>{% if item.is_active %}<span class="badge badge-success">{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span>{% else %}<span class="badge badge-danger">{% if lang == 'fa' %}غیرفعال{% else %}Inactive{% endif %}</span>{% endif %}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-outline btn-sm btn-icon" onclick="openModal('{% if lang == 'fa' %}ویرایش خدمت{% else %}Edit Service{% endif %}', document.getElementById('editForm-{{ item.pk }}').innerHTML)" title="Edit">
+                                <i class="ph ph-pencil-simple"></i>
+                            </button>
+                            <form id="deleteForm-{{ item.pk }}" method="post" style="display:inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="pk" value="{{ item.pk }}">
+                                <button type="button" class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('deleteForm-{{ item.pk }}')" title="Delete">
+                                    <i class="ph ph-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="empty-state"><p>{% if lang == 'fa' %}هنوز خدمتی اضافه نشده{% else %}No services yet{% endif %}</p></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Hidden Add Form -->
+<div id="addForm" style="display:none">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add">
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">{% if lang == 'fa' %}عنوان (EN){% else %}Title (EN){% endif %}</label>
+                <input type="text" name="title_en" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">{% if lang == 'fa' %}عنوان (FA){% else %}Title (FA){% endif %}</label>
+                <input type="text" name="title_fa" class="form-control" required dir="rtl">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">{% if lang == 'fa' %}توضیحات (EN){% else %}Description (EN){% endif %}</label>
+            <textarea name="description_en" class="form-control" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+            <label class="form-label">{% if lang == 'fa' %}توضیحات (FA){% else %}Description (FA){% endif %}</label>
+            <textarea name="description_fa" class="form-control" rows="3" required dir="rtl"></textarea>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">{% if lang == 'fa' %}آیکون{% else %}Icon{% endif %}</label>
+                <select name="icon" class="form-control">
+                    <option value="camera">📷 Camera</option>
+                    <option value="gear">⚙️ Settings</option>
+                    <option value="image">🖼️ Image</option>
+                    <option value="layers">📊 Layers</option>
+                    <option value="window">🖥️ Web Design</option>
+                    <option value="bag-check">🛍️ eCommerce</option>
+                    <option value="bullseye">🎯 Branding</option>
+                    <option value="phone">📱 Mobile</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</label>
+                <input type="number" name="order" class="form-control" value="0">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">{% if lang == 'fa' %}تصویر{% else %}Image{% endif %}</label>
+            <input type="file" name="image" class="form-control" accept="image/*">
+        </div>
+        <div class="form-group">
+            <label class="form-label">{% if lang == 'fa' %}آیکون سفارشی{% else %}Custom Icon{% endif %}</label>
+            <input type="file" name="custom_icon" class="form-control" accept="image/*">
+            <small>{% if lang == 'fa' %}تصویر آیکون سفارشی جایگزین آیکون پیش‌فرض می‌شود{% else %}Custom icon image overrides the default icon{% endif %}</small>
+        </div>
+        <div class="form-group">
+            <label class="form-check">
+                <input type="checkbox" name="is_active" checked>
+                <span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span>
+            </label>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button>
+        </div>
+    </form>
+</div>
+
+<!-- Hidden Edit Forms -->
+{% for item in items %}
+<div id="editForm-{{ item.pk }}" style="display:none">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="edit">
+        <input type="hidden" name="pk" value="{{ item.pk }}">
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">{% if lang == 'fa' %}عنوان (EN){% else %}Title (EN){% endif %}</label>
+                <input type="text" name="title_en" class="form-control" value="{{ item.title_en }}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">{% if lang == 'fa' %}عنوان (FA){% else %}Title (FA){% endif %}</label>
+                <input type="text" name="title_fa" class="form-control" value="{{ item.title_fa }}" required dir="rtl">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">{% if lang == 'fa' %}توضیحات (EN){% else %}Description (EN){% endif %}</label>
+            <textarea name="description_en" class="form-control" rows="3" required>{{ item.description_en }}</textarea>
+        </div>
+        <div class="form-group">
+            <label class="form-label">{% if lang == 'fa' %}توضیحات (FA){% else %}Description (FA){% endif %}</label>
+            <textarea name="description_fa" class="form-control" rows="3" required dir="rtl">{{ item.description_fa }}</textarea>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">{% if lang == 'fa' %}آیکون{% else %}Icon{% endif %}</label>
+                <select name="icon" class="form-control">
+                    <option value="camera" {% if item.icon == 'camera' %}selected{% endif %}>📷 Camera</option>
+                    <option value="gear" {% if item.icon == 'gear' %}selected{% endif %}>⚙️ Settings</option>
+                    <option value="image" {% if item.icon == 'image' %}selected{% endif %}>🖼️ Image</option>
+                    <option value="layers" {% if item.icon == 'layers' %}selected{% endif %}>📊 Layers</option>
+                    <option value="window" {% if item.icon == 'window' %}selected{% endif %}>🖥️ Web Design</option>
+                    <option value="bag-check" {% if item.icon == 'bag-check' %}selected{% endif %}>🛍️ eCommerce</option>
+                    <option value="bullseye" {% if item.icon == 'bullseye' %}selected{% endif %}>🎯 Branding</option>
+                    <option value="phone" {% if item.icon == 'phone' %}selected{% endif %}>📱 Mobile</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</label>
+                <input type="number" name="order" class="form-control" value="{{ item.order }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">{% if lang == 'fa' %}تصویر{% else %}Image{% endif %}</label>
+            {% if item.image %}<div style="margin-bottom:8px"><img src="{{ item.image.url }}" class="image-preview"></div>{% endif %}
+            <input type="file" name="image" class="form-control" accept="image/*">
+        </div>
+        <div class="form-group">
+            <label class="form-label">{% if lang == 'fa' %}آیکون سفارشی{% else %}Custom Icon{% endif %}</label>
+            {% if item.custom_icon %}<div style="margin-bottom:8px"><img src="{{ item.custom_icon.url }}" class="image-preview"></div>{% endif %}
+            <input type="file" name="custom_icon" class="form-control" accept="image/*">
+            <small>{% if lang == 'fa' %}تصویر آیکون سفارشی جایگزین آیکون پیش‌فرض می‌شود{% else %}Custom icon image overrides the default icon{% endif %}</small>
+        </div>
+        <div class="form-group">
+            <label class="form-check">
+                <input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}>
+                <span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span>
+            </label>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button>
+        </div>
+    </form>
+</div>
+{% endfor %}
+{% endblock %}

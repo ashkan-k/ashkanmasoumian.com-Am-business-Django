@@ -1,0 +1,56 @@
+{% extends "admin_panel/base.html" %}
+{% load jalali_filters %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>{% if lang == 'fa' %}جزئیات پیام{% else %}Message Detail{% endif %}</h3>
+        <a href="{% url 'admin_messages' %}" class="btn btn-outline btn-sm"><i class="ph ph-arrow-left"></i> {% if lang == 'fa' %}بازگشت{% else %}Back{% endif %}</a>
+    </div>
+    <div class="card-body">
+        <div class="form-row" style="margin-bottom:24px">
+            <div class="form-group">
+                <label class="form-label">{% if lang == 'fa' %}نام{% else %}Name{% endif %}</label>
+                <div style="font-size:1.05rem;font-weight:600">{{ obj.name }}</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <div><a href="mailto:{{ obj.email }}">{{ obj.email }}</a></div>
+            </div>
+        </div>
+        {% if obj.subject %}
+        <div class="form-group">
+            <label class="form-label">{% if lang == 'fa' %}موضوع{% else %}Subject{% endif %}</label>
+            <div style="font-size:1rem;font-weight:500">{{ obj.subject }}</div>
+        </div>
+        {% endif %}
+        <div class="form-group">
+            <label class="form-label">{% if lang == 'fa' %}تاریخ{% else %}Date{% endif %}</label>
+            <div>{{ obj.created_at|jalali:"Y/m/d H:i" }}</div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">{% if lang == 'fa' %}پیام{% else %}Message{% endif %}</label>
+            <div style="background:var(--bg-input);padding:20px;border-radius:var(--radius-md);white-space:pre-wrap;line-height:1.8">{{ obj.message }}</div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">{% if lang == 'fa' %}وضعیت{% else %}Status{% endif %}</label>
+            <div>
+                {% if obj.is_replied %}<span class="badge badge-success">{% if lang == 'fa' %}پاسخ داده شده{% else %}Replied{% endif %}</span>
+                {% elif obj.is_read %}<span class="badge badge-info">{% if lang == 'fa' %}خوانده شده{% else %}Read{% endif %}</span>
+                {% else %}<span class="badge badge-warning">{% if lang == 'fa' %}جدید{% else %}New{% endif %}</span>{% endif %}
+            </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:20px">
+            {% if not obj.is_read %}
+            <form method="post">{% csrf_token %}<input type="hidden" name="action" value="mark_read"><input type="hidden" name="pk" value="{{ obj.pk }}">
+                <button type="submit" class="btn btn-info"><i class="ph ph-envelope-open"></i> {% if lang == 'fa' %}خوانده شده علامت بزن{% else %}Mark as Read{% endif %}</button></form>
+            {% endif %}
+            {% if not obj.is_replied %}
+            <form method="post">{% csrf_token %}<input type="hidden" name="action" value="mark_replied"><input type="hidden" name="pk" value="{{ obj.pk }}">
+                <button type="submit" class="btn btn-success"><i class="ph ph-check"></i> {% if lang == 'fa' %}علامت پاسخ داده{% else %}Mark as Replied{% endif %}</button></form>
+            {% endif %}
+            <form method="post">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="pk" value="{{ obj.pk }}">
+                <button type="submit" class="btn btn-danger" onclick="return confirm('{% if lang == 'fa' %}آیا از حذف این پیام مطمئن هستید؟{% else %}Are you sure you want to delete this message?{% endif %}')"><i class="ph ph-trash"></i> {% if lang == 'fa' %}حذف{% else %}Delete{% endif %}</button></form>
+        </div>
+    </div>
+</div>
+{% endblock %}

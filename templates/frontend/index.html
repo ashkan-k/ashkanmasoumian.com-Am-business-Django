@@ -1,0 +1,236 @@
+{% extends "frontend/base.html" %}
+{% load static i18n_custom %}
+
+{% block content %}
+<!-- Hero -->
+<div class="hero v-h-full overlay" style="background-image: url('{% if hero and hero.background_image %}{{ hero.background_image.url }}{% else %}{% static 'frontend/images/hero-default.png' %}{% endif %}')">
+    <div class="container">
+        <div class="row align-items-center v-h-full">
+            <div class="col-lg-10 col-xxl-6">
+                <h1 class="heading-2 text-white mb-4" data-aos="fade-up" style="color:#e2a83e !important; font-size:60px; line-height:1.1;">
+                    {% if hero %}{% get_heading hero %}{% else %}AM BUSINESS{% endif %}
+                </h1>
+                <p class="subheading text-white mb-5" data-aos="fade-up" data-aos-delay="100" style="font-size:22px; color:#fff !important; text-transform:none; letter-spacing:0;">
+                    {% if hero %}{% get_subheading hero %}{% else %}From Vision To Success{% endif %}
+                </p>
+                {% if hero %}
+                {% get_cta_text hero as cta %}
+                {% if cta %}
+                <p data-aos="fade-up" data-aos-delay="200"><a href="{{ hero.cta_url }}" class="btn btn-primary-gradient">{{ cta }}</a></p>
+                {% endif %}
+                {% else %}
+                <p data-aos="fade-up" data-aos-delay="200"><a href="/contact/" class="btn btn-primary-gradient">GET IN TOUCH</a></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- About AM Business (replaces Event Countdown) -->
+<div class="section" style="background-color:#fff;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <div class="text-wrap">
+                    <span class="subheading" style="color:#e2a83e;">{% if lang == 'fa' %}درباره ما{% else %}About Us{% endif %}</span>
+                    <h2 class="heading mb-4" style="font-size:48px; color:#222;">About AM Business</h2>
+                    <p style="color:#555; line-height:1.8;">
+                        {% if home_about %}{% get_content home_about %}{% else %}
+                        AM Business is an integrated business growth and transformation company based in Muscat, Oman, serving ambitious businesses, founders, organizations, and institutions across the GCC.
+                        <br><br>
+                        We bring together research, strategy, creativity, marketing, digital capabilities, and AI to help clients make better decisions, build stronger brands, strengthen their market position, develop smarter capabilities, and pursue sustainable growth.
+                        {% endif %}
+                    </p>
+                    <p class="mt-5">
+                        <a href="/about/" class="btn btn-primary-gradient">{% if lang == 'fa' %}بیشتر بخوانید{% else %}Read More{% endif %}</a>
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                {% if home_about and home_about.image %}
+                <img src="{{ home_about.image.url }}" alt="About AM Business" class="img-fluid" style="border-radius:8px;">
+                {% else %}
+                <img src="{% static 'frontend/images/why-am-business.jpg' %}" alt="About AM Business" class="img-fluid" style="border-radius:8px;">
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Services -->
+{% if services %}
+<div class="section section-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 mb-5">
+                <span class="subheading" style="color:#e2a83e;">{% if lang == 'fa' %}خدمات{% else %}Services{% endif %}</span>
+                <h2 class="heading" style="color:#222;">{% if lang == 'fa' %}خدمات ما{% else %}Our Services{% endif %}</h2>
+            </div>
+        </div>
+        <div class="row features-wrap">
+            {% for service in services %}
+            <div class="col-md-6 col-lg-4 col-xl-3">
+                <div class="feature"><div>
+                    <div class="svg-wrap">
+                        {% if service.custom_icon %}
+                        <img src="{{ service.custom_icon.url }}" alt="{{ service.title_en }}" style="width:50px;height:50px;object-fit:contain;">
+                        {% elif service.image %}
+                        <img src="{{ service.image.url }}" alt="{{ service.title_en }}" style="width:50px;height:50px;object-fit:contain;">
+                        {% else %}
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-gear" fill="currentColor"><path fill-rule="evenodd" d="M8 5.754a2.246 2.246 0 1 0 0 4.492 2.246 2.246 0 0 0 0-4.492zM4.754 8a3.246 3.246 0 1 1 6.492 0 3.246 3.246 0 0 1-6.492 0z"/></svg>
+                        {% endif %}
+                    </div>
+                    <h3>{% get_title service %}</h3>
+                    <p>{% get_description service %}</p>
+                </div></div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Why AM Business (inside services section) -->
+    <div class="box-white pt-5 p-md-5 mx-md-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 align-self-center mb-5 mb-lg-0">
+                    <div class="text-wrap">
+                        <span class="subheading" style="color:#e2a83e;">{% if lang == 'fa' %}چرا ما{% else %}Why AM Business{% endif %}</span>
+                        <h2 class="heading mb-4" style="font-size:40px; color:#222;">{% if lang == 'fa' %}چرا ای ام بیزینس؟{% else %}Why AM Business?{% endif %}</h2>
+                        <div style="color:#555; line-height:2;">
+                            {% if about %}
+                            <p><strong style="color:#222;">{% if lang == 'fa' %}تحقیق قبل از توصیه{% else %}Research Before Recommendation{% endif %}</strong><br>
+                            {% if lang == 'fa' %}ما کسب و کار، بازار و چالش را قبل از ارائه راهکار درک می‌کنیم.{% else %}We understand the business, market, and challenge before recommending a solution.{% endif %}</p>
+                            <p><strong style="color:#222;">{% if lang == 'fa' %}استراتژی قبل از اجرا{% else %}Strategy Before Execution{% endif %}</strong><br>
+                            {% if lang == 'fa' %}اجرا از مسیر منطقی و منطق کسب و کار پیروی می‌کند.{% else %}Execution follows a clear direction and business logic—not the other way around.{% endif %}</p>
+                            <p><strong style="color:#222;">{% if lang == 'fa' %}قابلیت‌های یکپارچه{% else %}Integrated Capabilities{% endif %}</strong><br>
+                            {% if lang == 'fa' %}استراتژی، خلاقیت، بازاریابی، دیجیتال و هوش مصنوعی به صورت یکپارچه کار می‌کنند.{% else %}Strategy, creative, marketing, digital, and AI capabilities can work together as one coordinated solution.{% endif %}</p>
+                            <p><strong style="color:#222;">{% if lang == 'fa' %}خلاقیت اول کسب و کار{% else %}Business-First Creativity{% endif %}</strong><br>
+                            {% if lang == 'fa' %}طراحی خلاقانه برای خدمت به هدف کسب و کار است.{% else %}Creative work is designed to serve a business purpose, not simply produce attractive assets.{% endif %}</p>
+                            <p><strong style="color:#222;">{% if lang == 'fa' %}دیجیتال و هوش مصنوعی کاربردی{% else %}Practical Digital & AI{% endif %}</strong><br>
+                            {% if lang == 'fa' %}فناوری و هوش مصنوعی در جایی استفاده می‌شوند که بهره‌وری را بهبود دهند.{% else %}Technology and AI are applied where they can improve efficiency, decision-making, customer experience, or scalability.{% endif %}</p>
+                            <p><strong style="color:#222;">{% if lang == 'fa' %}مشارکت نتیجه‌محور{% else %}Outcome-Oriented Partnership{% endif %}</strong><br>
+                            {% if lang == 'fa' %}ما بر ارزش کسب و کار و نتایج معنادار تمرکز داریم.{% else %}We focus on business value and meaningful outcomes while building relationships with a long-term perspective.{% endif %}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    {% if about and about.why_choose_us_image %}
+                    <img src="{{ about.why_choose_us_image.url }}" alt="Why AM Business" class="img-fluid img-overlap" style="border-radius:8px;">
+                    {% else %}
+                    <img src="{% static 'frontend/images/why-am-business.jpg' %}" alt="Why AM Business" class="img-fluid img-overlap" style="border-radius:8px;">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Pricing -->
+{% if pricing_plans %}
+<div class="section section-pricing" style="background-color:#530e69; background-image:url('{% static 'frontend/images/patterns/pattern-footer.svg' %}'); background-size:300px; background-repeat:repeat; position:relative;">
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(83,14,105,0.92);"></div>
+    <div class="container" style="position:relative;z-index:1;">
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h3 class="subheading" style="color:rgba(255,255,255,0.7);">{% if lang == 'fa' %}قیمت‌گذاری برای همه{% else %}Prices for everyone{% endif %}</h3>
+                <h2 class="text-white heading" style="color:#e2a83e !important;">{% if lang == 'fa' %}قیمت‌گذاری{% else %}Pricing{% endif %}</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-9 mx-auto">
+                <div class="row align-items-baseline">
+                    {% for plan in pricing_plans %}
+                    <div class="col-lg-4">
+                        <div class="pricing mb-4 mb-md-0" style="background-color:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15);">
+                            <h3 class="mb-4">{% get_name plan %}</h3>
+                            <p class="mb-4">{% get_description plan %}</p>
+                            <div class="line"></div>
+                            <div class="price mb-4">
+                                <span class="currency">{{ plan.currency }}</span>
+                                <span class="price">{{ plan.price|floatformat:0 }}</span>
+                                <span class="cents">{{ plan.cents }}</span>
+                            </div>
+                            <p><a href="{{ plan.button_url }}" class="btn btn-primary-outline white px-5">{% get_button_text plan %}</a></p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Features -->
+{% if features %}
+<div class="section-5 bg-image overlay v-h-full" style="background-image: url('{% static 'frontend/images/bg_hero_2.jpg' %}')">
+    <div class="container">
+        <div class="row align-items-md-center v-h-full">
+            <div class="col-lg-12">
+                <h3 class="subheading text-white">{% if lang == 'fa' %}ویژگی‌ها{% else %}Features{% endif %}</h3>
+                <h2 class="heading text-white">{% if lang == 'fa' %}ویژگی‌های بیشتر{% else %}More Features{% endif %}</h2>
+                <p class="text-white mb-5">{% if lang == 'fa' %}امکانات بیشتر ما{% else %}Our additional features{% endif %}</p>
+                <div class="row">
+                    {% for feature in features %}
+                    <div class="col-lg-4">
+                        <div class="feature dark"><div>
+                            <h3>{% get_title feature %}</h3>
+                            <p>{% get_description feature %}</p>
+                        </div></div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Testimonials & Team -->
+{% if testimonials or team_members %}
+<div class="section section-6 half-overlay">
+    {% if testimonials %}
+    <div class="container">
+        <div class="box-white"><div class="row"><div class="col-lg-7 mx-auto text-center">
+            <h3 class="subheading">{% if lang == 'fa' %}نظرات{% else %}Testimonials{% endif %}</h3>
+            <h2 class="heading mb-5">{% if lang == 'fa' %}مشتریان چه می‌گویند...{% else %}People Says...{% endif %}</h2>
+            <div class="testimonial-wrap"><div id="testimonial">
+                {% for t in testimonials %}
+                <div><div class="item-testimonial">
+                    <blockquote class="mb-4">{% get_quote t %}</blockquote>
+                    <div class="bio-pic">
+                        {% if t.author_image %}<img src="{{ t.author_image.url }}" alt="{{ t.author_name }}" class="img-fluid mb-2">{% endif %}
+                        <div><strong class="d-block">{{ t.author_name }}</strong><span class="d-block">{% get_role t %}</span></div>
+                    </div>
+                </div></div>
+                {% endfor %}
+            </div></div>
+        </div></div></div>
+    </div>
+    {% endif %}
+
+    {% if team_members %}
+    <div class="container">
+        <div class="row mb-5"><div class="col-lg-7">
+            <h3 class="subheading text-white">{% if lang == 'fa' %}تیم{% else %}Team{% endif %}</h3>
+            <h2 class="heading text-white">{% if lang == 'fa' %}تیم ما را بشناسید{% else %}Meet our team{% endif %}</h2>
+        </div></div>
+        <div class="row justify-content-center"><div class="col-lg-9"><div class="row justify-content-between">
+            {% for member in team_members %}
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <div class="team">
+                    {% if member.image %}<img src="{{ member.image.url }}" alt="{{ member.name }}" class="img-fluid">{% endif %}
+                    <h3>{{ member.name }}</h3>
+                    <p class="position">{% get_position member %}</p>
+                    <p class="mb-4">{% get_bio member %}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div></div></div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

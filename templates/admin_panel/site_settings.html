@@ -1,0 +1,131 @@
+{% extends "admin_panel/base.html" %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>{% if lang == 'fa' %}تنظیمات سایت{% else %}General Site Settings{% endif %}</h3>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="tabs" data-group="settings">
+                <button type="button" class="tab-btn active" data-tab="tab-general">{% if lang == 'fa' %}عمومی{% else %}General{% endif %}</button>
+                <button type="button" class="tab-btn" data-tab="tab-contact">{% if lang == 'fa' %}تماس{% else %}Contact{% endif %}</button>
+                <button type="button" class="tab-btn" data-tab="tab-seo">{% if lang == 'fa' %}سئو{% else %}SEO{% endif %}</button>
+                <button type="button" class="tab-btn" data-tab="tab-footer">{% if lang == 'fa' %}فوتر{% else %}Footer{% endif %}</button>
+            </div>
+
+            <div class="tab-content active" id="tab-general" data-group="settings">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">{% if lang == 'fa' %}نام سایت (EN){% else %}Site Name (EN){% endif %}</label>
+                        <input type="text" name="site_name_en" class="form-control" value="{{ settings.site_name_en }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{% if lang == 'fa' %}نام سایت (FA){% else %}Site Name (FA){% endif %}</label>
+                        <input type="text" name="site_name_fa" class="form-control" value="{{ settings.site_name_fa }}" dir="rtl">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">{% if lang == 'fa' %}لوگو{% else %}Logo{% endif %}</label>
+                        {% if settings.logo %}
+                        <div style="margin-bottom:8px"><img src="{{ settings.logo.url }}" class="image-preview"></div>
+                        {% endif %}
+                        <input type="file" name="logo" class="form-control" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{% if lang == 'fa' %}فاویکون{% else %}Favicon{% endif %}</label>
+                        {% if settings.favicon %}
+                        <div style="margin-bottom:8px"><img src="{{ settings.favicon.url }}" class="image-preview"></div>
+                        {% endif %}
+                        <input type="file" name="favicon" class="form-control" accept="image/*">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">{% if lang == 'fa' %}متن کپی‌رایت (EN){% else %}Copyright (EN){% endif %}</label>
+                        <input type="text" name="copyright_text_en" class="form-control" value="{{ settings.copyright_text_en }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{% if lang == 'fa' %}متن کپی‌رایت (FA){% else %}Copyright (FA){% endif %}</label>
+                        <input type="text" name="copyright_text_fa" class="form-control" value="{{ settings.copyright_text_fa }}" dir="rtl">
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-contact" data-group="settings">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">{% if lang == 'fa' %}تلفن{% else %}Phone{% endif %}</label>
+                        <input type="text" name="phone" class="form-control" value="{{ settings.phone }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{% if lang == 'fa' %}ایمیل{% else %}Email{% endif %}</label>
+                        <input type="email" name="email" class="form-control" value="{{ settings.email }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{% if lang == 'fa' %}آدرس (EN){% else %}Address (EN){% endif %}</label>
+                    <textarea name="address_en" class="form-control" rows="3">{{ settings.address_en }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{% if lang == 'fa' %}آدرس (FA){% else %}Address (FA){% endif %}</label>
+                    <textarea name="address_fa" class="form-control" rows="3" dir="rtl">{{ settings.address_fa }}</textarea>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-seo" data-group="settings">
+                <div class="form-group">
+                    <label class="form-label">{% if lang == 'fa' %}توضیحات متا (EN){% else %}Meta Description (EN){% endif %}</label>
+                    <textarea name="meta_description_en" class="form-control" rows="3">{{ settings.meta_description_en }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{% if lang == 'fa' %}توضیحات متا (FA){% else %}Meta Description (FA){% endif %}</label>
+                    <textarea name="meta_description_fa" class="form-control" rows="3" dir="rtl">{{ settings.meta_description_fa }}</textarea>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-footer" data-group="settings">
+                <h4 style="margin-bottom:20px;">{% if lang == 'fa' %}تنظیمات فوتر{% else %}Footer Settings{% endif %}</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">{% if lang == 'fa' %}تلفن فوتر{% else %}Footer Phone{% endif %}</label>
+                        <input type="text" name="footer_phone" class="form-control" value="{{ settings.footer_phone }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{% if lang == 'fa' %}لوکیشن فوتر{% else %}Footer Location{% endif %}</label>
+                        <input type="text" name="footer_location" class="form-control" value="{{ settings.footer_location }}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">{% if lang == 'fa' %}ایمیل فوتر{% else %}Footer Email{% endif %}</label>
+                        <input type="email" name="footer_email" class="form-control" value="{{ settings.footer_email }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{% if lang == 'fa' %}واتس اپ{% else %}WhatsApp{% endif %}</label>
+                        <input type="text" name="footer_whatsapp" class="form-control" value="{{ settings.footer_whatsapp }}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">{% if lang == 'fa' %}لینکدین{% else %}LinkedIn Username{% endif %}</label>
+                        <input type="text" name="footer_linkedin" class="form-control" value="{{ settings.footer_linkedin }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{% if lang == 'fa' %}اینستاگرام{% else %}Instagram Username{% endif %}</label>
+                        <input type="text" name="footer_instagram" class="form-control" value="{{ settings.footer_instagram }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="ph ph-floppy-disk"></i>
+                    {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

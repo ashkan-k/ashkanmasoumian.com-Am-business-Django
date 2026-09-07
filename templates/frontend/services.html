@@ -1,0 +1,59 @@
+{% extends "frontend/base.html" %}
+{% load static i18n_custom %}
+
+{% block content %}
+{% if hero %}
+<div class="hero v-h-full overlay" style="background-image: url('{% if hero.background_image %}{{ hero.background_image.url }}{% else %}{% static 'frontend/images/bg_hero.jpg' %}{% endif %}')">
+    <div class="container">
+        <div class="row align-items-center v-h-full">
+            <div class="col-lg-10 col-xxl-6 text-center mx-auto">
+                <h1 class="heading-2 text-white mb-4" data-aos="fade-up" style="color:#e2a83e !important;">{% get_heading hero %}</h1>
+                {% get_subheading hero as sub %}{% if sub %}
+                <p class="subheading text-white mb-5" data-aos="fade-up" data-aos-delay="100">{{ sub }}</p>{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if services %}
+<div class="section section-3"><div class="container">
+    <div class="row"><div class="col-lg-6 mb-5">
+        <span class="subheading" style="color:#e2a83e;">{% if lang == 'fa' %}خدمات{% else %}Services{% endif %}</span>
+        <h2 class="heading">{% if lang == 'fa' %}خدمات ما{% else %}Our Services{% endif %}</h2>
+    </div></div>
+    <div class="row features-wrap">
+        {% for service in services %}
+        <div class="col-md-6 col-lg-4 col-xl-3"><div class="feature"><div>
+            <div class="svg-wrap">
+                {% if service.custom_icon %}
+                <img src="{{ service.custom_icon.url }}" alt="{{ service.title_en }}" style="width:50px;height:50px;object-fit:contain;">
+                {% elif service.image %}
+                <img src="{{ service.image.url }}" alt="{{ service.title_en }}" style="width:50px;height:50px;object-fit:contain;">
+                {% else %}
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-gear" fill="currentColor"><path fill-rule="evenodd" d="M8 5.754a2.246 2.246 0 1 0 0 4.492 2.246 2.246 0 0 0 0-4.492zM4.754 8a3.246 3.246 0 1 1 6.492 0 3.246 3.246 0 0 1-6.492 0z"/></svg>
+                {% endif %}
+            </div>
+            <h3>{% get_title service %}</h3><p>{% get_description service %}</p>
+        </div></div></div>
+        {% endfor %}
+    </div>
+</div>
+    {% if about %}{% get_why_title about as why_t %}{% if why_t %}
+    <div class="box-white pt-5 p-md-5 mx-md-5"><div class="container"><div class="row">
+        <div class="col-lg-6 align-self-center mb-5 mb-lg-0"><div class="text-wrap">
+            <span class="subheading" style="color:#e2a83e;">{% if lang == 'fa' %}چرا ما{% else %}Why AM Business{% endif %}</span>
+            <h2 class="heading mb-4" style="font-size:40px;">{{ why_t }}</h2>
+            <p>{% get_why_content about %}</p>
+            {% trans_field about "cta_text" as cta %}{% if cta %}
+            <p class="mt-5"><a href="{{ about.cta_url }}" class="btn btn-primary-gradient-white-bg">{{ cta }}</a></p>{% endif %}
+        </div></div>
+        <div class="col-lg-6">
+            {% if about.why_choose_us_image %}<img src="{{ about.why_choose_us_image.url }}" alt="Why AM Business" class="img-fluid img-overlap">
+            {% else %}<img src="{% static 'frontend/images/why-am-business.jpg' %}" alt="Why AM Business" class="img-fluid img-overlap">{% endif %}
+        </div>
+    </div></div></div>
+    {% endif %}{% endif %}
+</div>
+{% endif %}
+{% endblock %}

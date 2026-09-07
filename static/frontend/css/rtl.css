@@ -1,0 +1,210 @@
+/* ══════════════════════════════════════════════════════════════
+   RTL Overrides for Farsi (fa) — Frontend
+   Loaded only when dir="rtl" is set
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Global RTL ── */
+[dir="rtl"] body {
+    font-family: 'Vazirmatn', 'Jost', sans-serif;
+}
+
+[dir="rtl"] .text-start {
+    text-align: right !important;
+}
+
+[dir="rtl"] .text-end {
+    text-align: left !important;
+}
+
+[dir="rtl"] .float-end {
+    float: left !important;
+}
+
+[dir="rtl"] .float-start {
+    float: right !important;
+}
+
+[dir="rtl"] .ms-auto {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+}
+
+[dir="rtl"] .me-auto {
+    margin-right: 0 !important;
+    margin-left: auto !important;
+}
+
+[dir="rtl"] .ms-2,
+[dir="rtl"] .ms-md-2 {
+    margin-left: 0 !important;
+    margin-right: 0.5rem !important;
+}
+
+/* ── Site Navigation ── */
+/* float-end flips to float:left, text-start flips to text-right - already handled by global rules */
+
+[dir="rtl"] .site-nav .site-navigation .site-menu .has-children > a {
+    padding-right: 15px;
+    padding-left: 20px;
+}
+
+[dir="rtl"] .site-nav .site-navigation .site-menu .has-children > a:before {
+    right: auto;
+    left: 0;
+}
+
+[dir="rtl"] .site-nav .site-navigation .site-menu .has-children .dropdown {
+    margin-left: 0;
+    margin-right: 0px;
+    text-align: right;
+}
+
+[dir="rtl"] .site-nav .site-navigation .site-menu .has-children .dropdown > li.has-children > a:before {
+    right: auto;
+    left: 20px;
+    content: "\e315";
+    transform: scaleX(-1);
+}
+
+[dir="rtl"] .site-nav .site-navigation .site-menu .has-children .dropdown > li.has-children > .dropdown,
+[dir="rtl"] .site-nav .site-navigation .site-menu .has-children .dropdown > li.has-children > ul {
+    left: auto;
+    right: 100%;
+}
+
+/* ── Mobile Menu ── */
+[dir="rtl"] .site-mobile-menu {
+    right: auto;
+    left: 0;
+    transform: translateX(-100%);
+}
+
+[dir="rtl"] .offcanvas-menu .site-mobile-menu {
+    transform: translateX(0%);
+    box-shadow: 10px 0 20px -10px rgba(0, 0, 0, 0.1);
+}
+
+[dir="rtl"] .site-mobile-menu .site-mobile-menu-header {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+[dir="rtl"] .site-mobile-menu .site-mobile-menu-body {
+    padding: 0 20px 20px 20px;
+}
+
+/* Mobile nav arrow collapse */
+[dir="rtl"] .site-mobile-menu .site-nav-wrap .arrow-collapse {
+    right: auto;
+    left: 0px;
+}
+
+[dir="rtl"] .site-mobile-menu .site-nav-wrap .arrow-collapse:before {
+    transform: translate(-50%, -50%) scaleX(-1);
+}
+
+[dir="rtl"] .site-mobile-menu .site-nav-wrap .arrow-collapse.collapsed:before {
+    transform: translate(-50%, -50%) scaleX(-1) rotate(-180deg);
+}
+
+/* Mobile menu items padding */
+[dir="rtl"] .site-mobile-menu .site-nav-wrap > li > a {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+[dir="rtl"] .site-mobile-menu .site-nav-wrap > li > ul > li > a {
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+[dir="rtl"] .site-mobile-menu .site-nav-wrap > li > ul > li > ul > li > a {
+    padding-left: 60px;
+    padding-right: 60px;
+}
+
+/* ── Burger ── */
+[dir="rtl"] .burger {
+    margin-inline-start: 0 !important;
+    margin-inline-end: auto !important;
+}
+
+/* ── Form Contact ── */
+[dir="rtl"] .form-contact .form-control {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* ── Dropdown menus in nav ── */
+[dir="rtl"] .dropdown-menu {
+    text-align: right;
+}
+
+/* ── List items padding ── */
+[dir="rtl"] ol,
+[dir="rtl"] ul {
+    padding-left: 0;
+    padding-right: 2rem;
+}
+
+/* ── ps-md-5 → should flip for RTL ── */
+[dir="rtl"] .ps-md-5 {
+    padding-left: 0 !important;
+    padding-right: 3rem !important;
+}
+
+/* ── Preloader ── */
+[dir="rtl"] .loader {
+    left: auto;
+    right: 50%;
+    transform: translate(50%, -50%);
+}
+
+/* ── Section 6 half-overlay ── */
+[dir="rtl"] .section-6.half-overlay:before {
+    left: auto;
+    right: 0;
+}
+
+/* ── Counter section ── */
+[dir="rtl"] .counter-wrap .number-wrap {
+    font-family: 'Vazirmatn', sans-serif;
+}
+
+/* ── Pricing section ── */
+[dir="rtl"] .section-4 .pricing,
+[dir="rtl"] .section-pricing .pricing {
+    font-family: 'Vazirmatn', sans-serif;
+}
+
+/* ── Heading adjustments for RTL ── */
+[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3,
+[dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6 {
+    font-family: 'Vazirmatn', 'Jost', sans-serif;
+}
+
+/* ── Button alignment ── */
+[dir="rtl"] .btn-block {
+    text-align: center;
+}
+
+/* ── Toast notification slide direction ── */
+[dir="rtl"] .toast-hide {
+    transform: translateX(-20px);
+}
+
+/* ── Responsive adjustments ── */
+@media (max-width: 767.98px) {
+    [dir="rtl"] .site-mobile-menu {
+        width: 300px;
+    }
+}
+
+@media (min-width: 992px) {
+    [dir="rtl"] .d-lg-inline-block {
+        display: inline-block !important;
+    }
+    [dir="rtl"] .d-lg-none {
+        display: none !important;
+    }
+}

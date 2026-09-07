@@ -1,0 +1,25 @@
+{% extends "admin_panel/base.html" %}
+{% load jalali_filters %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>{% if lang == 'fa' %}مشترکین خبرنامه{% else %}Newsletter Subscribers{% endif %} <span class="badge badge-accent">{{ items|length }}</span></h3>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead><tr><th>#</th><th>{% if lang == 'fa' %}نام{% else %}Name{% endif %}</th><th>Email</th><th>{% if lang == 'fa' %}وضعیت{% else %}Status{% endif %}</th><th>{% if lang == 'fa' %}تاریخ{% else %}Date{% endif %}</th><th>{% if lang == 'fa' %}عملیات{% else %}Actions{% endif %}</th></tr></thead>
+            <tbody>
+                {% for item in items %}
+                <tr><td>{{ item.pk }}</td><td>{{ item.name }}</td><td>{{ item.email }}</td><td>{% if item.is_active %}<span class="badge badge-success">Active</span>{% else %}<span class="badge badge-danger">Inactive</span>{% endif %}</td><td>{{ item.created_at|jalali:"Y/m/d" }}</td>
+                <td><div class="btn-group">
+                    <form id="toggle-{{ item.pk }}" method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="toggle"><input type="hidden" name="pk" value="{{ item.pk }}"></form>
+                    <button class="btn btn-outline btn-sm" onclick="document.getElementById('toggle-{{ item.pk }}').submit()">{% if item.is_active %}{% if lang == 'fa' %}غیرفعال{% else %}Deactivate{% endif %}{% else %}{% if lang == 'fa' %}فعال{% else %}Activate{% endif %}{% endif %}</button>
+                    <form id="del-sub-{{ item.pk }}" method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="pk" value="{{ item.pk }}"></form>
+                    <button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('del-sub-{{ item.pk }}')"><i class="ph ph-trash"></i></button>
+                </div></td></tr>
+                {% empty %}<tr><td colspan="6" class="empty-state"><i class="ph ph-megaphone"></i><p>{% if lang == 'fa' %}هنوز مشترکی وجود ندارد{% else %}No subscribers yet{% endif %}</p></td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,248 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{% if lang == 'fa' %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% if page_title %}{{ page_title }} | {% endif %}AM Business Admin</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Phosphor Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/fill/style.css">
+
+    <link rel="stylesheet" href="{% static 'admin_panel/css/style.css' %}?v=2">
+</head>
+<body class="theme-{{ theme }}" data-lang="{{ lang }}">
+
+    {% if messages %}
+    <div class="toast-container" id="toastContainer">
+        {% for message in messages %}
+        <div class="toast toast-{{ message.tags }}" id="toast-{{ forloop.counter }}">
+            <div class="toast-icon">
+                {% if message.tags == 'success' %}
+                <i class="ph ph-check-circle"></i>
+                {% elif message.tags == 'error' %}
+                <i class="ph ph-x-circle"></i>
+                {% elif message.tags == 'warning' %}
+                <i class="ph ph-warning"></i>
+                {% else %}
+                <i class="ph ph-info"></i>
+                {% endif %}
+            </div>
+            <div class="toast-message">{{ message }}</div>
+            <button class="toast-close" onclick="this.parentElement.remove()">
+                <i class="ph ph-x"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-icon">AM</div>
+                    <span class="logo-text">{% if lang == 'fa' %}پنل مدیریت{% else %}Admin Panel{% endif %}</span>
+                </div>
+                <button class="sidebar-close-btn" id="sidebarCloseBtn">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="{% url 'admin_dashboard' %}" class="nav-item {% if page_title == 'Dashboard' %}active{% endif %}">
+                    <i class="ph ph-squares-four"></i>
+                    <span>{% if lang == 'fa' %}داشبورد{% else %}Dashboard{% endif %}</span>
+                </a>
+
+                <div class="nav-section">{% if lang == 'fa' %}محتوا{% else %}Content{% endif %}</div>
+
+                <a href="{% url 'admin_hero_sections' %}" class="nav-item {% if page_title == 'Hero Sections' %}active{% endif %}">
+                    <i class="ph ph-image"></i>
+                    <span>{% if lang == 'fa' %} بنرهای صفحه{% else %}Hero Sections{% endif %}</span>
+                </a>
+
+                <a href="{% url 'admin_services' %}" class="nav-item {% if page_title == 'Services' %}active{% endif %}">
+                    <i class="ph ph-wrench"></i>
+                    <span>{% if lang == 'fa' %}خدمات{% else %}Services{% endif %}</span>
+                </a>
+
+                <a href="{% url 'admin_about' %}" class="nav-item {% if page_title == 'About Section' %}active{% endif %}">
+                    <i class="ph ph-buildings"></i>
+                    <span>{% if lang == 'fa' %}درباره ما{% else %}About{% endif %}</span>
+                </a>
+
+                <a href="{% url 'admin_features' %}" class="nav-item {% if page_title == 'Features' %}active{% endif %}">
+                    <i class="ph ph-star"></i>
+                    <span>{% if lang == 'fa' %}ویژگی‌ها{% else %}Features{% endif %}</span>
+                </a>
+
+                <a href="{% url 'admin_pricing' %}" class="nav-item {% if page_title == 'Pricing Plans' %}active{% endif %}">
+                    <i class="ph ph-currency-dollar"></i>
+                    <span>{% if lang == 'fa' %}قیمت‌گذاری{% else %}Pricing{% endif %}</span>
+                </a>
+
+                <a href="{% url 'admin_testimonials' %}" class="nav-item {% if page_title == 'Testimonials' %}active{% endif %}">
+                    <i class="ph ph-quotes"></i>
+                    <span>{% if lang == 'fa' %}نظرات مشتریان{% else %}Testimonials{% endif %}</span>
+                </a>
+
+                <a href="{% url 'admin_team' %}" class="nav-item {% if page_title == 'Team Members' %}active{% endif %}">
+                    <i class="ph ph-users"></i>
+                    <span>{% if lang == 'fa' %}تیم ما{% else %}Team{% endif %}</span>
+                </a>
+
+                <a href="{% url 'admin_stat_counters' %}" class="nav-item {% if page_title == 'Stat Counters' %}active{% endif %}">
+                    <i class="ph ph-chart-line-up"></i>
+                    <span>{% if lang == 'fa' %}شمارنده‌ها{% else %}Counters{% endif %}</span>
+                </a>
+
+                <a href="{% url 'admin_event_countdown' %}" class="nav-item {% if page_title == 'Event Countdown' %}active{% endif %}">
+                    <i class="ph ph-timer"></i>
+                    <span>{% if lang == 'fa' %}شمارش معکوس{% else %}Countdown{% endif %}</span>
+                </a>
+
+                <a href="{% url 'admin_home_sections' %}" class="nav-item {% if page_title == 'Home Sections' %}active{% endif %}">
+                    <i class="ph ph-house"></i>
+                    <span>{% if lang == 'fa' %}بخش‌های صفحه اصلی{% else %}Home Sections{% endif %}</span>
+                </a>
+
+                <div class="nav-section">{% if lang == 'fa' %}سایت{% else %}Site{% endif %}</div>
+
+                <a href="{% url 'admin_navigation' %}" class="nav-item {% if page_title == 'Navigation' %}active{% endif %}">
+                    <i class="ph ph-list"></i>
+                    <span>{% if lang == 'fa' %}منوی ناوبری{% else %}Navigation{% endif %}</span>
+                </a>
+
+                <a href="{% url 'admin_social_links' %}" class="nav-item {% if page_title == 'Social Links' %}active{% endif %}">
+                    <i class="ph ph-link"></i>
+                    <span>{% if lang == 'fa' %}شبکه‌های اجتماعی{% else %}Social Links{% endif %}</span>
+                </a>
+
+                <a href="{% url 'admin_pages' %}" class="nav-item {% if page_title == 'CMS Pages' %}active{% endif %}">
+                    <i class="ph ph-file-text"></i>
+                    <span>{% if lang == 'fa' %}صفحات{% else %}Pages{% endif %}</span>
+                </a>
+
+                <a href="{% url 'admin_site_settings' %}" class="nav-item {% if page_title == 'Site Settings' %}active{% endif %}">
+                    <i class="ph ph-gear"></i>
+                    <span>{% if lang == 'fa' %}تنظیمات سایت{% else %}Site Settings{% endif %}</span>
+                </a>
+
+                <div class="nav-section">{% if lang == 'fa' %}تعامل{% else %}Engagement{% endif %}</div>
+
+                <a href="{% url 'admin_messages' %}" class="nav-item {% if page_title == 'Contact Messages' or page_title == 'Message Detail' %}active{% endif %}">
+                    <i class="ph ph-envelope-simple"></i>
+                    <span>{% if lang == 'fa' %}پیام‌ها{% else %}Messages{% endif %}</span>
+                    {% if unread_messages %}<span class="nav-badge">{{ unread_messages }}</span>{% endif %}
+                </a>
+
+                <a href="{% url 'admin_newsletter' %}" class="nav-item {% if page_title == 'Newsletter Subscribers' %}active{% endif %}">
+                    <i class="ph ph-megaphone"></i>
+                    <span>{% if lang == 'fa' %}خبرنامه{% else %}Newsletter{% endif %}</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="/swagger/" target="_blank" class="nav-item">
+                    <i class="ph ph-code"></i>
+                    <span>{% if lang == 'fa' %}مستندات API{% else %}API Docs{% endif %}</span>
+                </a>
+                <a href="/" target="_blank" class="nav-item">
+                    <i class="ph ph-arrow-square-out"></i>
+                    <span>{% if lang == 'fa' %}مشاهده سایت{% else %}View Site{% endif %}</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">
+                        <i class="ph ph-list"></i>
+                    </button>
+                    <h1 class="page-heading">{{ page_title }}</h1>
+                </div>
+                <div class="topbar-right">
+                    <!-- Language Switcher -->
+                    <div class="dropdown">
+                        <button class="dropdown-toggle topbar-btn" id="langDropdown">
+                            <i class="ph ph-translate"></i>
+                            <span>{% if lang == 'fa' %}فارسی{% else %}English{% endif %}</span>
+                        </button>
+                        <div class="dropdown-menu" id="langMenu">
+                            <a href="{% url 'set_language' 'en' %}" class="dropdown-item {% if lang == 'en' %}active{% endif %}">
+                                🇬🇧 English
+                            </a>
+                            <a href="{% url 'set_language' 'fa' %}" class="dropdown-item {% if lang == 'fa' %}active{% endif %}">
+                                🇮🇷 فارسی
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Theme Switcher -->
+                    <button class="topbar-btn" id="themeToggle" title="Toggle Theme">
+                        <i class="ph {% if theme == 'dark' %}ph-sun{% else %}ph-moon{% endif %}" id="themeIcon"></i>
+                    </button>
+
+                    <!-- User Menu -->
+                    <div class="dropdown">
+                        <button class="dropdown-toggle topbar-btn user-btn" id="userDropdown">
+                            <div class="user-avatar">{{ user.username|first|upper }}</div>
+                            <span>{{ user.get_full_name|default:user.username }}</span>
+                        </button>
+                        <div class="dropdown-menu" id="userMenu">
+                            <a href="{% url 'admin_logout' %}" class="dropdown-item">
+                                <i class="ph ph-sign-out"></i>
+                                {% if lang == 'fa' %}خروج{% else %}Logout{% endif %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Template -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle"></h3>
+                <button class="modal-close" id="modalClose">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'admin_panel/js/main.js' %}"></script>
+    <script>
+        // Theme toggle
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            var current = document.body.classList.contains('theme-dark') ? 'light' : 'dark';
+            window.location.href = '/set-theme/' + current + '/';
+        });
+
+        // Auto-dismiss toasts
+        setTimeout(function() {
+            var toasts = document.querySelectorAll('.toast');
+            toasts.forEach(function(t) { t.classList.add('toast-hide'); setTimeout(function(){ t.remove(); }, 300); });
+        }, 4000);
+    </script>
+</body>
+</html>

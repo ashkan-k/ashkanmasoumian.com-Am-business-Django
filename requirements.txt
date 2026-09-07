@@ -1,0 +1,6 @@
+django==4.2.30
+djangorestframework==3.16.1
+django-cors-headers==4.9.0
+drf-yasg==1.21.15
+Pillow==11.3.0
+jdatetime==6.1.0

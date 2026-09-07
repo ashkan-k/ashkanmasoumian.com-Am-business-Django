@@ -1,0 +1,43 @@
+{% extends "admin_panel/base.html" %}
+{% load jalali_filters %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>{% if lang == 'fa' %}پیام‌های تماس{% else %}Contact Messages{% endif %}</h3>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead><tr><th>#</th><th>{% if lang == 'fa' %}نام{% else %}Name{% endif %}</th><th>Email</th><th>{% if lang == 'fa' %}موضوع{% else %}Subject{% endif %}</th><th>{% if lang == 'fa' %}وضعیت{% else %}Status{% endif %}</th><th>{% if lang == 'fa' %}تاریخ{% else %}Date{% endif %}</th><th>{% if lang == 'fa' %}عملیات{% else %}Actions{% endif %}</th></tr></thead>
+            <tbody>
+                {% for item in items %}
+                <tr style="{% if not item.is_read %}font-weight:600{% endif %}">
+                    <td>{{ item.pk }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.email }}</td>
+                    <td>{{ item.subject|default:"-" }}</td>
+                    <td>
+                        {% if item.is_replied %}<span class="badge badge-success">{% if lang == 'fa' %}پاسخ داده شده{% else %}Replied{% endif %}</span>
+                        {% elif item.is_read %}<span class="badge badge-info">{% if lang == 'fa' %}خوانده شده{% else %}Read{% endif %}</span>
+                        {% else %}<span class="badge badge-warning">{% if lang == 'fa' %}جدید{% else %}New{% endif %}</span>{% endif %}
+                    </td>
+                    <td>{{ item.created_at|jalali:"Y/m/d H:i" }}</td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{% url 'admin_message_detail' item.pk %}" class="btn btn-outline btn-sm btn-icon"><i class="ph ph-eye"></i></a>
+                            {% if not item.is_replied %}
+                            <form id="reply-{{ item.pk }}" method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="mark_replied"><input type="hidden" name="pk" value="{{ item.pk }}"></form>
+                            <button class="btn btn-success btn-sm btn-icon" onclick="document.getElementById('reply-{{ item.pk }}').submit()" title="Mark Replied"><i class="ph ph-check"></i></button>
+                            {% endif %}
+                            <form id="del-msg-{{ item.pk }}" method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="pk" value="{{ item.pk }}"></form>
+                            <button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('del-msg-{{ item.pk }}')"><i class="ph ph-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="empty-state"><i class="ph ph-envelope-simple"></i><p>{% if lang == 'fa' %}هنوز پیامی وجود ندارد{% else %}No messages yet{% endif %}</p></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

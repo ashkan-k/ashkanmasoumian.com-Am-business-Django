@@ -1,0 +1,179 @@
+{% load static i18n_custom %}
+<!doctype html>
+<html lang="{{ lang }}" dir="{% if lang == 'fa' %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% if meta_title %}<title>{{ meta_title }}</title>{% elif site_settings %}<title>{% if lang == 'fa' %}{{ site_settings.site_name_fa }}{% else %}{{ site_settings.site_name_en }}{% endif %}</title>{% else %}<title>AM Business</title>{% endif %}
+    {% if meta_description %}<meta name="description" content="{{ meta_description }}">{% elif site_settings %}<meta name="description" content="{% if lang == 'fa' %}{{ site_settings.meta_description_fa }}{% else %}{{ site_settings.meta_description_en }}{% endif %}">{% endif %}
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+    {% if site_settings and site_settings.favicon %}
+    <link rel="icon" type="image/png" href="{{ site_settings.favicon.url }}">
+    {% else %}
+    <link rel="icon" type="image/png" href="{% static 'frontend/images/hero-default.png' %}">
+    {% endif %}
+    <link rel="stylesheet" href="{% static 'frontend/fonts/icomoon/style.css' %}">
+    <link rel="stylesheet" href="{% static 'frontend/css/tiny-slider.css' %}">
+    <link rel="stylesheet" href="{% static 'frontend/css/aos.css' %}">
+    <link rel="stylesheet" href="{% static 'frontend/css/style.css' %}">
+    {% if lang == 'fa' %}
+    <link rel="stylesheet" href="{% static 'frontend/css/rtl.css' %}">
+    {% endif %}
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <div class="site-mobile-menu site-navbar-target">
+        <div class="site-mobile-menu-header">
+            <div class="site-mobile-menu-close">
+                <span class="icofont-close js-menu-toggle"></span>
+            </div>
+        </div>
+        <div class="site-mobile-menu-body"></div>
+    </div>
+
+    <nav class="site-nav">
+        <div class="container">
+            <div class="site-navigation">
+                <a href="{% url 'frontend_home' %}" class="logo m-0">
+                    {% if site_settings and site_settings.logo %}
+                        <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name_en }}" style="height:40px">
+                    {% else %}
+                        {% if lang == 'fa' %}{{ site_settings.site_name_fa|default:"AM Business" }}{% else %}{{ site_settings.site_name_en|default:"AM Business" }}{% endif %}
+                    {% endif %}
+                </a>
+
+                <ul class="js-clone-nav d-none d-lg-inline-block text-start site-menu float-end">
+                    {% for item in nav_items %}
+                        <li class="{% if item.children.all %}has-children{% endif %}">
+                            <a href="{% if item.url != '#' %}{{ item.url }}{% else %}#{% endif %}">{% get_nav_title item %}</a>
+                            {% if item.children.all %}
+                            <ul class="dropdown">
+                                {% for child in item.children.all %}
+                                <li><a href="{% if child.url != '#' %}{{ child.url }}{% else %}#{% endif %}">{% get_nav_title child %}</a></li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </li>
+                    {% empty %}
+                        {% if lang == 'fa' %}
+                        <li><a href="{% url 'frontend_home' %}">خانه</a></li>
+                        <li><a href="{% url 'frontend_services' %}">خدمات</a></li>
+                        <li><a href="{% url 'frontend_about' %}">درباره ما</a></li>
+                        <li><a href="{% url 'frontend_contact' %}">تماس با ما</a></li>
+                        {% else %}
+                        <li><a href="{% url 'frontend_home' %}">Home</a></li>
+                        <li><a href="{% url 'frontend_services' %}">Services</a></li>
+                        <li><a href="{% url 'frontend_about' %}">About</a></li>
+                        <li><a href="{% url 'frontend_contact' %}">Contact Us</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="has-children">
+                        <a href="#">{% if lang == 'fa' %}🇮🇷 فارسی{% else %}🇬🇧 English{% endif %}</a>
+                        <ul class="dropdown">
+                            <li><a href="{% url 'set_language' 'en' %}">🇬🇧 English</a></li>
+                            <li><a href="{% url 'set_language' 'fa' %}">🇮🇷 فارسی</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <a href="#" class="burger ms-auto site-menu-toggle mt-2 js-menu-toggle d-inline-block d-lg-none light" data-toggle="collapse" data-target="#main-navbar">
+                    <span></span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    {% block content %}{% endblock %}
+
+    <!-- Newsletter -->
+    {% block newsletter %}
+    <div class="section section-contact m-md-5 px-md-5">
+        <div class="container">
+            <h2>{% if lang == 'fa' %}عضویت در خبرنامه{% else %}Subscribe to Newsletter{% endif %}</h2>
+            <p>{% if lang == 'fa' %}از آخرین اخبار ما باخبر شوید{% else %}Stay updated with our latest news{% endif %}</p>
+            <form action="{% url 'frontend_newsletter_subscribe' %}" method="post" class="form-contact">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-sm-4 col-md-4 col-lg-4">
+                        <div class="form-group">
+                            <input type="text" name="name" class="form-control" placeholder="{% if lang == 'fa' %}نام شما{% else %}Your name{% endif %}" required>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-md-4 col-lg-4">
+                        <div class="form-group">
+                            <input type="email" name="email" class="form-control" placeholder="{% if lang == 'fa' %}ایمیل شما{% else %}Your email{% endif %}" required>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-md-4 col-lg-4">
+                        <input type="submit" class="btn btn-black btn-block" value="{% if lang == 'fa' %}عضویت{% else %}Subscribe{% endif %}">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endblock newsletter %}
+
+    <!-- Footer -->
+    <div class="section footer" style="position:relative; background-color:#fff;">
+        <div class="footer-pattern-bg" style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:url('{% static 'frontend/images/patterns/pattern-footer.png' %}');background-size:400px;background-repeat:repeat;opacity:0.05;pointer-events:none;"></div>
+        <div class="container text-center" style="position:relative;z-index:1;">
+            <div class="row mb-4">
+                <div class="col-lg-8 mx-auto">
+                    <h4 style="font-weight:700;margin-bottom:15px;">{{ site_settings.site_name_en|default:"AM Business" }}</h4>
+                    <p style="color:#666;margin-bottom:20px;">{{ site_settings.meta_description_en|default:"Integrated business growth and transformation company based in Muscat, Oman." }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-lg-8 mx-auto">
+                    <ul class="social list-unstyled" style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+                        {% if site_settings.footer_phone or site_settings.footer_phone == '' %}
+                        <li><a href="tel:{{ site_settings.footer_phone|default:'+968 94 749 749' }}" title="Call us"><span class="icon-phone"></span></a></li>
+                        {% endif %}
+                        {% if site_settings.footer_location or site_settings.footer_location == '' %}
+                        <li><a href="https://maps.google.com/?q={{ site_settings.footer_location|default:'Murtafaat Al Matar, Al Seeb, Muscat Governorate' }}" target="_blank" title="Location"><span class="icon-pin_drop"></span></a></li>
+                        {% endif %}
+                        {% if site_settings.footer_linkedin or site_settings.footer_linkedin == '' %}
+                        <li><a href="https://linkedin.com/company/{{ site_settings.footer_linkedin|default:'ambusinessintl' }}" target="_blank" title="LinkedIn"><span class="icon-linkedin"></span></a></li>
+                        {% endif %}
+                        {% if site_settings.footer_whatsapp or site_settings.footer_whatsapp == '' %}
+                        <li><a href="https://wa.me/{{ site_settings.footer_whatsapp|default:'+96894749749'|cut:' '|cut:'+' }}" target="_blank" title="WhatsApp"><span class="icon-whatsapp"></span></a></li>
+                        {% endif %}
+                        {% if site_settings.footer_instagram or site_settings.footer_instagram == '' %}
+                        <li><a href="https://instagram.com/{{ site_settings.footer_instagram|default:'ambusinessintl' }}" target="_blank" title="Instagram"><span class="icon-instagram"></span></a></li>
+                        {% endif %}
+                        {% if site_settings.footer_email or site_settings.footer_email == '' %}
+                        <li><a href="mailto:{{ site_settings.footer_email|default:'info@ambusinessintl.com' }}" title="Email"><span class="icon-envelope"></span></a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <p style="color:#999;margin:0;font-size:14px;">
+                        &copy; {% now "Y" %} {% if site_settings %}{% if lang == 'fa' %}{{ site_settings.copyright_text_fa }}{% else %}{{ site_settings.copyright_text_en }}{% endif %}{% else %}By Am Business Creative Division{% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preloader -->
+    <div id="overlayer"></div>
+    <div class="loader">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">{% if lang == 'fa' %}در حال بارگذاری...{% else %}Loading...{% endif %}</span>
+        </div>
+    </div>
+
+    <script src="{% static 'frontend/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'frontend/js/tiny-slider.js' %}"></script>
+    <script src="{% static 'frontend/js/aos.js' %}"></script>
+    <script src="{% static 'frontend/js/navbar.js' %}"></script>
+    <script src="{% static 'frontend/js/custom.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

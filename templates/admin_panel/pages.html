@@ -1,0 +1,52 @@
+{% extends "admin_panel/base.html" %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>{% if lang == 'fa' %}صفحات CMS{% else %}CMS Pages{% endif %}</h3>
+        <button class="btn btn-primary" onclick="openModal('{% if lang == 'fa' %}افزودن صفحه{% else %}Add Page{% endif %}', document.getElementById('addForm').innerHTML)"><i class="ph ph-plus"></i> {% if lang == 'fa' %}افزودن{% else %}Add{% endif %}</button>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead><tr><th>#</th><th>{% if lang == 'fa' %}عنوان (EN){% else %}Title (EN){% endif %}</th><th>Slug</th><th>{% if lang == 'fa' %}منو{% else %}Menu{% endif %}</th><th>{% if lang == 'fa' %}وضعیت{% else %}Status{% endif %}</th><th>{% if lang == 'fa' %}عملیات{% else %}Actions{% endif %}</th></tr></thead>
+            <tbody>
+                {% for item in items %}
+                <tr><td>{{ item.pk }}</td><td><strong>{{ item.title_en }}</strong></td><td><code>{{ item.slug }}</code></td><td>{% if item.show_in_menu %}<span class="badge badge-accent">{% if lang == 'fa' %}در منو{% else %}In Menu{% endif %}</span>{% else %}-{% endif %}</td><td>{% if item.is_active %}<span class="badge badge-success">{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span>{% else %}<span class="badge badge-danger">{% if lang == 'fa' %}غیرفعال{% else %}Inactive{% endif %}</span>{% endif %}</td>
+                <td><div class="btn-group"><button class="btn btn-outline btn-sm btn-icon" onclick="openModal('{% if lang == 'fa' %}ویرایش صفحه{% else %}Edit Page{% endif %}', document.getElementById('edit-{{ item.pk }}').innerHTML)"><i class="ph ph-pencil-simple"></i></button><form id="del-page-{{ item.pk }}" method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="pk" value="{{ item.pk }}"></form><button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('del-page-{{ item.pk }}')"><i class="ph ph-trash"></i></button></div></td></tr>
+                {% empty %}<tr><td colspan="6" class="empty-state"><p>{% if lang == 'fa' %}هنوز صفحه‌ای اضافه نشده{% else %}No pages yet{% endif %}</p></td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div id="addForm" style="display:none"><form method="post">{% csrf_token %}<input type="hidden" name="action" value="add">
+<div class="tabs" data-group="page-add"><button type="button" class="tab-btn active" data-tab="pa-main">{% if lang == 'fa' %}محتوا{% else %}Content{% endif %}</button><button type="button" class="tab-btn" data-tab="pa-seo">SEO</button></div>
+<div class="tab-content active" id="pa-main" data-group="page-add">
+<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (EN){% else %}Title (EN){% endif %}</label><input type="text" name="title_en" class="form-control" required></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (FA){% else %}Title (FA){% endif %}</label><input type="text" name="title_fa" class="form-control" required dir="rtl"></div></div>
+<div class="form-group"><label class="form-label">{% if lang == 'fa' %}محتوا (EN){% else %}Content (EN){% endif %}</label><textarea name="content_en" class="form-control" rows="6" required></textarea></div>
+<div class="form-group"><label class="form-label">{% if lang == 'fa' %}محتوا (FA){% else %}Content (FA){% endif %}</label><textarea name="content_fa" class="form-control" rows="6" required dir="rtl"></textarea></div>
+<div class="form-group"><label class="form-check"><input type="checkbox" name="is_active" checked><span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span></label></div>
+<div class="form-group"><label class="form-check"><input type="checkbox" name="show_in_menu"><span>{% if lang == 'fa' %}نمایش در منو{% else %}Show in Navigation{% endif %}</span></label></div>
+</div>
+<div class="tab-content" id="pa-seo" data-group="page-add">
+<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان متا (EN){% else %}Meta Title (EN){% endif %}</label><input type="text" name="meta_title_en" class="form-control"></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان متا (FA){% else %}Meta Title (FA){% endif %}</label><input type="text" name="meta_title_fa" class="form-control" dir="rtl"></div></div>
+<div class="form-group"><label class="form-label">{% if lang == 'fa' %}توضیحات متا (EN){% else %}Meta Description (EN){% endif %}</label><textarea name="meta_description_en" class="form-control" rows="2"></textarea></div>
+<div class="form-group"><label class="form-label">{% if lang == 'fa' %}توضیحات متا (FA){% else %}Meta Description (FA){% endif %}</label><textarea name="meta_description_fa" class="form-control" rows="2" dir="rtl"></textarea></div>
+</div>
+<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button></div></form></div>
+{% for item in items %}
+<div id="edit-{{ item.pk }}" style="display:none"><form method="post">{% csrf_token %}<input type="hidden" name="action" value="edit"><input type="hidden" name="pk" value="{{ item.pk }}">
+<div class="tabs" data-group="page-edit-{{ item.pk }}"><button type="button" class="tab-btn active" data-tab="pe-main-{{ item.pk }}">{% if lang == 'fa' %}محتوا{% else %}Content{% endif %}</button><button type="button" class="tab-btn" data-tab="pe-seo-{{ item.pk }}">SEO</button></div>
+<div class="tab-content active" id="pe-main-{{ item.pk }}" data-group="page-edit-{{ item.pk }}">
+<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (EN){% else %}Title (EN){% endif %}</label><input type="text" name="title_en" class="form-control" value="{{ item.title_en }}" required></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (FA){% else %}Title (FA){% endif %}</label><input type="text" name="title_fa" class="form-control" value="{{ item.title_fa }}" required dir="rtl"></div></div>
+<div class="form-group"><label class="form-label">{% if lang == 'fa' %}محتوا (EN){% else %}Content (EN){% endif %}</label><textarea name="content_en" class="form-control" rows="6" required>{{ item.content_en }}</textarea></div>
+<div class="form-group"><label class="form-label">{% if lang == 'fa' %}محتوا (FA){% else %}Content (FA){% endif %}</label><textarea name="content_fa" class="form-control" rows="6" required dir="rtl">{{ item.content_fa }}</textarea></div>
+<div class="form-group"><label class="form-check"><input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}><span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span></label></div>
+<div class="form-group"><label class="form-check"><input type="checkbox" name="show_in_menu" {% if item.show_in_menu %}checked{% endif %}><span>{% if lang == 'fa' %}نمایش در منو{% else %}Show in Navigation{% endif %}</span></label></div>
+</div>
+<div class="tab-content" id="pe-seo-{{ item.pk }}" data-group="page-edit-{{ item.pk }}">
+<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان متا (EN){% else %}Meta Title (EN){% endif %}</label><input type="text" name="meta_title_en" class="form-control" value="{{ item.meta_title_en }}"></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان متا (FA){% else %}Meta Title (FA){% endif %}</label><input type="text" name="meta_title_fa" class="form-control" value="{{ item.meta_title_fa }}" dir="rtl"></div></div>
+<div class="form-group"><label class="form-label">{% if lang == 'fa' %}توضیحات متا (EN){% else %}Meta Description (EN){% endif %}</label><textarea name="meta_description_en" class="form-control" rows="2">{{ item.meta_description_en }}</textarea></div>
+<div class="form-group"><label class="form-label">{% if lang == 'fa' %}توضیحات متا (FA){% else %}Meta Description (FA){% endif %}</label><textarea name="meta_description_fa" class="form-control" rows="2" dir="rtl">{{ item.meta_description_fa }}</textarea></div>
+</div>
+<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button></div></form></div>
+{% endfor %}
+{% endblock %}

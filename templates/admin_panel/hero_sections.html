@@ -1,0 +1,96 @@
+{% extends "admin_panel/base.html" %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>{% if lang == 'fa' %}بنرهای صفحه{% else %}Hero Sections{% endif %}</h3>
+        <button class="btn btn-primary" onclick="openModal('{% if lang == 'fa' %}افزودن بنر{% else %}Add Hero{% endif %}', document.getElementById('addForm').innerHTML)">
+            <i class="ph ph-plus"></i> {% if lang == 'fa' %}افزودن{% else %}Add{% endif %}
+        </button>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>{% if lang == 'fa' %}صفحه{% else %}Page{% endif %}</th>
+                    <th>{% if lang == 'fa' %}عنوان (EN){% else %}Heading (EN){% endif %}</th>
+                    <th>{% if lang == 'fa' %}عنوان (FA){% else %}Heading (FA){% endif %}</th>
+                    <th>{% if lang == 'fa' %}تصویر{% else %}Image{% endif %}</th>
+                    <th>{% if lang == 'fa' %}وضعیت{% else %}Status{% endif %}</th>
+                    <th>{% if lang == 'fa' %}عملیات{% else %}Actions{% endif %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td><span class="badge badge-accent">{{ item.get_page_display }}</span></td>
+                    <td><strong>{{ item.heading_en }}</strong></td>
+                    <td dir="rtl">{{ item.heading_fa }}</td>
+                    <td>{% if item.background_image %}<img src="{{ item.background_image.url }}" class="image-preview">{% else %}-{% endif %}</td>
+                    <td>{% if item.is_active %}<span class="badge badge-success">{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span>{% else %}<span class="badge badge-danger">{% if lang == 'fa' %}غیرفعال{% else %}Inactive{% endif %}</span>{% endif %}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-outline btn-sm btn-icon" onclick="openModal('{% if lang == 'fa' %}ویرایش بنر{% else %}Edit Hero{% endif %}', document.getElementById('editForm-{{ item.pk }}').innerHTML)"><i class="ph ph-pencil-simple"></i></button>
+                            <form id="delete-{{ item.pk }}" method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="add"><input type="hidden" name="pk" value="{{ item.pk }}"></form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="addForm" style="display:none">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add">
+        <div class="form-group">
+            <label class="form-label">{% if lang == 'fa' %}صفحه{% else %}Page{% endif %}</label>
+            <select name="page" class="form-control"><option value="home">Home</option><option value="about">About</option><option value="services">Services</option><option value="contact">Contact</option></select>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (EN){% else %}Heading (EN){% endif %}</label><input type="text" name="heading_en" class="form-control" required></div>
+            <div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (FA){% else %}Heading (FA){% endif %}</label><input type="text" name="heading_fa" class="form-control" required dir="rtl"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label class="form-label">{% if lang == 'fa' %}زیرعنوان (EN){% else %}Subheading (EN){% endif %}</label><input type="text" name="subheading_en" class="form-control"></div>
+            <div class="form-group"><label class="form-label">{% if lang == 'fa' %}زیرعنوان (FA){% else %}Subheading (FA){% endif %}</label><input type="text" name="subheading_fa" class="form-control" dir="rtl"></div>
+        </div>
+        <div class="form-group"><label class="form-label">{% if lang == 'fa' %}تصویر پس‌زمینه{% else %}Background Image{% endif %}</label><input type="file" name="background_image" class="form-control" accept="image/*"></div>
+        <div class="form-row">
+            <div class="form-group"><label class="form-label">{% if lang == 'fa' %}متن دکمه (EN){% else %}CTA Text (EN){% endif %}</label><input type="text" name="cta_text_en" class="form-control"></div>
+            <div class="form-group"><label class="form-label">{% if lang == 'fa' %}متن دکمه (FA){% else %}CTA Text (FA){% endif %}</label><input type="text" name="cta_text_fa" class="form-control" dir="rtl"></div>
+        </div>
+        <div class="form-group"><label class="form-label">{% if lang == 'fa' %}لینک دکمه{% else %}CTA URL{% endif %}</label><input type="text" name="cta_url" class="form-control" value="#"></div>
+        <div class="form-group"><label class="form-check"><input type="checkbox" name="is_active" checked><span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span></label></div>
+        <div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button></div>
+    </form>
+</div>
+
+{% for item in items %}
+<div id="editForm-{{ item.pk }}" style="display:none">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="edit">
+        <input type="hidden" name="pk" value="{{ item.pk }}">
+        <div class="form-group"><label class="form-label">{% if lang == 'fa' %}صفحه{% else %}Page{% endif %}</label><input type="text" class="form-control" value="{{ item.get_page_display }}" disabled></div>
+        <div class="form-row">
+            <div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (EN){% else %}Heading (EN){% endif %}</label><input type="text" name="heading_en" class="form-control" value="{{ item.heading_en }}" required></div>
+            <div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (FA){% else %}Heading (FA){% endif %}</label><input type="text" name="heading_fa" class="form-control" value="{{ item.heading_fa }}" required dir="rtl"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label class="form-label">{% if lang == 'fa' %}زیرعنوان (EN){% else %}Subheading (EN){% endif %}</label><input type="text" name="subheading_en" class="form-control" value="{{ item.subheading_en }}"></div>
+            <div class="form-group"><label class="form-label">{% if lang == 'fa' %}زیرعنوان (FA){% else %}Subheading (FA){% endif %}</label><input type="text" name="subheading_fa" class="form-control" value="{{ item.subheading_fa }}" dir="rtl"></div>
+        </div>
+        <div class="form-group"><label class="form-label">{% if lang == 'fa' %}تصویر پس‌زمینه{% else %}Background Image{% endif %}</label>{% if item.background_image %}<div style="margin-bottom:8px"><img src="{{ item.background_image.url }}" class="image-preview"></div>{% endif %}<input type="file" name="background_image" class="form-control" accept="image/*"></div>
+        <div class="form-row">
+            <div class="form-group"><label class="form-label">{% if lang == 'fa' %}متن دکمه (EN){% else %}CTA Text (EN){% endif %}</label><input type="text" name="cta_text_en" class="form-control" value="{{ item.cta_text_en }}"></div>
+            <div class="form-group"><label class="form-label">{% if lang == 'fa' %}متن دکمه (FA){% else %}CTA Text (FA){% endif %}</label><input type="text" name="cta_text_fa" class="form-control" value="{{ item.cta_text_fa }}" dir="rtl"></div>
+        </div>
+        <div class="form-group"><label class="form-label">{% if lang == 'fa' %}لینک دکمه{% else %}CTA URL{% endif %}</label><input type="text" name="cta_url" class="form-control" value="{{ item.cta_url }}"></div>
+        <div class="form-group"><label class="form-check"><input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}><span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span></label></div>
+        <div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button></div>
+    </form>
+</div>
+{% endfor %}
+{% endblock %}

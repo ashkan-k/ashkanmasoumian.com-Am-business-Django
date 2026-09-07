@@ -1,0 +1,105 @@
+{% extends "admin_panel/base.html" %}
+{% load jalali_filters %}
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="ph ph-wrench"></i></div>
+        <div class="stat-info">
+            <h4>{{ services_count }}</h4>
+            <p>{% if lang == 'fa' %}خدمات{% else %}Services{% endif %}</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="ph ph-users"></i></div>
+        <div class="stat-info">
+            <h4>{{ team_count }}</h4>
+            <p>{% if lang == 'fa' %}اعضای تیم{% else %}Team Members{% endif %}</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple"><i class="ph ph-quotes"></i></div>
+        <div class="stat-info">
+            <h4>{{ testimonials_count }}</h4>
+            <p>{% if lang == 'fa' %}نظرات{% else %}Testimonials{% endif %}</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="ph ph-currency-dollar"></i></div>
+        <div class="stat-info">
+            <h4>{{ pricing_count }}</h4>
+            <p>{% if lang == 'fa' %} plans پرداخت{% else %}Pricing Plans{% endif %}</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red"><i class="ph ph-envelope-simple"></i></div>
+        <div class="stat-info">
+            <h4>{{ messages_count }}</h4>
+            <p>{% if lang == 'fa' %}پیام‌ها{% else %}Messages{% endif %} {% if unread_messages %}<span class="badge badge-danger">{{ unread_messages }} {% if lang == 'fa' %}خوانده نشده{% else %}unread{% endif %}</span>{% endif %}</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="ph ph-megaphone"></i></div>
+        <div class="stat-info">
+            <h4>{{ subscribers_count }}</h4>
+            <p>{% if lang == 'fa' %}مشترکین{% else %}Subscribers{% endif %}</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="ph ph-file-text"></i></div>
+        <div class="stat-info">
+            <h4>{{ pages_count }}</h4>
+            <p>{% if lang == 'fa' %}صفحات{% else %}Pages{% endif %}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Messages -->
+<div class="card">
+    <div class="card-header">
+        <h3>{% if lang == 'fa' %}آخرین پیام‌ها{% else %}Recent Messages{% endif %}</h3>
+        <a href="{% url 'admin_messages' %}" class="btn btn-outline btn-sm">
+            {% if lang == 'fa' %}مشاهده همه{% else %}View All{% endif %}
+        </a>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>{% if lang == 'fa' %}نام{% else %}Name{% endif %}</th>
+                    <th>{% if lang == 'fa' %}ایمیل{% else %}Email{% endif %}</th>
+                    <th>{% if lang == 'fa' %}پیام{% else %}Message{% endif %}</th>
+                    <th>{% if lang == 'fa' %}وضعیت{% else %}Status{% endif %}</th>
+                    <th>{% if lang == 'fa' %}تاریخ{% else %}Date{% endif %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for msg in recent_messages %}
+                <tr>
+                    <td>{{ msg.name }}</td>
+                    <td>{{ msg.email }}</td>
+                    <td class="truncate" style="max-width:250px">{{ msg.message }}</td>
+                    <td>
+                        {% if msg.is_read %}
+                            {% if msg.is_replied %}
+                            <span class="badge badge-success">{% if lang == 'fa' %}پاسخ داده شده{% else %}Replied{% endif %}</span>
+                            {% else %}
+                            <span class="badge badge-info">{% if lang == 'fa' %}خوانده شده{% else %}Read{% endif %}</span>
+                            {% endif %}
+                        {% else %}
+                        <span class="badge badge-warning">{% if lang == 'fa' %}خوانده نشده{% else %}Unread{% endif %}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ msg.created_at|jalali:"Y/m/d" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted" style="padding:30px">
+                        {% if lang == 'fa' %}هنوز پیامی وجود ندارد{% else %}No messages yet{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
