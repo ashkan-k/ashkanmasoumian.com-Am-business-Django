@@ -1,4 +1,5 @@
 from django import template
+from django.utils.translation import get_language
 import jdatetime
 
 register = template.Library()
@@ -56,8 +57,8 @@ def django_to_strftime(fmt):
     return "".join(result)
 
 
-@register.filter(takes_context=True)
-def jalali(context, value, fmt=None):
+@register.filter
+def jalali(value, fmt=None):
     """Convert a datetime to Jalali format if current language is Farsi, else keep Gregorian.
 
     Usage in templates:
@@ -74,13 +75,10 @@ def jalali(context, value, fmt=None):
     if fmt is None:
         fmt = "Y/m/d H:i"
 
-    # Determine the language from the request cookie
-    lang = "en"
-    request = context.get("request")
-    if request and hasattr(request, "COOKIES"):
-        lang = request.COOKIES.get("django_language", "en")
+    # LocaleMiddleware activates language from the django_language cookie
+    lang = get_language() or "en"
 
-    if lang == "fa":
+    if lang.startswith("fa"):
         try:
             jalali_dt = jdatetime.datetime.fromgregorian(datetime=value)
             strftime_fmt = django_to_strftime(fmt)
