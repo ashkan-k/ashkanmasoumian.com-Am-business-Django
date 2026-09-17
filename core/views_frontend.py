@@ -87,12 +87,19 @@ def frontend_contact(request):
             ContactMessage.objects.create(
                 name=name, email=email, subject=subject, message=message
             )
-            contact_success = True
+            # Post/Redirect/Get pattern: redirect to avoid resubmission on refresh
+            from django.contrib import messages as django_messages
+            django_messages.success(request, "contact_form_success")
+            return redirect(f"{request.path}?sent=1")
+        else:
+            # Missing required fields
+            from django.contrib import messages as django_messages
+            django_messages.error(request, "contact_form_error")
 
     ctx.update({
         "hero": HeroSection.objects.filter(page="contact", is_active=True).first(),
         "testimonials": Testimonial.objects.filter(is_active=True),
-        "contact_success": contact_success,
+        "contact_success": request.GET.get("sent") == "1",
         "meta_title": f"{'Contact' if lang == 'en' else 'تماس با ما'} - {ctx['site_settings'].site_name_en if ctx['site_settings'] else 'AM Business'}",
     })
     return render(request, "frontend/contact.html", ctx)

@@ -177,6 +177,11 @@ class Service(TimestampedModel):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title_en)
+        original_slug = self.slug
+        counter = 1
+        while Service.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+            self.slug = f"{original_slug}-{counter}"
+            counter += 1
         super().save(*args, **kwargs)
 
     def get_title(self, lang='en'):
@@ -468,6 +473,7 @@ class Page(TimestampedModel):
     class Meta:
         verbose_name = "Page"
         verbose_name_plural = "Pages"
+        ordering = ["-created_at"]
 
     def __str__(self):
         return self.title_en
@@ -475,6 +481,11 @@ class Page(TimestampedModel):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title_en)
+        original_slug = self.slug
+        counter = 1
+        while Page.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+            self.slug = f"{original_slug}-{counter}"
+            counter += 1
         super().save(*args, **kwargs)
 
     def get_title(self, lang='en'):

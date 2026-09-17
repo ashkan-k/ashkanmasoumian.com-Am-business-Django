@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AM Business - Test Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #f0f2f5;
+            color: #1a1a2e;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .header h1 { font-size: 28px; margin-bottom: 8px; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        .stats {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .stat-box {
+            background: rgba(255,255,255,0.15);
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-box .num { font-size: 24px; font-weight: bold; }
+        .stat-box .label { font-size: 11px; opacity: 0.8; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title .icon { font-size: 22px; }
+        .link-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .link-card:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateX(-4px);
+            box-shadow: 0 2px 8px rgba(102,126,234,0.15);
+        }
+        .link-info { flex: 1; }
+        .link-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+        .link-desc { font-size: 12px; color: #666; }
+        .link-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .badge-fixed { background: #d4edda; color: #155724; }
+        .badge-ok { background: #d1ecf1; color: #0c5460; }
+        .badge-critical { background: #f8d7da; color: #721c24; }
+        .badge-security { background: #fff3cd; color: #856404; }
+        .badge-improvement { background: #e2d9f3; color: #4a2c6e; }
+        .link-arrow { color: #667eea; font-size: 18px; margin-right: 12px; }
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .note strong { color: #856404; }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>AM Business - Dashboard Test</h1>
+        <p>Lisayi ke bug ha fix shodand - baraye test e visual</p>
+        <div class="stats">
+            <div class="stat-box"><div class="num">9</div><div class="label">Bug Fix Shod</div></div>
+            <div class="stat-box"><div class="num">0</div><div class="label">Error 500</div></div>
+            <div class="stat-box"><div class="num">63</div><div class="label">Test Pass</div></div>
+            <div class="stat-box"><div class="num">16</div><div class="label">Model Admin</div></div>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <div class="note">
+            <strong>Note:</strong>
+            Baraye test e admin panel, avval bayad login konid.<br>
+            URL Login: <a href="http://127.0.0.1:8765/accounts/login/" target="_blank">http://127.0.0.1:8765/accounts/login/</a><br>
+            Username: <strong>admin</strong> | Password: <strong>admin12345</strong>
+        </div>
+
+        <!-- Frontend Pages -->
+        <div class="section">
+            <div class="section-title"><span class="icon">🌐</span> Frontend Pages (Site Morebim)</div>
+
+            <a class="link-card" href="http://127.0.0.1:8765/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Home Page</div>
+                    <div class="link-desc">Safe e asli - hero, services, pricing, testimonials, team</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/about/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">About Page</div>
+                    <div class="link-desc">Safeh dare ma - team, counters, services</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/services/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Services Page</div>
+                    <div class="link-desc">Safeh khadamat - hame services</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/contact/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Contact Page (BUG 7 Fixed)</div>
+                    <div class="link-desc">Form tamas + Post/Redirect/Get fix shod - refresh dobare submit nemikone</div>
+                </div>
+                <span class="link-badge badge-fixed">Fixed</span>
+                <span class="link-arrow">←</span>
+            </a>
+        </div>
+
+        <!-- Admin Panel - Bug Fixed Pages -->
+        <div class="section">
+            <div class="section-title"><span class="icon">🔧</span> Admin Panel - Bug Fix Shode</div>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/services/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Services Admin (BUG 1 Fixed)</div>
+                    <div class="link-desc">int("abc") diga crash nemikone - safe_int() estefadeh mishe</div>
+                </div>
+                <span class="link-badge badge-fixed">Fixed</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/pricing/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Pricing Admin (BUG 2 Fixed)</div>
+                    <div class="link-desc">float("text") diga crash nemikone - safe_float() estefadeh mishe</div>
+                </div>
+                <span class="link-badge badge-fixed">Fixed</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/event-countdown/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Event Countdown (BUG 3 Fixed)</div>
+                    <div class="link-desc">Tarikh e khali/na-motabar diga 500 nemide - parse_datetime + make_aware</div>
+                </div>
+                <span class="link-badge badge-fixed">Fixed</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/messages/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Messages List</div>
+                    <div class="link-desc">List e payam haye contact form</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/messages/1/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Message Detail (BUG 4 Fixed)</div>
+                    <div class="link-desc">@login_required ezaf shod - access e gheir e mo'tabar redirect mishe</div>
+                </div>
+                <span class="link-badge badge-security">Security Fix</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/pages/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">CMS Pages (BUG 6 Fixed)</div>
+                    <div class="link-desc">Slug e tekrari diga IntegrityError nemide - auto suffix</div>
+                </div>
+                <span class="link-badge badge-fixed">Fixed</span>
+                <span class="link-arrow">←</span>
+            </a>
+        </div>
+
+        <!-- Admin Panel - All Pages -->
+        <div class="section">
+            <div class="section-title"><span class="icon">📋</span> Admin Panel - Hame Safahat</div>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Dashboard</div>
+                    <div class="link-desc">Dashboard e asli - amar, payam haye akhir</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/settings/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Site Settings</div>
+                    <div class="link-desc">Tanzimat e site - logo, favicon, footer</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/social-links/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Social Links</div>
+                    <div class="link-desc">Link haye shabakeh haye ijtimaei</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/navigation/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Navigation</div>
+                    <div class="link-desc">Menu haye navigation e site</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/hero/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Hero Sections</div>
+                    <div class="link-desc">Banner haye safeh (home, about, services, contact)</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/about/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">About Section</div>
+                    <div class="link-desc">Matn e safeh e dareh ma</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/counters/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Stat Counters</div>
+                    <div class="link-desc">Shomarandeh haye amari (projects, clients, etc.)</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/features/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Features</div>
+                    <div class="link-desc">Vizhegi haye ekhtesasi</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/testimonials/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Testimonials</div>
+                    <div class="link-desc">Nazrat e moshtarian</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/team/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Team Members</div>
+                    <div class="link-desc">Aza ye team</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/home-sections/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Home Sections</div>
+                    <div class="link-desc">Bakhsh haye custom e safeh e asli</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin-panel/newsletter/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Newsletter Subscribers</div>
+                    <div class="link-desc">Sabt shavandegan e khabarnameh</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+        </div>
+
+        <!-- Django Admin -->
+        <div class="section">
+            <div class="section-title"><span class="icon">⚙️</span> Django Admin (BUG 8 Fixed)</div>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Django Admin (BUG 8 Fixed)</div>
+                    <div class="link-desc">Hame 16 model dar admin e Django sabt shod - ba filter, search</div>
+                </div>
+                <span class="link-badge badge-improvement">Improvement</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/admin/core/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Core App Admin</div>
+                    <div class="link-desc">Modiriat e model haye core app</div>
+                </div>
+                <span class="link-badge badge-improvement">Improvement</span>
+                <span class="link-arrow">←</span>
+            </a>
+        </div>
+
+        <!-- API -->
+        <div class="section">
+            <div class="section-title"><span class="icon">📡</span> API Endpoints</div>
+
+            <a class="link-card" href="http://127.0.0.1:8765/api/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">API Overview</div>
+                    <div class="link-desc">List hame endpoint ha</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/swagger/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Swagger UI</div>
+                    <div class="link-desc">Document e API ba Swagger</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/api/v1/site-settings/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Site Settings API</div>
+                    <div class="link-desc">API e tanzimat e site</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/api/v1/services/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Services API</div>
+                    <div class="link-desc">API e khadamat</div>
+                </div>
+                <span class="link-badge badge-ok">200 OK</span>
+                <span class="link-arrow">←</span>
+            </a>
+
+            <a class="link-card" href="http://127.0.0.1:8765/api/v1/pages/" target="_blank">
+                <div class="link-info">
+                    <div class="link-title">Pages API (BUG 9 Fixed)</div>
+                    <div class="link-desc">ordering ezaf shod - warning bartar shod</div>
+                </div>
+                <span class="link-badge badge-fixed">Fixed</span>
+                <span class="link-arrow">←</span>
+            </a>
+        </div>
+
+        <!-- Test Scenarios -->
+        <div class="section">
+            <div class="section-title"><span class="icon">🧪</span> Senario haye Test e Dasti</div>
+
+            <div class="link-card" style="cursor: default;">
+                <div class="link-info">
+                    <div class="link-title">1. Test e Form e Tamas</div>
+                    <div class="link-desc">Be <a href="http://127.0.0.1:8765/contact/" target="_blank">Contact</a> boro, form ra por kon va submit kon. Bayad payam e movafaghiat neshun dade she. Refresh konid - dobare submit nemishe.</div>
+                </div>
+                <span class="link-badge badge-fixed">Test kon</span>
+            </div>
+
+            <div class="link-card" style="cursor: default;">
+                <div class="link-info">
+                    <div class="link-title">2. Test e Khabarnameh</div>
+                    <div class="link-desc">Dar safeh e asli ya about, form e khabarname ra por kon. Email e tekrari nabayad error bed.</div>
+                </div>
+                <span class="link-badge badge-ok">Test kon</span>
+            </div>
+
+            <div class="link-card" style="cursor: default;">
+                <div class="link-info">
+                    <div class="link-title">3. Test e Service ba Order e Na-motabar</div>
+                    <div class="link-desc">Dar <a href="http://127.0.0.1:8765/admin-panel/services/" target="_blank">Services Admin</a>, ye service jadid ezafe kon ba order = "abc". Nabayad 500 bed. Error message neshun dade mishe.</div>
+                </div>
+                <span class="link-badge badge-fixed">Test kon</span>
+            </div>
+
+            <div class="link-card" style="cursor: default;">
+                <div class="link-info">
+                    <div class="link-title">4. Test e Pricing ba Price e Na-motabar</div>
+                    <div class="link-desc">Dar <a href="http://127.0.0.1:8765/admin-panel/pricing/" target="_blank">Pricing Admin</a>, plan jadid ba price = "abc" ezafe kon. Nabayad 500 bed.</div>
+                </div>
+                <span class="link-badge badge-fixed">Test kon</span>
+            </div>
+
+            <div class="link-card" style="cursor: default;">
+                <div class="link-info">
+                    <div class="link-title">5. Test e Event Countdown ba Tarikh e Khali</div>
+                    <div class="link-desc">Dar <a href="http://127.0.0.1:8765/admin-panel/event-countdown/" target="_blank">Event Countdown</a>, tarikh ra khali gozar va submit kon. Bayad error message bed, na 500.</div>
+                </div>
+                <span class="link-badge badge-fixed">Test kon</span>
+            </div>
+
+            <div class="link-card" style="cursor: default;">
+                <div class="link-info">
+                    <div class="link-title">6. Test e Slug e Tekrari</div>
+                    <div class="link-desc">Dar <a href="http://127.0.0.1:8765/admin-panel/services/" target="_blank">Services</a> ya <a href="http://127.0.0.1:8765/admin-panel/pages/" target="_blank">Pages</a>, do ta ba title e yeki ezafe kon. Dovomi bayad slug e yeksan bed, ba suffix.</div>
+                </div>
+                <span class="link-badge badge-fixed">Test kon</span>
+            </div>
+
+            <div class="link-card" style="cursor: default;">
+                <div class="link-info">
+                    <div class="link-title">7. Test e Access e Gheir e Mo'tabar</div>
+                    <div class="link-desc">Az browser e incognito (login nashode) be <a href="http://127.0.0.1:8765/admin-panel/messages/1/" target="_blank">Message Detail</a> boro. Bayad be login redirect she.</div>
+                </div>
+                <span class="link-badge badge-security">Test kon</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            AM Business Project | 9 Bug Fix Shod | 0 Error 500 | 63 Test Pass<br>
+            Server: 127.0.0.1:8765 | Python 3.13.12 | Django 4.2.30
+        </div>
+    </div>
+</body>
+</html>

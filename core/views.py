@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 from django.utils import translation
 from django.views.decorators.http import require_POST
+from django.core.exceptions import ValidationError
 from .models import (
     SiteSettings, SocialLink, Navigation, HeroSection, Service,
     AboutSection, StatCounter, Feature, PricingPlan, Testimonial,
@@ -16,6 +17,22 @@ from .models import (
 
 def get_lang(request):
     return request.COOKIES.get("django_language", "en")
+
+
+def safe_int(value, default=0):
+    """Safely convert a value to int, returning default on failure."""
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return default
+
+
+def safe_float(value, default=0.0):
+    """Safely convert a value to float, returning default on failure."""
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return default
 
 
 def set_language_view(request, lang):
@@ -126,7 +143,7 @@ def social_links_view(request):
                 url=request.POST.get("url", "#"),
                 icon_class=request.POST.get("icon_class", ""),
                 is_active="is_active" in request.POST,
-                order=int(request.POST.get("order", 0)),
+                order=safe_int(request.POST.get("order", 0)),
             )
             if request.FILES.get("icon_image"):
                 sl.icon_image = request.FILES["icon_image"]
@@ -143,7 +160,7 @@ def social_links_view(request):
             obj.url = request.POST.get("url", obj.url)
             obj.icon_class = request.POST.get("icon_class", obj.icon_class)
             obj.is_active = "is_active" in request.POST
-            obj.order = int(request.POST.get("order", 0))
+            obj.order = safe_int(request.POST.get("order", 0))
             if request.FILES.get("icon_image"):
                 obj.icon_image = request.FILES["icon_image"]
             obj.save()
@@ -168,7 +185,7 @@ def navigation_view(request):
                 title_fa=request.POST.get("title_fa", ""),
                 url=request.POST.get("url", "#"),
                 is_active="is_active" in request.POST,
-                order=int(request.POST.get("order", 0)),
+                order=safe_int(request.POST.get("order", 0)),
                 parent=parent,
             )
             messages.success(request, "Navigation item added!")
@@ -183,7 +200,7 @@ def navigation_view(request):
             obj.title_fa = request.POST.get("title_fa", obj.title_fa)
             obj.url = request.POST.get("url", obj.url)
             obj.is_active = "is_active" in request.POST
-            obj.order = int(request.POST.get("order", 0))
+            obj.order = safe_int(request.POST.get("order", 0))
             parent_id = request.POST.get("parent")
             obj.parent = Navigation.objects.filter(pk=parent_id).first() if parent_id else None
             obj.save()
@@ -251,7 +268,7 @@ def services_view(request):
                 icon=request.POST.get("icon", "gear"),
                 custom_svg=request.POST.get("custom_svg", ""),
                 is_active="is_active" in request.POST,
-                order=int(request.POST.get("order", 0)),
+                order=safe_int(request.POST.get("order", 0)),
             )
             if request.FILES.get("image"):
                 svc.image = request.FILES["image"]
@@ -273,7 +290,7 @@ def services_view(request):
             obj.icon = request.POST.get("icon", obj.icon)
             obj.custom_svg = request.POST.get("custom_svg", obj.custom_svg)
             obj.is_active = "is_active" in request.POST
-            obj.order = int(request.POST.get("order", 0))
+            obj.order = safe_int(request.POST.get("order", 0))
             if request.FILES.get("image"):
                 obj.image = request.FILES["image"]
             if request.FILES.get("custom_icon"):
@@ -334,10 +351,10 @@ def stat_counters_view(request):
             StatCounter.objects.create(
                 label_en=request.POST.get("label_en", ""),
                 label_fa=request.POST.get("label_fa", ""),
-                value=int(request.POST.get("value", 0)),
+                value=safe_int(request.POST.get("value", 0)),
                 icon_class=request.POST.get("icon_class", ""),
                 is_active="is_active" in request.POST,
-                order=int(request.POST.get("order", 0)),
+                order=safe_int(request.POST.get("order", 0)),
             )
             messages.success(request, "Counter added!")
         elif action == "delete":
@@ -347,10 +364,10 @@ def stat_counters_view(request):
             obj = get_object_or_404(StatCounter, pk=request.POST.get("pk"))
             obj.label_en = request.POST.get("label_en", obj.label_en)
             obj.label_fa = request.POST.get("label_fa", obj.label_fa)
-            obj.value = int(request.POST.get("value", obj.value))
+            obj.value = safe_int(request.POST.get("value", obj.value))
             obj.icon_class = request.POST.get("icon_class", obj.icon_class)
             obj.is_active = "is_active" in request.POST
-            obj.order = int(request.POST.get("order", 0))
+            obj.order = safe_int(request.POST.get("order", 0))
             obj.save()
             messages.success(request, "Counter updated!")
         return redirect("admin_stat_counters")
@@ -374,7 +391,7 @@ def features_view(request):
                 description_fa=request.POST.get("description_fa", ""),
                 icon=request.POST.get("icon", ""),
                 is_active="is_active" in request.POST,
-                order=int(request.POST.get("order", 0)),
+                order=safe_int(request.POST.get("order", 0)),
             )
             messages.success(request, "Feature added!")
         elif action == "delete":
@@ -388,7 +405,7 @@ def features_view(request):
             obj.description_fa = request.POST.get("description_fa", obj.description_fa)
             obj.icon = request.POST.get("icon", obj.icon)
             obj.is_active = "is_active" in request.POST
-            obj.order = int(request.POST.get("order", 0))
+            obj.order = safe_int(request.POST.get("order", 0))
             obj.save()
             messages.success(request, "Feature updated!")
         return redirect("admin_features")
@@ -410,7 +427,7 @@ def pricing_view(request):
                 name_fa=request.POST.get("name_fa", ""),
                 description_en=request.POST.get("description_en", ""),
                 description_fa=request.POST.get("description_fa", ""),
-                price=float(request.POST.get("price", 0)),
+                price=safe_float(request.POST.get("price", 0)),
                 currency=request.POST.get("currency", "$"),
                 cents=request.POST.get("cents", ".99"),
                 is_popular="is_popular" in request.POST,
@@ -418,7 +435,7 @@ def pricing_view(request):
                 button_text_fa=request.POST.get("button_text_fa", "خرید"),
                 button_url=request.POST.get("button_url", "#"),
                 is_active="is_active" in request.POST,
-                order=int(request.POST.get("order", 0)),
+                order=safe_int(request.POST.get("order", 0)),
             )
             messages.success(request, "Pricing plan added!")
         elif action == "delete":
@@ -430,7 +447,7 @@ def pricing_view(request):
             obj.name_fa = request.POST.get("name_fa", obj.name_fa)
             obj.description_en = request.POST.get("description_en", obj.description_en)
             obj.description_fa = request.POST.get("description_fa", obj.description_fa)
-            obj.price = float(request.POST.get("price", obj.price))
+            obj.price = safe_float(request.POST.get("price", obj.price))
             obj.currency = request.POST.get("currency", obj.currency)
             obj.cents = request.POST.get("cents", obj.cents)
             obj.is_popular = "is_popular" in request.POST
@@ -438,7 +455,7 @@ def pricing_view(request):
             obj.button_text_fa = request.POST.get("button_text_fa", obj.button_text_fa)
             obj.button_url = request.POST.get("button_url", obj.button_url)
             obj.is_active = "is_active" in request.POST
-            obj.order = int(request.POST.get("order", 0))
+            obj.order = safe_int(request.POST.get("order", 0))
             obj.save()
             messages.success(request, "Pricing plan updated!")
         return redirect("admin_pricing")
@@ -462,7 +479,7 @@ def testimonials_view(request):
                 author_role_en=request.POST.get("author_role_en", ""),
                 author_role_fa=request.POST.get("author_role_fa", ""),
                 is_active="is_active" in request.POST,
-                order=int(request.POST.get("order", 0)),
+                order=safe_int(request.POST.get("order", 0)),
             )
             messages.success(request, "Testimonial added!")
         elif action == "delete":
@@ -476,7 +493,7 @@ def testimonials_view(request):
             obj.author_role_en = request.POST.get("author_role_en", obj.author_role_en)
             obj.author_role_fa = request.POST.get("author_role_fa", obj.author_role_fa)
             obj.is_active = "is_active" in request.POST
-            obj.order = int(request.POST.get("order", 0))
+            obj.order = safe_int(request.POST.get("order", 0))
             if request.FILES.get("author_image"):
                 obj.author_image = request.FILES["author_image"]
             obj.save()
@@ -502,7 +519,7 @@ def team_view(request):
                 bio_en=request.POST.get("bio_en", ""),
                 bio_fa=request.POST.get("bio_fa", ""),
                 is_active="is_active" in request.POST,
-                order=int(request.POST.get("order", 0)),
+                order=safe_int(request.POST.get("order", 0)),
             )
             messages.success(request, "Team member added!")
         elif action == "delete":
@@ -516,7 +533,7 @@ def team_view(request):
             obj.bio_en = request.POST.get("bio_en", obj.bio_en)
             obj.bio_fa = request.POST.get("bio_fa", obj.bio_fa)
             obj.is_active = "is_active" in request.POST
-            obj.order = int(request.POST.get("order", 0))
+            obj.order = safe_int(request.POST.get("order", 0))
             if request.FILES.get("image"):
                 obj.image = request.FILES["image"]
             if request.FILES.get("photo_square"):
@@ -535,15 +552,27 @@ def event_countdown_view(request):
     lang = get_lang(request)
     obj = EventCountdown.objects.first()
     if request.method == "POST":
+        event_date_str = request.POST.get("event_date", "").strip()
+        if not event_date_str:
+            messages.error(request, "Event date is required.")
+            return redirect("admin_event_countdown")
+        from django.utils.dateparse import parse_datetime
+        from django.utils.timezone import make_aware, is_aware
+        parsed_date = parse_datetime(event_date_str)
+        if parsed_date is None:
+            messages.error(request, "Invalid event date format. Use YYYY-MM-DD HH:MM.")
+            return redirect("admin_event_countdown")
+        if not is_aware(parsed_date):
+            parsed_date = make_aware(parsed_date)
         if not obj:
             obj = EventCountdown.objects.create(
-                event_date=request.POST.get("event_date", ""),
+                event_date=parsed_date,
             )
         obj.title_en = request.POST.get("title_en", obj.title_en)
         obj.title_fa = request.POST.get("title_fa", obj.title_fa)
         obj.subheading_en = request.POST.get("subheading_en", obj.subheading_en)
         obj.subheading_fa = request.POST.get("subheading_fa", obj.subheading_fa)
-        obj.event_date = request.POST.get("event_date", obj.event_date)
+        obj.event_date = parsed_date
         obj.ended_message_en = request.POST.get("ended_message_en", obj.ended_message_en)
         obj.ended_message_fa = request.POST.get("ended_message_fa", obj.ended_message_fa)
         obj.cta_text_en = request.POST.get("cta_text_en", obj.cta_text_en)
@@ -644,10 +673,16 @@ def pages_view(request):
         action = request.POST.get("action", "")
         if action == "add":
             from django.utils.text import slugify
+            base_slug = slugify(request.POST.get("title_en", "page")) or "page"
+            slug = base_slug
+            counter = 1
+            while Page.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
             Page.objects.create(
                 title_en=request.POST.get("title_en", ""),
                 title_fa=request.POST.get("title_fa", ""),
-                slug=slugify(request.POST.get("title_en", "page")),
+                slug=slug,
                 content_en=request.POST.get("content_en", ""),
                 content_fa=request.POST.get("content_fa", ""),
                 meta_title_en=request.POST.get("meta_title_en", ""),
@@ -681,6 +716,7 @@ def pages_view(request):
     })
 
 
+@login_required(login_url="/accounts/login/")
 def message_detail_view(request, pk):
     lang = get_lang(request)
     obj = get_object_or_404(ContactMessage, pk=pk)
