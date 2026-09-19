@@ -453,3 +453,100 @@ git checkout 4bfb26c -- templates/admin_panel/hero_sections.html templates/admin
 ```
 
 Note: `core/views.py` has changes from both Phase 1 and Phase 4. If you revert it to `4bfb26c`, you'll keep Phase 1 changes but lose Phase 4's hero_sections_view delete action and background_image handling. If you want to revert ALL changes (Phase 1-4), use the pre-fix commit `0715f050d04f429cbed4a0dc150116eafb9e9e7a` instead.
+
+---
+
+## Phase 5 Changes - Frontend Toast Success Messages (2026-09-17)
+
+**Request:** When "Subscribe to Newsletter" or the contact form is submitted successfully, display a language-aware toast success message on the site. Also audit all user-facing forms and apply the same treatment.
+
+### Phase 5 Overview
+
+| Item | Description | Files Changed |
+|------|-------------|---------------|
+| 5.1 | Self-contained toast container (CSS + JS + bilingual) added to frontend base template | `templates/frontend/base.html` |
+| 5.2 | Language-aware success/error/info messages in contact and newsletter views | `core/views_frontend.py` |
+| 5.3 | Removed old hardcoded inline success banner from contact page | `templates/frontend/contact.html` |
+
+### Phase 5 Detailed Changes
+
+#### 5.1: Frontend Toast Container (`templates/frontend/base.html`)
+
+**Added** a `{% if messages %}` block immediately after `<body>`, before the mobile menu, containing:
+- Self-contained inline `<style>` with `.fe-toast-container`, `.fe-toast`, `.fe-toast-success/error/info` classes
+- RTL support: `[dir="rtl"]` overrides for position, animation direction, and border side
+- Font family switches between Vazirmatn (FA) and Montserrat (EN) via `{% if lang == 'fa' %}`
+- Toast icons: checkmark for success, X for error, "i" for info
+- Auto-dismiss JS: 5s timeout, adds `.fe-hide` class (opacity/transform transition), then removes element after 300ms
+- Close button on each toast for manual dismissal
+- `z-index: 99999` to overlay all site content
+
+**Key design:** The toast uses `fe-` prefix CSS classes to avoid collisions with the site's existing CSS framework.
+
+#### 5.2: Language-Aware Messages in Views (`core/views_frontend.py`)
+
+**`frontend_contact` view — changes:**
+- Removed inline `from django.contrib import messages as django_messages` imports (already imported at top as `messages`)
+- Success: now sends actual translated text instead of message key "contact_form_success"
+  - EN: `"Your message has been sent successfully!"`
+  - FA: `"پیام شما با موفقیت ارسال شد!"`
+- Error (missing fields): now sends translated text instead of key "contact_form_error"
+  - EN: `"Please fill in all required fields."`
+  - FA: `"لطفاً تمام فیلدهای ضروری را پر کنید."`
+
+**`frontend_newsletter_subscribe` view — changes:**
+- Was: silently redirecting back with no message at all
+- Now: reads `lang` via `get_lang(request)` and sends language-aware messages:
+  - New subscriber (success): EN `"You have successfully subscribed to our newsletter!"` / FA `"شما با موفقیت در خبرنامه ما عضو شدید!"`
+  - Already subscribed (info): EN `"You are already subscribed with this email address."` / FA `"شما قبلاً با این ایمیل عضو خبرنامه شده‌اید."`
+  - Empty email (error): EN `"Please provide a valid email address."` / FA `"لطفاً یک آدرس ایمیل معتبر وارد کنید."`
+- Uses `get_or_create` return value `(obj, created)` to distinguish new vs existing subscribers
+
+#### 5.3: Removed Inline Banner (`templates/frontend/contact.html`)
+
+**Removed** the hardcoded inline success banner:
+```html
+{% if contact_success %}
+<div style="background:#d1fae5;color:#065f46;padding:16px 20px;border-radius:10px;margin-bottom:20px;font-weight:500">
+    {% if lang == 'fa' %}پیام شما با موفقیت ارسال شد!{% else %}Your message has been sent successfully!{% endif %}
+</div>
+{% endif %}
+```
+The unified toast in `base.html` now handles all success/error display. The `contact_success` context variable is kept in the view for backward compatibility but no longer rendered inline.
+
+### Frontend Form Audit
+
+All `templates/frontend/*.html` files were searched for `<form>`, `method="post"`, `<textarea>`, and `type="submit"`. Only two user-facing forms exist:
+
+1. **Newsletter subscribe form** — in `base.html` (appears on all pages via `{% block newsletter %}`)
+2. **Contact form** — in `contact.html`
+
+No other forms were found in `index.html`, `about.html`, or `services.html`. Both forms now have language-aware toast messages.
+
+### Phase 5 Test Results
+
+All 7 test scenarios passed:
+1. Contact form POST (EN) — 302 redirect, success toast present
+2. Newsletter subscribe (EN) — 302 redirect, success toast present
+3. Newsletter duplicate email (EN) — info toast "already subscribed"
+4. Contact form POST (FA) — 302 redirect, Persian success text present
+5. Newsletter POST (FA) — Persian success text present
+6. Newsletter empty email (EN) — error toast present
+7. Contact missing fields (EN) — 200 (no redirect), error toast present
+
+All 4 frontend pages verified returning 200: `/`, `/about/`, `/services/`, `/contact/`.
+
+### Phase 5 Revert Instructions
+
+To revert Phase 5 changes only (keeping Phases 1-4):
+
+```bash
+# Find the commit hash before Phase 5 (use: git log --oneline -5)
+# Then revert these 3 files to that commit:
+git checkout <phase4_commit> -- templates/frontend/base.html core/views_frontend.py templates/frontend/contact.html
+```
+
+To revert ALL changes (Phases 1-5), use the pre-fix commit:
+```bash
+git reset --hard 0715f050d04f429cbed4a0dc150116eafb9e9e7a
+```

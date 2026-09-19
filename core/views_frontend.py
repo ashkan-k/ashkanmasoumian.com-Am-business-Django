@@ -88,14 +88,19 @@ def frontend_contact(request):
             ContactMessage.objects.create(
                 name=name, email=email, subject=subject, message=message
             )
+            # Language-aware success toast
+            if lang == "fa":
+                messages.success(request, "پیام شما با موفقیت ارسال شد!")
+            else:
+                messages.success(request, "Your message has been sent successfully!")
             # Post/Redirect/Get pattern: redirect to avoid resubmission on refresh
-            from django.contrib import messages as django_messages
-            django_messages.success(request, "contact_form_success")
             return redirect(f"{request.path}?sent=1")
         else:
-            # Missing required fields
-            from django.contrib import messages as django_messages
-            django_messages.error(request, "contact_form_error")
+            # Missing required fields — language-aware error toast
+            if lang == "fa":
+                messages.error(request, "لطفاً تمام فیلدهای ضروری را پر کنید.")
+            else:
+                messages.error(request, "Please fill in all required fields.")
 
     ctx.update({
         "hero": HeroSection.objects.filter(page="contact", is_active=True).first(),
@@ -107,13 +112,29 @@ def frontend_contact(request):
 
 
 def frontend_newsletter_subscribe(request):
+    lang = get_lang(request)
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
         email = request.POST.get("email", "").strip()
         if email:
-            NewsletterSubscriber.objects.get_or_create(
+            obj, created = NewsletterSubscriber.objects.get_or_create(
                 email=email, defaults={"name": name or "Subscriber"}
             )
+            if created:
+                if lang == "fa":
+                    messages.success(request, "شما با موفقیت در خبرنامه ما عضو شدید!")
+                else:
+                    messages.success(request, "You have successfully subscribed to our newsletter!")
+            else:
+                if lang == "fa":
+                    messages.info(request, "شما قبلاً با این ایمیل عضو خبرنامه شده‌اید.")
+                else:
+                    messages.info(request, "You are already subscribed with this email address.")
+        else:
+            if lang == "fa":
+                messages.error(request, "لطفاً یک آدرس ایمیل معتبر وارد کنید.")
+            else:
+                messages.error(request, "Please provide a valid email address.")
     # Redirect back
     referer = request.META.get("HTTP_REFERER", "/")
     return redirect(referer)

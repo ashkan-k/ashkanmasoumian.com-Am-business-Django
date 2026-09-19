@@ -20,11 +20,6 @@
     <div class="container">
         <h2>{% if lang == 'fa' %}سوالی دارید؟ فرم تماس را پر کنید{% else %}Any question? Fill the contact form{% endif %}</h2>
         <p class="mb-4">{% if lang == 'fa' %}پیامی برای ما بفرستید{% else %}Send us a message{% endif %}</p>
-        {% if contact_success %}
-        <div style="background:#d1fae5;color:#065f46;padding:16px 20px;border-radius:10px;margin-bottom:20px;font-weight:500">
-            {% if lang == 'fa' %}پیام شما با موفقیت ارسال شد!{% else %}Your message has been sent successfully!{% endif %}
-        </div>
-        {% endif %}
         <form action="{% url 'frontend_contact' %}" method="post" class="form-contact">
             {% csrf_token %}
             <div class="row">
