@@ -234,7 +234,7 @@ def hero_sections_view(request):
             obj.save()
             messages.success(request, "Hero section updated!")
         elif action == "add":
-            HeroSection.objects.create(
+            hero = HeroSection(
                 page=request.POST.get("page", "home"),
                 heading_en=request.POST.get("heading_en", ""),
                 heading_fa=request.POST.get("heading_fa", ""),
@@ -245,7 +245,14 @@ def hero_sections_view(request):
                 cta_url=request.POST.get("cta_url", "#"),
                 is_active="is_active" in request.POST,
             )
+            if request.FILES.get("background_image"):
+                hero.background_image = request.FILES["background_image"]
+            hero.save()
             messages.success(request, "Hero section added!")
+        elif action == "delete":
+            pk = request.POST.get("pk")
+            HeroSection.objects.filter(pk=pk).delete()
+            messages.success(request, "Hero section deleted!")
         return redirect("admin_hero_sections")
     return render(request, "admin_panel/hero_sections.html", {
         "lang": lang, "items": items, "page_title": "Hero Sections"

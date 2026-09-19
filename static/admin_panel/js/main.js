@@ -117,4 +117,56 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // ─── Image Preview Before Upload (global, works with modal-injected forms) ───
+    // Uses event delegation on document so it catches file inputs in modals too.
+    document.addEventListener('change', function(e) {
+        var input = e.target;
+        if (input.tagName === 'INPUT' && input.type === 'file') {
+            // Find or create preview container right after the input
+            var parent = input.parentElement;
+            var previewId = 'preview-' + input.name;
+            var existing = document.getElementById(previewId);
+
+            if (!input.files || !input.files[0]) {
+                if (existing) existing.style.display = 'none';
+                return;
+            }
+
+            var file = input.files[0];
+            if (!file.type.startsWith('image/')) {
+                if (existing) existing.style.display = 'none';
+                return;
+            }
+
+            if (!existing) {
+                existing = document.createElement('div');
+                existing.id = previewId;
+                existing.style.cssText = 'margin-top:8px;margin-bottom:8px;';
+                var img = document.createElement('img');
+                img.style.cssText = 'max-width:200px;max-height:150px;border-radius:8px;border:2px solid var(--border-color,#ddd);object-fit:contain;';
+                existing.appendChild(img);
+                // Insert right after the input
+                input.parentNode.insertBefore(existing, input.nextSibling);
+            }
+
+            var previewImg = existing.querySelector('img');
+            previewImg.src = URL.createObjectURL(file);
+            existing.style.display = 'block';
+
+            // Revoke object URL after load to free memory
+            previewImg.onload = function() {
+                URL.revokeObjectURL(this.src);
+            };
+        }
+    });
+
+    // Also re-scan for file inputs when modal opens (in case change delegation misses)
+    var originalOpenModal = window.openModal;
+    if (originalOpenModal) {
+        window.openModal = function(title, bodyHTML) {
+            originalOpenModal(title, bodyHTML);
+            // The change event delegation will handle file inputs in the modal
+        };
+    }
+
 });

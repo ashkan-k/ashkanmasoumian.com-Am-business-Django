@@ -1,5 +1,50 @@
 {% extends "admin_panel/base.html" %}
 {% block content %}
+
+<!-- Info Banner: Where to upload logo + where heroes are used -->
+<div class="card" style="background:var(--bg-secondary,#f8f9fa);border:1px solid var(--border-color,#e0e0e0);margin-bottom:20px;">
+    <div style="padding:16px 20px;">
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+            <i class="ph ph-info" style="font-size:24px;color:var(--primary,#5b2a86);flex-shrink:0;margin-top:2px;"></i>
+            <div>
+                {% if lang == 'fa' %}
+                <p style="margin:0 0 8px;font-weight:600;color:var(--text-primary,#333);">آپلود لوگو</p>
+                <p style="margin:0 0 12px;color:var(--text-secondary,#666);line-height:1.6;">
+                    برای آپلود لوگوی سایت به <a href="{% url 'admin_site_settings' %}" style="color:var(--primary,#5b2a86);font-weight:600;text-decoration:underline;">صفحه تنظیمات سایت</a> بروید.<br>
+                    در آنجا در تب «عمومی» فیلد لوگو و فاویکون وجود دارد.
+                </p>
+                <p style="margin:0 0 8px;font-weight:600;color:var(--text-primary,#333);">بنرهای صفحه کجا استفاده می‌شوند؟</p>
+                <p style="margin:0;color:var(--text-secondary,#666);line-height:1.6;">
+                    هر بنر در بالای یک صفحه از سایت نمایش داده می‌شود:
+                </p>
+                <ul style="margin:6px 0 0;padding-right:20px;color:var(--text-secondary,#666);line-height:1.8;">
+                    <li><strong>Home</strong> → صفحه اصلی (آدرس /)</li>
+                    <li><strong>About</strong> → صفحه درباره ما (آدرس /about/)</li>
+                    <li><strong>Services</strong> → صفحه خدمات (آدرس /services/)</li>
+                    <li><strong>Contact</strong> → صفحه تماس با ما (آدرس /contact/)</li>
+                </ul>
+                {% else %}
+                <p style="margin:0 0 8px;font-weight:600;color:var(--text-primary,#333);">Where to Upload the Logo</p>
+                <p style="margin:0 0 12px;color:var(--text-secondary,#666);line-height:1.6;">
+                    To upload the site logo, go to <a href="{% url 'admin_site_settings' %}" style="color:var(--primary,#5b2a86);font-weight:600;text-decoration:underline;">Site Settings</a>.<br>
+                    There you will find the Logo and Favicon upload fields under the "General" tab.
+                </p>
+                <p style="margin:0 0 8px;font-weight:600;color:var(--text-primary,#333);">Where Are Hero Sections Used?</p>
+                <p style="margin:0;color:var(--text-secondary,#666);line-height:1.6;">
+                    Each hero section is displayed at the top of a page on the website:
+                </p>
+                <ul style="margin:6px 0 0;padding-left:20px;color:var(--text-secondary,#666);line-height:1.8;">
+                    <li><strong>Home</strong> &rarr; Home page (URL: /)</li>
+                    <li><strong>About</strong> &rarr; About page (URL: /about/)</li>
+                    <li><strong>Services</strong> &rarr; Services page (URL: /services/)</li>
+                    <li><strong>Contact</strong> &rarr; Contact page (URL: /contact/)</li>
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card">
     <div class="card-header">
         <h3>{% if lang == 'fa' %}بنرهای صفحه{% else %}Hero Sections{% endif %}</h3>
@@ -30,7 +75,7 @@
                     <td>
                         <div class="btn-group">
                             <button class="btn btn-outline btn-sm btn-icon" onclick="openModal('{% if lang == 'fa' %}ویرایش بنر{% else %}Edit Hero{% endif %}', document.getElementById('editForm-{{ item.pk }}').innerHTML)"><i class="ph ph-pencil-simple"></i></button>
-                            <form id="delete-{{ item.pk }}" method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="add"><input type="hidden" name="pk" value="{{ item.pk }}"></form>
+                            <form id="delete-{{ item.pk }}" method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="pk" value="{{ item.pk }}"><button type="button" class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('delete-{{ item.pk }}')" title="Delete"><i class="ph ph-trash"></i></button></form>
                         </div>
                     </td>
                 </tr>

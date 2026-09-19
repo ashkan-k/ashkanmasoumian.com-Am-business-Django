@@ -1,5 +1,26 @@
 {% extends "admin_panel/base.html" %}
 {% block content %}
+
+<!-- Info Banner -->
+<div class="card" style="background:var(--bg-secondary,#f8f9fa);border:1px solid var(--border-color,#e0e0e0);margin-bottom:20px;">
+    <div style="padding:14px 20px;display:flex;align-items:flex-start;gap:12px;">
+        <i class="ph ph-info" style="font-size:22px;color:var(--primary,#5b2a86);flex-shrink:0;margin-top:2px;"></i>
+        <div>
+            {% if lang == 'fa' %}
+            <p style="margin:0;color:var(--text-secondary,#666);line-height:1.6;">
+                برای افزودن آیتم به نوار بالای سایت (هدر)، کافی است یک آیتم جدید اضافه کنید و در فیلد «زیرمجموعه» گزینه <strong>«هیچکدام (آیتم اصلی - در هدر سایت)»</strong> را انتخاب کنید.<br>
+                آیتم‌هایی که والد دارند به صورت زیرمنو (dropdown) نمایش داده می‌شوند. آیتم‌های اصلی در نوار ناوبری بالای سایت ظاهر می‌شوند.
+            </p>
+            {% else %}
+            <p style="margin:0;color:var(--text-secondary,#666);line-height:1.6;">
+                To add an item to the site header (top navigation bar), simply add a new item and select <strong>"None (Top-level / Header menu)"</strong> in the Parent field.<br>
+                Items with a parent show as dropdown sub-items. Top-level items appear in the site's header navigation bar.
+            </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
 <div class="card">
     <div class="card-header">
         <h3>{% if lang == 'fa' %}منوی ناوبری{% else %}Navigation Menu{% endif %}</h3>
@@ -38,14 +59,14 @@
 
 <div id="addForm" style="display:none"><form method="post">{% csrf_token %}<input type="hidden" name="action" value="add">
 <div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (EN){% else %}Title (EN){% endif %}</label><input type="text" name="title_en" class="form-control" required></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (FA){% else %}Title (FA){% endif %}</label><input type="text" name="title_fa" class="form-control" required dir="rtl"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">URL</label><input type="text" name="url" class="form-control" value="#"></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}زیرمجموعه{% else %}Parent{% endif %}</label><select name="parent" class="form-control"><option value="">{% if lang == 'fa' %}هیچکدام{% else %}None{% endif %}</option>{% for item in items %}<option value="{{ item.pk }}">{{ item.title_en }}</option>{% endfor %}</select></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">URL</label><input type="text" name="url" class="form-control" value="/"><small style="color:var(--text-secondary,#888);">{% if lang == 'fa' %}مثال: /about/ یا /services/ یا https://example.com{% else %}Example: /about/ or /services/ or https://example.com{% endif %}</small></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}زیرمجموعه (والد){% else %}Parent{% endif %}</label><select name="parent" class="form-control"><option value="">{% if lang == 'fa' %}هیچکدام (آیتم اصلی - در هدر سایت){% else %}None (Top-level / Header menu){% endif %}</option>{% for item in items %}<option value="{{ item.pk }}">{{ item.title_en }}</option>{% endfor %}</select><small style="color:var(--text-secondary,#888);">{% if lang == 'fa' %}اگر «هیچکدام» انتخاب شود، این آیتم در نوار بالای سایت نمایش داده می‌شود. اگر والد انتخاب شود، در زیرمنوی آن نمایش داده می‌شود.{% else %}Select "None" to show this item in the site header. Select a parent to show it as a dropdown sub-item.{% endif %}</small></div></div>
 <div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</label><input type="number" name="order" class="form-control" value="0"></div><div class="form-group" style="display:flex;align-items:flex-end"><label class="form-check"><input type="checkbox" name="is_active" checked><span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span></label></div></div>
 <div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button></div></form></div>
 
 {% for item in all_items %}
 <div id="edit-{{ item.pk }}" style="display:none"><form method="post">{% csrf_token %}<input type="hidden" name="action" value="edit"><input type="hidden" name="pk" value="{{ item.pk }}">
 <div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (EN){% else %}Title (EN){% endif %}</label><input type="text" name="title_en" class="form-control" value="{{ item.title_en }}" required></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (FA){% else %}Title (FA){% endif %}</label><input type="text" name="title_fa" class="form-control" value="{{ item.title_fa }}" required dir="rtl"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">URL</label><input type="text" name="url" class="form-control" value="{{ item.url }}"></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}زیرمجموعه{% else %}Parent{% endif %}</label><select name="parent" class="form-control"><option value="">{% if lang == 'fa' %}هیچکدام{% else %}None{% endif %}</option>{% for pi in items %}{% if pi.pk != item.pk %}<option value="{{ pi.pk }}" {% if item.parent and item.parent.pk == pi.pk %}selected{% endif %}>{{ pi.title_en }}</option>{% endif %}{% endfor %}</select></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">URL</label><input type="text" name="url" class="form-control" value="{{ item.url }}"></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}زیرمجموعه (والد){% else %}Parent{% endif %}</label><select name="parent" class="form-control"><option value="">{% if lang == 'fa' %}هیچکدام (آیتم اصلی - در هدر سایت){% else %}None (Top-level / Header menu){% endif %}</option>{% for pi in items %}{% if pi.pk != item.pk %}<option value="{{ pi.pk }}" {% if item.parent and item.parent.pk == pi.pk %}selected{% endif %}>{{ pi.title_en }}</option>{% endif %}{% endfor %}</select><small style="color:var(--text-secondary,#888);">{% if lang == 'fa' %}اگر «هیچکدام» انتخاب شود، این آیتم در نوار بالای سایت نمایش داده می‌شود.{% else %}Select "None" to show this item in the site header.{% endif %}</small></div></div>
 <div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</label><input type="number" name="order" class="form-control" value="{{ item.order }}"></div><div class="form-group" style="display:flex;align-items:flex-end"><label class="form-check"><input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}><span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span></label></div></div>
 <div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button></div></form></div>
 {% endfor %}

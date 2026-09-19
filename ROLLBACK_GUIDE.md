@@ -381,3 +381,75 @@ This would re-introduce 500 error on empty event date. Remove the `parse_datetim
 
 ### Revert just the @login_required (Bug 4):
 This would re-expose message detail to unauthenticated users. Remove the decorator line above `message_detail_view`.
+
+---
+
+## Phase 4 Changes - Client Feedback (2026-09-19)
+
+**4 items requested by employer/client feedback:**
+
+### Phase 4 Overview
+
+| Item | Description | Files Changed |
+|------|-------------|---------------|
+| 4.1 | Logo upload hint on Hero Sections admin page + fix delete bug + add background_image to add action | `templates/admin_panel/hero_sections.html`, `core/views.py` |
+| 4.2 | Navigation admin: clear top-level vs child labeling + info banner | `templates/admin_panel/navigation.html` |
+| 4.3 | Event Countdown section added to home page with live JS timer | `templates/frontend/index.html` |
+| 4.4 | Image preview before upload - global JS on all admin file inputs | `static/admin_panel/js/main.js` |
+
+### Phase 4 Detailed Changes
+
+#### 4.1: Hero Sections Admin Page
+
+**`templates/admin_panel/hero_sections.html`:**
+- Added info banner at top explaining: (a) logo is uploaded in Site Settings, not here; (b) where Hero Sections render on the site (Home `/`, About `/about/`, Services `/services/`, Contact `/contact/`)
+- Added link to Site Settings page
+- Fixed delete form: was `<input type="hidden" name="action" value="add">` (bug! should be `delete`)
+- Added delete button with `confirmDelete()` handler
+- `background_image` file input now handled in add action (was missing)
+
+**`core/views.py` — `hero_sections_view`:**
+- Add action: changed from `HeroSection.objects.create(...)` (which ignored files) to creating object then setting `hero.background_image = request.FILES["background_image"]` before save
+- Added delete action handler (was completely missing)
+
+#### 4.2: Navigation Admin Page
+
+**`templates/admin_panel/navigation.html`:**
+- Added info banner explaining how to add top-level header menu items
+- Changed parent dropdown "None" option to "None (Top-level / Header menu)" in both add and edit forms
+- Added help text under parent dropdown: "Select 'None' to show this item in the site header. Select a parent to show it as a dropdown sub-item."
+- Changed URL field default value from `#` to `/`
+- Added URL field help text with examples
+
+#### 4.3: Event Countdown on Home Page
+
+**`templates/frontend/index.html`:**
+- Added `{% if countdown %}` section between Hero and "About AM Business" sections
+- Countdown displays: title, subheading, 4 countdown boxes (Days/Hours/Minutes/Seconds), CTA button
+- Uses `trans_field` template tag for bilingual title/subheading/ended_message/cta_text
+- Added `{% block extra_js %}` with JavaScript countdown timer that:
+  - Parses event date from `data-event-date` attribute
+  - Updates every second
+  - Shows "ended message" when event has passed
+  - Bilingual labels (روز/ساعت/دقیقه/ثانیه for FA, Days/Hours/Minutes/Seconds for EN)
+
+#### 4.4: Image Preview Before Upload (Global)
+
+**`static/admin_panel/js/main.js`:**
+- Added document-level `change` event listener (event delegation) that catches ALL `input[type="file"]` changes across the entire admin panel
+- When a file is selected: creates a preview `<img>` element right after the file input, sets its `src` to `URL.createObjectURL(file)`
+- When no file selected or file is not an image: hides the preview
+- Works with dynamically injected modal forms (openModal uses innerHTML injection)
+- Revokes object URLs after image load to free memory
+- No template changes needed — the JS automatically finds all file inputs on every page
+
+### Phase 4 Revert Instructions
+
+To revert Phase 4 changes only (keeping Phase 1-3 bug fixes):
+
+```bash
+# Revert Phase 4 files to the Phase 3 commit (4bfb26c):
+git checkout 4bfb26c -- templates/admin_panel/hero_sections.html templates/admin_panel/navigation.html templates/frontend/index.html static/admin_panel/js/main.js core/views.py
+```
+
+Note: `core/views.py` has changes from both Phase 1 and Phase 4. If you revert it to `4bfb26c`, you'll keep Phase 1 changes but lose Phase 4's hero_sections_view delete action and background_image handling. If you want to revert ALL changes (Phase 1-4), use the pre-fix commit `0715f050d04f429cbed4a0dc150116eafb9e9e7a` instead.
