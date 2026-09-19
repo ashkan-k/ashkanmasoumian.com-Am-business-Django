@@ -56,6 +56,7 @@ def frontend_about(request):
         "counters": StatCounter.objects.filter(is_active=True),
         "team_members": TeamMember.objects.filter(is_active=True),
         "services": Service.objects.filter(is_active=True)[:8],
+        "countdown": EventCountdown.objects.filter(is_active=True).first(),
         "meta_title": f"{'About' if lang == 'en' else 'درباره ما'} - {ctx['site_settings'].site_name_en if ctx['site_settings'] else 'AM Business'}",
     })
     return render(request, "frontend/about.html", ctx)

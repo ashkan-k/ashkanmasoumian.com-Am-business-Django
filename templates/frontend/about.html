@@ -16,6 +16,52 @@
 </div>
 {% endif %}
 
+<!-- Event Countdown -->
+{% if countdown %}
+<div class="section" style="background-color:#530e69;background-image:url('{% static 'frontend/images/patterns/pattern-footer.svg' %}');background-size:300px;background-repeat:repeat;position:relative;padding:60px 0;">
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(83,14,105,0.92);"></div>
+    <div class="container" style="position:relative;z-index:1;">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h3 class="subheading" style="color:rgba(255,255,255,0.7);">{% trans_field countdown "subheading" %}</h3>
+                <h2 class="heading" style="color:#e2a83e !important;font-size:42px;">{% trans_field countdown "title" %}</h2>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="row text-center" id="countdown-timer" data-event-date="{{ countdown.event_date|date:'c' }}">
+                    <div class="col-3"><div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
+                        <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-days">0</span>
+                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% if lang == 'fa' %}روز{% else %}Days{% endif %}</span>
+                    </div></div>
+                    <div class="col-3"><div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
+                        <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-hours">00</span>
+                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% if lang == 'fa' %}ساعت{% else %}Hours{% endif %}</span>
+                    </div></div>
+                    <div class="col-3"><div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
+                        <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-minutes">00</span>
+                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% if lang == 'fa' %}دقیقه{% else %}Minutes{% endif %}</span>
+                    </div></div>
+                    <div class="col-3"><div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
+                        <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-seconds">00</span>
+                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% if lang == 'fa' %}ثانیه{% else %}Seconds{% endif %}</span>
+                    </div></div>
+                </div>
+                <div id="countdown-ended" style="display:none;text-align:center;margin-top:20px;">
+                    <p style="color:#fff;font-size:20px;font-weight:500;">{% trans_field countdown "ended_message" %}</p>
+                </div>
+                {% trans_field countdown "cta_text" as cd_cta %}
+                {% if cd_cta %}
+                <div class="text-center mt-4">
+                    <a href="{{ countdown.cta_url }}" class="btn btn-primary-outline white px-5">{{ cd_cta }}</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 {% if about %}
 <div class="section">
     <div class="container-lg">
@@ -101,5 +147,51 @@
     </div></div></div>
     {% endif %}
 </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if countdown %}
+<script>
+(function() {
+    var timerEl = document.getElementById('countdown-timer');
+    if (!timerEl) return;
+    var eventDateStr = timerEl.dataset.eventDate;
+    if (!eventDateStr) return;
+    var eventDate = new Date(eventDateStr);
+
+    var daysEl = document.getElementById('cd-days');
+    var hoursEl = document.getElementById('cd-hours');
+    var minutesEl = document.getElementById('cd-minutes');
+    var secondsEl = document.getElementById('cd-seconds');
+    var endedEl = document.getElementById('countdown-ended');
+
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+    function updateCountdown() {
+        var now = new Date().getTime();
+        var distance = eventDate.getTime() - now;
+
+        if (distance < 0) {
+            timerEl.style.display = 'none';
+            if (endedEl) endedEl.style.display = 'block';
+            return;
+        }
+
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        if (daysEl) daysEl.textContent = days;
+        if (hoursEl) hoursEl.textContent = pad(hours);
+        if (minutesEl) minutesEl.textContent = pad(minutes);
+        if (secondsEl) secondsEl.textContent = pad(seconds);
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+})();
+</script>
 {% endif %}
 {% endblock %}
