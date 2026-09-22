@@ -1,44 +1,50 @@
 {% extends "admin_panel/base.html" %}
+{% load i18n_custom %}
 {% block content %}
 <div class="card">
     <div class="card-header">
-        <h3>{% if lang == 'fa' %}خدمات{% else %}All Services{% endif %}</h3>
-        <button class="btn btn-primary" onclick="openModal('{% if lang == 'fa' %}افزودن خدمت{% else %}Add Service{% endif %}', document.getElementById('addForm').innerHTML)">
-            <i class="ph ph-plus"></i> {% if lang == 'fa' %}افزودن{% else %}Add{% endif %}
+        <h3>{% tr "All Services" "همه خدمات" "كل الخدمات" %}</h3>
+        <button class="btn btn-primary" onclick="openModal('{% tr "Add Service" "افزودن خدمت" "إضافة خدمة" %}', document.getElementById('addForm').innerHTML)">
+            <i class="ph ph-plus"></i> {% tr "Add" "افزودن" "إضافة" %}
         </button>
     </div>
+    {% include "admin_panel/partials/_bulk_bar.html" %}
     <div class="table-wrapper">
         <table>
             <thead>
                 <tr>
+                    {% include "admin_panel/partials/_bulk_head.html" %}
                     <th>#</th>
-                    <th>{% if lang == 'fa' %}عنوان (EN){% else %}Title (EN){% endif %}</th>
-                    <th>{% if lang == 'fa' %}عنوان (FA){% else %}Title (FA){% endif %}</th>
-                    <th>{% if lang == 'fa' %}آیکون{% else %}Icon{% endif %}</th>
-                    <th>{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</th>
-                    <th>{% if lang == 'fa' %}وضعیت{% else %}Status{% endif %}</th>
-                    <th>{% if lang == 'fa' %}عملیات{% else %}Actions{% endif %}</th>
+                    <th>{% tr "Title (EN)" "عنوان (EN)" "العنوان (EN)" %}</th>
+                    <th>{% tr "Title (FA)" "عنوان (FA)" "العنوان (FA)" %}</th>
+                    <th>{% tr "Title (AR)" "عنوان (AR)" "العنوان (AR)" %}</th>
+                    <th>{% tr "Icon" "آیکون" "الأيقونة" %}</th>
+                    <th>{% tr "Order" "ترتیب" "الترتيب" %}</th>
+                    <th>{% tr "Status" "وضعیت" "الحالة" %}</th>
+                    <th>{% tr "Actions" "عملیات" "الإجراءات" %}</th>
                 </tr>
             </thead>
             <tbody>
                 {% for item in items %}
                 <tr>
+                    {% include "admin_panel/partials/_bulk_cell.html" %}
                     <td>{{ item.pk }}</td>
                     <td><strong>{{ item.title_en }}</strong></td>
                     <td dir="rtl">{{ item.title_fa }}</td>
+                    <td dir="rtl">{{ item.title_ar|default:"—" }}</td>
                     <td><span class="badge badge-accent">{{ item.icon }}</span></td>
                     <td>{{ item.order }}</td>
-                    <td>{% if item.is_active %}<span class="badge badge-success">{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span>{% else %}<span class="badge badge-danger">{% if lang == 'fa' %}غیرفعال{% else %}Inactive{% endif %}</span>{% endif %}</td>
+                    <td>{% if item.is_active %}<span class="badge badge-success">{% tr "Active" "فعال" "مفعّل" %}</span>{% else %}<span class="badge badge-danger">{% tr "Inactive" "غیرفعال" "غير مفعّل" %}</span>{% endif %}</td>
                     <td>
                         <div class="btn-group">
-                            <button class="btn btn-outline btn-sm btn-icon" onclick="openModal('{% if lang == 'fa' %}ویرایش خدمت{% else %}Edit Service{% endif %}', document.getElementById('editForm-{{ item.pk }}').innerHTML)" title="Edit">
+                            <button class="btn btn-outline btn-sm btn-icon" onclick="openModal('{% tr "Edit Service" "ویرایش خدمت" "تعديل الخدمة" %}', document.getElementById('editForm-{{ item.pk }}').innerHTML)" title="{% tr 'Edit' 'ویرایش' 'تعديل' %}">
                                 <i class="ph ph-pencil-simple"></i>
                             </button>
                             <form id="deleteForm-{{ item.pk }}" method="post" style="display:inline">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="pk" value="{{ item.pk }}">
-                                <button type="button" class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('deleteForm-{{ item.pk }}')" title="Delete">
+                                <button type="button" class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('deleteForm-{{ item.pk }}')" title="{% tr 'Delete' 'حذف' 'حذف' %}">
                                     <i class="ph ph-trash"></i>
                                 </button>
                             </form>
@@ -46,7 +52,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="7" class="empty-state"><p>{% if lang == 'fa' %}هنوز خدمتی اضافه نشده{% else %}No services yet{% endif %}</p></td></tr>
+                <tr><td colspan="9" class="empty-state"><p>{% tr "No services yet" "هنوز خدمتی اضافه نشده" "لا توجد خدمات بعد" %}</p></td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -60,25 +66,33 @@
         <input type="hidden" name="action" value="add">
         <div class="form-row">
             <div class="form-group">
-                <label class="form-label">{% if lang == 'fa' %}عنوان (EN){% else %}Title (EN){% endif %}</label>
+                <label class="form-label">{% tr "Title (EN)" "عنوان (EN)" "العنوان (EN)" %}</label>
                 <input type="text" name="title_en" class="form-control" required>
             </div>
             <div class="form-group">
-                <label class="form-label">{% if lang == 'fa' %}عنوان (FA){% else %}Title (FA){% endif %}</label>
+                <label class="form-label">{% tr "Title (FA)" "عنوان (FA)" "العنوان (FA)" %}</label>
                 <input type="text" name="title_fa" class="form-control" required dir="rtl">
             </div>
         </div>
         <div class="form-group">
-            <label class="form-label">{% if lang == 'fa' %}توضیحات (EN){% else %}Description (EN){% endif %}</label>
+            <label class="form-label">{% tr "Title (AR)" "عنوان (AR)" "العنوان (AR)" %}</label>
+            <input type="text" name="title_ar" class="form-control" dir="rtl">
+        </div>
+        <div class="form-group">
+            <label class="form-label">{% tr "Description (EN)" "توضیحات (EN)" "الوصف (EN)" %}</label>
             <textarea name="description_en" class="form-control" rows="3" required></textarea>
         </div>
         <div class="form-group">
-            <label class="form-label">{% if lang == 'fa' %}توضیحات (FA){% else %}Description (FA){% endif %}</label>
+            <label class="form-label">{% tr "Description (FA)" "توضیحات (FA)" "الوصف (FA)" %}</label>
             <textarea name="description_fa" class="form-control" rows="3" required dir="rtl"></textarea>
+        </div>
+        <div class="form-group">
+            <label class="form-label">{% tr "Description (AR)" "توضیحات (AR)" "الوصف (AR)" %}</label>
+            <textarea name="description_ar" class="form-control" rows="3" dir="rtl"></textarea>
         </div>
         <div class="form-row">
             <div class="form-group">
-                <label class="form-label">{% if lang == 'fa' %}آیکون{% else %}Icon{% endif %}</label>
+                <label class="form-label">{% tr "Icon" "آیکون" "الأيقونة" %}</label>
                 <select name="icon" class="form-control">
                     <option value="camera">📷 Camera</option>
                     <option value="gear">⚙️ Settings</option>
@@ -91,27 +105,27 @@
                 </select>
             </div>
             <div class="form-group">
-                <label class="form-label">{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</label>
+                <label class="form-label">{% tr "Order" "ترتیب" "الترتيب" %}</label>
                 <input type="number" name="order" class="form-control" value="0">
             </div>
         </div>
         <div class="form-group">
-            <label class="form-label">{% if lang == 'fa' %}تصویر{% else %}Image{% endif %}</label>
+            <label class="form-label">{% tr "Image" "تصویر" "الصورة" %}</label>
             <input type="file" name="image" class="form-control" accept="image/*">
         </div>
         <div class="form-group">
-            <label class="form-label">{% if lang == 'fa' %}آیکون سفارشی{% else %}Custom Icon{% endif %}</label>
+            <label class="form-label">{% tr "Custom Icon" "آیکون سفارشی" "أيقونة مخصصة" %}</label>
             <input type="file" name="custom_icon" class="form-control" accept="image/*">
-            <small>{% if lang == 'fa' %}تصویر آیکون سفارشی جایگزین آیکون پیش‌فرض می‌شود{% else %}Custom icon image overrides the default icon{% endif %}</small>
+            <small>{% tr "Custom icon image overrides the default icon" "تصویر آیکون سفارشی جایگزین آیکون پیش‌فرض می‌شود" "تستبدل الأيقونة المخصصة الأيقونة الافتراضية" %}</small>
         </div>
         <div class="form-group">
             <label class="form-check">
                 <input type="checkbox" name="is_active" checked>
-                <span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span>
+                <span>{% tr "Active" "فعال" "مفعّل" %}</span>
             </label>
         </div>
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button>
+            <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button>
         </div>
     </form>
 </div>
@@ -125,25 +139,33 @@
         <input type="hidden" name="pk" value="{{ item.pk }}">
         <div class="form-row">
             <div class="form-group">
-                <label class="form-label">{% if lang == 'fa' %}عنوان (EN){% else %}Title (EN){% endif %}</label>
+                <label class="form-label">{% tr "Title (EN)" "عنوان (EN)" "العنوان (EN)" %}</label>
                 <input type="text" name="title_en" class="form-control" value="{{ item.title_en }}" required>
             </div>
             <div class="form-group">
-                <label class="form-label">{% if lang == 'fa' %}عنوان (FA){% else %}Title (FA){% endif %}</label>
+                <label class="form-label">{% tr "Title (FA)" "عنوان (FA)" "العنوان (FA)" %}</label>
                 <input type="text" name="title_fa" class="form-control" value="{{ item.title_fa }}" required dir="rtl">
             </div>
         </div>
         <div class="form-group">
-            <label class="form-label">{% if lang == 'fa' %}توضیحات (EN){% else %}Description (EN){% endif %}</label>
+            <label class="form-label">{% tr "Title (AR)" "عنوان (AR)" "العنوان (AR)" %}</label>
+            <input type="text" name="title_ar" class="form-control" value="{{ item.title_ar }}" dir="rtl">
+        </div>
+        <div class="form-group">
+            <label class="form-label">{% tr "Description (EN)" "توضیحات (EN)" "الوصف (EN)" %}</label>
             <textarea name="description_en" class="form-control" rows="3" required>{{ item.description_en }}</textarea>
         </div>
         <div class="form-group">
-            <label class="form-label">{% if lang == 'fa' %}توضیحات (FA){% else %}Description (FA){% endif %}</label>
+            <label class="form-label">{% tr "Description (FA)" "توضیحات (FA)" "الوصف (FA)" %}</label>
             <textarea name="description_fa" class="form-control" rows="3" required dir="rtl">{{ item.description_fa }}</textarea>
+        </div>
+        <div class="form-group">
+            <label class="form-label">{% tr "Description (AR)" "توضیحات (AR)" "الوصف (AR)" %}</label>
+            <textarea name="description_ar" class="form-control" rows="3" dir="rtl">{{ item.description_ar }}</textarea>
         </div>
         <div class="form-row">
             <div class="form-group">
-                <label class="form-label">{% if lang == 'fa' %}آیکون{% else %}Icon{% endif %}</label>
+                <label class="form-label">{% tr "Icon" "آیکون" "الأيقونة" %}</label>
                 <select name="icon" class="form-control">
                     <option value="camera" {% if item.icon == 'camera' %}selected{% endif %}>📷 Camera</option>
                     <option value="gear" {% if item.icon == 'gear' %}selected{% endif %}>⚙️ Settings</option>
@@ -156,29 +178,29 @@
                 </select>
             </div>
             <div class="form-group">
-                <label class="form-label">{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</label>
+                <label class="form-label">{% tr "Order" "ترتیب" "الترتيب" %}</label>
                 <input type="number" name="order" class="form-control" value="{{ item.order }}">
             </div>
         </div>
         <div class="form-group">
-            <label class="form-label">{% if lang == 'fa' %}تصویر{% else %}Image{% endif %}</label>
+            <label class="form-label">{% tr "Image" "تصویر" "الصورة" %}</label>
             {% if item.image %}<div style="margin-bottom:8px"><img src="{{ item.image.url }}" class="image-preview"></div>{% endif %}
             <input type="file" name="image" class="form-control" accept="image/*">
         </div>
         <div class="form-group">
-            <label class="form-label">{% if lang == 'fa' %}آیکون سفارشی{% else %}Custom Icon{% endif %}</label>
+            <label class="form-label">{% tr "Custom Icon" "آیکون سفارشی" "أيقونة مخصصة" %}</label>
             {% if item.custom_icon %}<div style="margin-bottom:8px"><img src="{{ item.custom_icon.url }}" class="image-preview"></div>{% endif %}
             <input type="file" name="custom_icon" class="form-control" accept="image/*">
-            <small>{% if lang == 'fa' %}تصویر آیکون سفارشی جایگزین آیکون پیش‌فرض می‌شود{% else %}Custom icon image overrides the default icon{% endif %}</small>
+            <small>{% tr "Custom icon image overrides the default icon" "تصویر آیکون سفارشی جایگزین آیکون پیش‌فرض می‌شود" "تستبدل الأيقونة المخصصة الأيقونة الافتراضية" %}</small>
         </div>
         <div class="form-group">
             <label class="form-check">
                 <input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}>
-                <span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span>
+                <span>{% tr "Active" "فعال" "مفعّل" %}</span>
             </label>
         </div>
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button>
+            <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button>
         </div>
     </form>
 </div>

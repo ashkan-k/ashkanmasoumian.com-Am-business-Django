@@ -1029,6 +1029,96 @@ select.form-control {
 ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
 /* ══════════════════════════════════════════════════════════════
+   Bulk Actions  (list pages)
+   ══════════════════════════════════════════════════════════════ */
+
+/* Checkbox column */
+table .col-check {
+    width: 44px;
+    text-align: center;
+}
+
+table .col-check input[type="checkbox"],
+.row-check {
+    width: 17px;
+    height: 17px;
+    cursor: pointer;
+    accent-color: var(--accent);
+    vertical-align: middle;
+}
+
+/* Rows react to the selection state */
+tbody tr.row-selected {
+    background: var(--accent-soft);
+}
+
+tbody tr.row-selected td {
+    border-color: var(--accent-light);
+}
+
+/* The toolbar that appears once something is selected */
+.bulk-bar {
+    display: none;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 20px;
+    margin: 0;
+    background: var(--bg-input);
+    border-block: 1px solid var(--border);
+    border-inline-start: 3px solid var(--accent);
+}
+
+.bulk-bar.active {
+    display: flex;
+}
+
+.bulk-bar .bulk-count {
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.bulk-bar .bulk-count strong {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.bulk-bar .bulk-select {
+    min-width: 220px;
+    max-width: 320px;
+    padding: 8px 12px;
+    font-size: 0.86rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.bulk-bar .bulk-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.bulk-bar .bulk-actions-spacer {
+    margin-inline-start: auto;
+}
+
+.bulk-bar .bulk-hint {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+/* Per-row checkbox cell alignment in RTL tables */
+[dir="rtl"] table .col-check,
+[dir="rtl"] .bulk-bar {
+    direction: rtl;
+}
+
+/* ══════════════════════════════════════════════════════════════
    RTL Adjustments for Farsi (fa)
    Uses BOTH logical AND physical properties for maximum compat
    ══════════════════════════════════════════════════════════════ */
@@ -1222,6 +1312,28 @@ select.form-control {
     [dir="rtl"] .stat-info h4 {
         font-size: 1.3rem;
     }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Arabic (ar) — right-to-left like Farsi, but with an Arabic face
+   ══════════════════════════════════════════════════════════════ */
+[data-lang="ar"] {
+    font-family: 'Cairo', 'Vazirmatn', 'Inter', sans-serif;
+}
+
+[data-lang="ar"] h1, [data-lang="ar"] h2, [data-lang="ar"] h3,
+[data-lang="ar"] h4, [data-lang="ar"] h5, [data-lang="ar"] h6,
+[data-lang="ar"] p, [data-lang="ar"] span, [data-lang="ar"] label,
+[data-lang="ar"] td, [data-lang="ar"] th, [data-lang="ar"] a,
+[data-lang="ar"] input, [data-lang="ar"] textarea, [data-lang="ar"] select,
+[data-lang="ar"] button, [data-lang="ar"] .btn {
+    font-family: 'Cairo', 'Vazirmatn', 'Inter', sans-serif;
+}
+
+/* Arabic labels are a little tighter than Farsi ones */
+[data-lang="ar"] .nav-item,
+[data-lang="ar"] .page-heading {
+    letter-spacing: 0;
 }
 
 /* ──────────── Utility ──────────── */

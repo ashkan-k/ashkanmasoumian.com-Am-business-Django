@@ -208,3 +208,16 @@
         display: none !important;
     }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Arabic (ar) — shares the RTL layout, uses an Arabic typeface
+   ══════════════════════════════════════════════════════════════ */
+html[lang="ar"] body,
+html[lang="ar"] h1, html[lang="ar"] h2, html[lang="ar"] h3,
+html[lang="ar"] h4, html[lang="ar"] h5, html[lang="ar"] h6,
+html[lang="ar"] p, html[lang="ar"] span, html[lang="ar"] a,
+html[lang="ar"] li, html[lang="ar"] blockquote,
+html[lang="ar"] input, html[lang="ar"] textarea, html[lang="ar"] select,
+html[lang="ar"] button, html[lang="ar"] .btn {
+    font-family: 'Cairo', 'Vazirmatn', 'Jost', sans-serif;
+}

@@ -1,24 +1,44 @@
 {% extends "admin_panel/base.html" %}
+{% load i18n_custom %}
 {% block content %}
 <div class="card">
-    <div class="card-header"><h3>{% if lang == 'fa' %}شمارش معکوس رویداد{% else %}Event Countdown{% endif %}</h3></div>
+    <div class="card-header"><h3>{% tr "Event Countdown" "شمارش معکوس رویداد" "العد التنازلي للحدث" %}</h3></div>
     <div class="card-body">
         <form method="post">{% csrf_token %}<input type="hidden" name="action" value="edit">
         <div class="tabs" data-group="cd">
-            <button type="button" class="tab-btn active" data-tab="cd-main">{% if lang == 'fa' %}محتوا{% else %}Content{% endif %}</button>
-            <button type="button" class="tab-btn" data-tab="cd-end">{% if lang == 'fa' %}پیام اتمام{% else %}End Message{% endif %}</button>
+            <button type="button" class="tab-btn active" data-tab="cd-main">{% tr "Content" "محتوا" "المحتوى" %}</button>
+            <button type="button" class="tab-btn" data-tab="cd-end">{% tr "End Message" "پیام اتمام" "رسالة الانتهاء" %}</button>
         </div>
         <div class="tab-content active" id="cd-main" data-group="cd">
-            <div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (EN){% else %}Title (EN){% endif %}</label><input type="text" name="title_en" class="form-control" value="{% if obj %}{{ obj.title_en }}{% endif %}"></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (FA){% else %}Title (FA){% endif %}</label><input type="text" name="title_fa" class="form-control" value="{% if obj %}{{ obj.title_fa }}{% endif %}" dir="rtl"></div></div>
-            <div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}زیرعنوان (EN){% else %}Subheading (EN){% endif %}</label><input type="text" name="subheading_en" class="form-control" value="{% if obj %}{{ obj.subheading_en }}{% endif %}"></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}زیرعنوان (FA){% else %}Subheading (FA){% endif %}</label><input type="text" name="subheading_fa" class="form-control" value="{% if obj %}{{ obj.subheading_fa }}{% endif %}" dir="rtl"></div></div>
-            <div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}تاریخ رویداد{% else %}Event Date{% endif %}</label><input type="datetime-local" name="event_date" class="form-control" value="{% if obj %}{{ obj.event_date|date:'Y-m-d\TH:i' }}{% endif %}" required></div><div class="form-group" style="display:flex;align-items:flex-end"><label class="form-check"><input type="checkbox" name="is_active" {% if obj and obj.is_active %}checked{% elif not obj %}checked{% endif %}><span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span></label></div></div>
+            <div class="form-row">
+                <div class="form-group"><label class="form-label">{% tr "Title (EN)" "عنوان (EN)" "العنوان (EN)" %}</label><input type="text" name="title_en" class="form-control" value="{% if obj %}{{ obj.title_en }}{% endif %}"></div>
+                <div class="form-group"><label class="form-label">{% tr "Title (FA)" "عنوان (FA)" "العنوان (FA)" %}</label><input type="text" name="title_fa" class="form-control" value="{% if obj %}{{ obj.title_fa }}{% endif %}" dir="rtl"></div>
+            </div>
+            <div class="form-group"><label class="form-label">{% tr "Title (AR)" "عنوان (AR)" "العنوان (AR)" %}</label><input type="text" name="title_ar" class="form-control" value="{% if obj %}{{ obj.title_ar }}{% endif %}" dir="rtl"></div>
+            <div class="form-row">
+                <div class="form-group"><label class="form-label">{% tr "Subheading (EN)" "زیرعنوان (EN)" "العنوان الفرعي (EN)" %}</label><input type="text" name="subheading_en" class="form-control" value="{% if obj %}{{ obj.subheading_en }}{% endif %}"></div>
+                <div class="form-group"><label class="form-label">{% tr "Subheading (FA)" "زیرعنوان (FA)" "العنوان الفرعي (FA)" %}</label><input type="text" name="subheading_fa" class="form-control" value="{% if obj %}{{ obj.subheading_fa }}{% endif %}" dir="rtl"></div>
+            </div>
+            <div class="form-group"><label class="form-label">{% tr "Subheading (AR)" "زیرعنوان (AR)" "العنوان الفرعي (AR)" %}</label><input type="text" name="subheading_ar" class="form-control" value="{% if obj %}{{ obj.subheading_ar }}{% endif %}" dir="rtl"></div>
+            <div class="form-row">
+                <div class="form-group"><label class="form-label">{% tr "Event Date" "تاریخ رویداد" "تاريخ الحدث" %}</label><input type="datetime-local" name="event_date" class="form-control" value="{% if obj %}{{ obj.event_date|date:'Y-m-d\TH:i' }}{% endif %}" required></div>
+                <div class="form-group" style="display:flex;align-items:flex-end"><label class="form-check"><input type="checkbox" name="is_active" {% if obj and obj.is_active %}checked{% elif not obj %}checked{% endif %}><span>{% tr "Active" "فعال" "مفعّل" %}</span></label></div>
+            </div>
         </div>
         <div class="tab-content" id="cd-end" data-group="cd">
-            <div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}پیام اتمام (EN){% else %}Ended Message (EN){% endif %}</label><input type="text" name="ended_message_en" class="form-control" value="{% if obj %}{{ obj.ended_message_en }}{% endif %}"></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}پیام اتمام (FA){% else %}Ended Message (FA){% endif %}</label><input type="text" name="ended_message_fa" class="form-control" value="{% if obj %}{{ obj.ended_message_fa }}{% endif %}" dir="rtl"></div></div>
-            <div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}متن دکمه (EN){% else %}CTA (EN){% endif %}</label><input type="text" name="cta_text_en" class="form-control" value="{% if obj %}{{ obj.cta_text_en }}{% endif %}"></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}متن دکمه (FA){% else %}CTA (FA){% endif %}</label><input type="text" name="cta_text_fa" class="form-control" value="{% if obj %}{{ obj.cta_text_fa }}{% endif %}" dir="rtl"></div></div>
-            <div class="form-group"><label class="form-label">{% if lang == 'fa' %}لینک دکمه{% else %}CTA URL{% endif %}</label><input type="text" name="cta_url" class="form-control" value="{% if obj %}{{ obj.cta_url }}{% endif %}"></div>
+            <div class="form-row">
+                <div class="form-group"><label class="form-label">{% tr "Ended Message (EN)" "پیام اتمام (EN)" "رسالة الانتهاء (EN)" %}</label><input type="text" name="ended_message_en" class="form-control" value="{% if obj %}{{ obj.ended_message_en }}{% endif %}"></div>
+                <div class="form-group"><label class="form-label">{% tr "Ended Message (FA)" "پیام اتمام (FA)" "رسالة الانتهاء (FA)" %}</label><input type="text" name="ended_message_fa" class="form-control" value="{% if obj %}{{ obj.ended_message_fa }}{% endif %}" dir="rtl"></div>
+            </div>
+            <div class="form-group"><label class="form-label">{% tr "Ended Message (AR)" "پیام اتمام (AR)" "رسالة الانتهاء (AR)" %}</label><input type="text" name="ended_message_ar" class="form-control" value="{% if obj %}{{ obj.ended_message_ar }}{% endif %}" dir="rtl"></div>
+            <div class="form-row">
+                <div class="form-group"><label class="form-label">{% tr "CTA (EN)" "متن دکمه (EN)" "نص الزر (EN)" %}</label><input type="text" name="cta_text_en" class="form-control" value="{% if obj %}{{ obj.cta_text_en }}{% endif %}"></div>
+                <div class="form-group"><label class="form-label">{% tr "CTA (FA)" "متن دکمه (FA)" "نص الزر (FA)" %}</label><input type="text" name="cta_text_fa" class="form-control" value="{% if obj %}{{ obj.cta_text_fa }}{% endif %}" dir="rtl"></div>
+            </div>
+            <div class="form-group"><label class="form-label">{% tr "CTA (AR)" "متن دکمه (AR)" "نص الزر (AR)" %}</label><input type="text" name="cta_text_ar" class="form-control" value="{% if obj %}{{ obj.cta_text_ar }}{% endif %}" dir="rtl"></div>
+            <div class="form-group"><label class="form-label">{% tr "CTA URL" "لینک دکمه" "رابط الزر" %}</label><input type="text" name="cta_url" class="form-control" value="{% if obj %}{{ obj.cta_url }}{% endif %}"></div>
         </div>
-        <div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button></div></form>
+        <div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button></div></form>
     </div>
 </div>
 {% endblock %}

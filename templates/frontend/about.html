@@ -32,19 +32,19 @@
                 <div class="row text-center" id="countdown-timer" data-event-date="{{ countdown.event_date|date:'c' }}">
                     <div class="col-3"><div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
                         <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-days">0</span>
-                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% if lang == 'fa' %}روز{% else %}Days{% endif %}</span>
+                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% tr "Days" "روز" "أيام" %}</span>
                     </div></div>
                     <div class="col-3"><div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
                         <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-hours">00</span>
-                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% if lang == 'fa' %}ساعت{% else %}Hours{% endif %}</span>
+                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% tr "Hours" "ساعت" "ساعات" %}</span>
                     </div></div>
                     <div class="col-3"><div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
                         <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-minutes">00</span>
-                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% if lang == 'fa' %}دقیقه{% else %}Minutes{% endif %}</span>
+                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% tr "Minutes" "دقیقه" "دقائق" %}</span>
                     </div></div>
                     <div class="col-3"><div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
                         <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-seconds">00</span>
-                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% if lang == 'fa' %}ثانیه{% else %}Seconds{% endif %}</span>
+                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% tr "Seconds" "ثانیه" "ثوانٍ" %}</span>
                     </div></div>
                 </div>
                 <div id="countdown-ended" style="display:none;text-align:center;margin-top:20px;">
@@ -74,9 +74,9 @@
                 </div></div>
                 <div class="row">
                     {% get_who_we_are about as wwr %}{% if wwr %}
-                    <div class="col-lg-6"><h3 class="font-weight-bold">{% if lang == 'fa' %}ما کیستیم{% else %}Who we are{% endif %}</h3><p>{{ wwr }}</p></div>{% endif %}
+                    <div class="col-lg-6"><h3 class="font-weight-bold">{% tr "Who we are" "ما کیستیم" "من نحن" %}</h3><p>{{ wwr }}</p></div>{% endif %}
                     {% get_we_are_expert about as wae %}{% if wae %}
-                    <div class="col-lg-6"><h3 class="font-weight-bold">{% if lang == 'fa' %}ما متخصصیم{% else %}We are expert{% endif %}</h3><p>{{ wae }}</p></div>{% endif %}
+                    <div class="col-lg-6"><h3 class="font-weight-bold">{% tr "We are expert" "ما متخصصیم" "خبراؤنا" %}</h3><p>{{ wae }}</p></div>{% endif %}
                 </div>
             </div>
         </div>
@@ -96,7 +96,7 @@
 
 {% if team_members %}
 <div class="section pt-0"><div class="container"><div class="container">
-    <div class="row mb-5"><div class="col-lg-7"><h2 class="heading text-black">{% if lang == 'fa' %}تیم ما{% else %}Meet our team{% endif %}</h2></div></div>
+    <div class="row mb-5"><div class="col-lg-7"><h2 class="heading text-black">{% tr "Meet our team" "تیم ما" "تعرّف على فريقنا" %}</h2></div></div>
     <div class="row justify-content-center"><div class="col-lg-9"><div class="row justify-content-between">
         {% for member in team_members %}
         <div class="col-lg-6 mb-5 mb-lg-0"><div class="team">
@@ -111,8 +111,8 @@
 {% if services %}
 <div class="section section-3"><div class="container">
     <div class="row"><div class="col-lg-6 mb-5">
-        <span class="subheading" style="color:#e2a83e;">{% if lang == 'fa' %}خدمات{% else %}Services{% endif %}</span>
-        <h2 class="heading">{% if lang == 'fa' %}خدمات ما{% else %}Our Services{% endif %}</h2>
+        <span class="subheading" style="color:#e2a83e;">{% tr "Services" "خدمات" "الخدمات" %}</span>
+        <h2 class="heading">{% tr "Our Services" "خدمات ما" "خدماتنا" %}</h2>
     </div></div>
     <div class="row features-wrap">
         {% for service in services %}
@@ -134,7 +134,7 @@
     {% get_why_title about as why_t %}{% if why_t %}
     <div class="box-white pt-5 p-md-5 mx-md-5"><div class="container"><div class="row">
         <div class="col-lg-6 align-self-center mb-5 mb-lg-0"><div class="text-wrap">
-            <span class="subheading" style="color:#e2a83e;">{% if lang == 'fa' %}چرا ما{% else %}Why AM Business{% endif %}</span>
+            <span class="subheading" style="color:#e2a83e;">{% tr "Why AM Business" "چرا ما" "لماذا إي إم بيزنس" %}</span>
             <h2 class="heading mb-4" style="font-size:40px;">{{ why_t }}</h2>
             <p>{% get_why_content about %}</p>
             {% trans_field about "cta_text" as cta %}{% if cta %}

@@ -18,26 +18,26 @@
 
 <div class="section section-contact m-md-5 px-md-5">
     <div class="container">
-        <h2>{% if lang == 'fa' %}سوالی دارید؟ فرم تماس را پر کنید{% else %}Any question? Fill the contact form{% endif %}</h2>
-        <p class="mb-4">{% if lang == 'fa' %}پیامی برای ما بفرستید{% else %}Send us a message{% endif %}</p>
+        <h2>{% tr "Any question? Fill the contact form" "سوالی دارید؟ فرم تماس را پر کنید" "هل لديك سؤال؟ املأ نموذج التواصل" %}</h2>
+        <p class="mb-4">{% tr "Send us a message" "پیامی برای ما بفرستید" "أرسل لنا رسالة" %}</p>
         <form action="{% url 'frontend_contact' %}" method="post" class="form-contact">
             {% csrf_token %}
             <div class="row">
                 <div class="col-lg-6"><div class="form-group">
-                    <input type="text" name="name" class="form-control" placeholder="{% if lang == 'fa' %}نام شما{% else %}Your name{% endif %}" required>
+                    <input type="text" name="name" class="form-control" placeholder="{% tr 'Your name' 'نام شما' 'اسمك' %}" required>
                 </div></div>
                 <div class="col-lg-6"><div class="form-group">
-                    <input type="email" name="email" class="form-control" placeholder="{% if lang == 'fa' %}ایمیل شما{% else %}Your email{% endif %}" required>
+                    <input type="email" name="email" class="form-control" placeholder="{% tr 'Your email' 'ایمیل شما' 'بريدك الإلكتروني' %}" required>
                 </div></div>
             </div>
             <div class="col-lg-12"><div class="form-group">
-                <input type="text" name="subject" class="form-control" placeholder="{% if lang == 'fa' %}موضوع{% else %}Subject{% endif %}">
+                <input type="text" name="subject" class="form-control" placeholder="{% tr 'Subject' 'موضوع' 'الموضوع' %}">
             </div></div>
             <div class="col-lg-12"><div class="form-group">
-                <textarea name="message" rows="10" class="form-control" placeholder="{% if lang == 'fa' %}پیام شما{% else %}Your message{% endif %}" required></textarea>
+                <textarea name="message" rows="10" class="form-control" placeholder="{% tr 'Your message' 'پیام شما' 'رسالتك' %}" required></textarea>
             </div></div>
             <div class="col-lg-6">
-                <input type="submit" class="btn btn-black" value="{% if lang == 'fa' %}ارسال پیام{% else %}Send message{% endif %}">
+                <input type="submit" class="btn btn-black" value="{% tr 'Send message' 'ارسال پیام' 'إرسال الرسالة' %}">
             </div>
         </form>
     </div>
@@ -47,8 +47,8 @@
 <div class="section section-6 half-overlay">
     <div class="container">
         <div class="box-white"><div class="row"><div class="col-lg-7 mx-auto text-center">
-            <h3 class="subheading">{% if lang == 'fa' %}نظرات{% else %}Testimonials{% endif %}</h3>
-            <h2 class="heading mb-5">{% if lang == 'fa' %}مشتریان چه می‌گویند...{% else %}People Says...{% endif %}</h2>
+            <h3 class="subheading">{% tr "Testimonials" "نظرات" "الشهادات" %}</h3>
+            <h2 class="heading mb-5">{% tr "People Says..." "مشتریان چه می‌گویند..." "ماذا يقول عملاؤنا..." %}</h2>
             <div class="testimonial-wrap"><div id="testimonial">
                 {% for t in testimonials %}
                 <div><div class="item-testimonial">

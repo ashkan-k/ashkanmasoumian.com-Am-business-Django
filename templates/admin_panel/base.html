@@ -1,20 +1,20 @@
-{% load static %}
+{% load static i18n_custom %}
 <!DOCTYPE html>
-<html lang="{{ lang }}" dir="{% if lang == 'fa' %}rtl{% else %}ltr{% endif %}">
+<html lang="{{ lang }}" dir="{% if is_rtl %}rtl{% else %}ltr{% endif %}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% if page_title %}{{ page_title }} | {% endif %}AM Business Admin</title>
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Vazirmatn:wght@300;400;500;600;700;800&family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Phosphor Icons -->
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/fill/style.css">
 
-    <link rel="stylesheet" href="{% static 'admin_panel/css/style.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'admin_panel/css/style.css' %}?v=3">
 </head>
 <body class="theme-{{ theme }}" data-lang="{{ lang }}">
 
@@ -48,7 +48,7 @@
             <div class="sidebar-header">
                 <div class="sidebar-logo">
                     <div class="logo-icon">AM</div>
-                    <span class="logo-text">{% if lang == 'fa' %}پنل مدیریت{% else %}Admin Panel{% endif %}</span>
+                    <span class="logo-text">{% tr "Admin Panel" "پنل مدیریت" "لوحة التحكم" %}</span>
                 </div>
                 <button class="sidebar-close-btn" id="sidebarCloseBtn">
                     <i class="ph ph-x"></i>
@@ -58,105 +58,105 @@
             <nav class="sidebar-nav">
                 <a href="{% url 'admin_dashboard' %}" class="nav-item {% if page_title == 'Dashboard' %}active{% endif %}">
                     <i class="ph ph-squares-four"></i>
-                    <span>{% if lang == 'fa' %}داشبورد{% else %}Dashboard{% endif %}</span>
+                    <span>{% tr "Dashboard" "داشبورد" "لوحة المعلومات" %}</span>
                 </a>
 
-                <div class="nav-section">{% if lang == 'fa' %}محتوا{% else %}Content{% endif %}</div>
+                <div class="nav-section">{% tr "Content" "محتوا" "المحتوى" %}</div>
 
                 <a href="{% url 'admin_hero_sections' %}" class="nav-item {% if page_title == 'Hero Sections' %}active{% endif %}">
                     <i class="ph ph-image"></i>
-                    <span>{% if lang == 'fa' %} بنرهای صفحه{% else %}Hero Sections{% endif %}</span>
+                    <span>{% tr "Hero Sections" "بنرهای صفحه" "بانرات الصفحات" %}</span>
                 </a>
 
                 <a href="{% url 'admin_services' %}" class="nav-item {% if page_title == 'Services' %}active{% endif %}">
                     <i class="ph ph-wrench"></i>
-                    <span>{% if lang == 'fa' %}خدمات{% else %}Services{% endif %}</span>
+                    <span>{% tr "Services" "خدمات" "الخدمات" %}</span>
                 </a>
 
                 <a href="{% url 'admin_about' %}" class="nav-item {% if page_title == 'About Section' %}active{% endif %}">
                     <i class="ph ph-buildings"></i>
-                    <span>{% if lang == 'fa' %}درباره ما{% else %}About{% endif %}</span>
+                    <span>{% tr "About" "درباره ما" "من نحن" %}</span>
                 </a>
 
                 <a href="{% url 'admin_features' %}" class="nav-item {% if page_title == 'Features' %}active{% endif %}">
                     <i class="ph ph-star"></i>
-                    <span>{% if lang == 'fa' %}ویژگی‌ها{% else %}Features{% endif %}</span>
+                    <span>{% tr "Features" "ویژگی‌ها" "الميزات" %}</span>
                 </a>
 
                 <a href="{% url 'admin_pricing' %}" class="nav-item {% if page_title == 'Pricing Plans' %}active{% endif %}">
                     <i class="ph ph-currency-dollar"></i>
-                    <span>{% if lang == 'fa' %}قیمت‌گذاری{% else %}Pricing{% endif %}</span>
+                    <span>{% tr "Pricing" "قیمت‌گذاری" "الأسعار" %}</span>
                 </a>
 
                 <a href="{% url 'admin_testimonials' %}" class="nav-item {% if page_title == 'Testimonials' %}active{% endif %}">
                     <i class="ph ph-quotes"></i>
-                    <span>{% if lang == 'fa' %}نظرات مشتریان{% else %}Testimonials{% endif %}</span>
+                    <span>{% tr "Testimonials" "نظرات مشتریان" "شهادات العملاء" %}</span>
                 </a>
 
                 <a href="{% url 'admin_team' %}" class="nav-item {% if page_title == 'Team Members' %}active{% endif %}">
                     <i class="ph ph-users"></i>
-                    <span>{% if lang == 'fa' %}تیم ما{% else %}Team{% endif %}</span>
+                    <span>{% tr "Team" "تیم ما" "فريق العمل" %}</span>
                 </a>
 
                 <a href="{% url 'admin_stat_counters' %}" class="nav-item {% if page_title == 'Stat Counters' %}active{% endif %}">
                     <i class="ph ph-chart-line-up"></i>
-                    <span>{% if lang == 'fa' %}شمارنده‌ها{% else %}Counters{% endif %}</span>
+                    <span>{% tr "Counters" "شمارنده‌ها" "العدادات" %}</span>
                 </a>
 
                 <a href="{% url 'admin_event_countdown' %}" class="nav-item {% if page_title == 'Event Countdown' %}active{% endif %}">
                     <i class="ph ph-timer"></i>
-                    <span>{% if lang == 'fa' %}شمارش معکوس{% else %}Countdown{% endif %}</span>
+                    <span>{% tr "Countdown" "شمارش معکوس" "العد التنازلي" %}</span>
                 </a>
 
                 <a href="{% url 'admin_home_sections' %}" class="nav-item {% if page_title == 'Home Sections' %}active{% endif %}">
                     <i class="ph ph-house"></i>
-                    <span>{% if lang == 'fa' %}بخش‌های صفحه اصلی{% else %}Home Sections{% endif %}</span>
+                    <span>{% tr "Home Sections" "بخش‌های صفحه اصلی" "أقسام الصفحة الرئيسية" %}</span>
                 </a>
 
-                <div class="nav-section">{% if lang == 'fa' %}سایت{% else %}Site{% endif %}</div>
+                <div class="nav-section">{% tr "Site" "سایت" "الموقع" %}</div>
 
                 <a href="{% url 'admin_navigation' %}" class="nav-item {% if page_title == 'Navigation' %}active{% endif %}">
                     <i class="ph ph-list"></i>
-                    <span>{% if lang == 'fa' %}منوی ناوبری{% else %}Navigation{% endif %}</span>
+                    <span>{% tr "Navigation" "منوی ناوبری" "قائمة التنقل" %}</span>
                 </a>
 
                 <a href="{% url 'admin_social_links' %}" class="nav-item {% if page_title == 'Social Links' %}active{% endif %}">
                     <i class="ph ph-link"></i>
-                    <span>{% if lang == 'fa' %}شبکه‌های اجتماعی{% else %}Social Links{% endif %}</span>
+                    <span>{% tr "Social Links" "شبکه‌های اجتماعی" "روابط التواصل" %}</span>
                 </a>
 
                 <a href="{% url 'admin_pages' %}" class="nav-item {% if page_title == 'CMS Pages' %}active{% endif %}">
                     <i class="ph ph-file-text"></i>
-                    <span>{% if lang == 'fa' %}صفحات{% else %}Pages{% endif %}</span>
+                    <span>{% tr "Pages" "صفحات" "الصفحات" %}</span>
                 </a>
 
                 <a href="{% url 'admin_site_settings' %}" class="nav-item {% if page_title == 'Site Settings' %}active{% endif %}">
                     <i class="ph ph-gear"></i>
-                    <span>{% if lang == 'fa' %}تنظیمات سایت{% else %}Site Settings{% endif %}</span>
+                    <span>{% tr "Site Settings" "تنظیمات سایت" "إعدادات الموقع" %}</span>
                 </a>
 
-                <div class="nav-section">{% if lang == 'fa' %}تعامل{% else %}Engagement{% endif %}</div>
+                <div class="nav-section">{% tr "Engagement" "تعامل" "التفاعل" %}</div>
 
                 <a href="{% url 'admin_messages' %}" class="nav-item {% if page_title == 'Contact Messages' or page_title == 'Message Detail' %}active{% endif %}">
                     <i class="ph ph-envelope-simple"></i>
-                    <span>{% if lang == 'fa' %}پیام‌ها{% else %}Messages{% endif %}</span>
+                    <span>{% tr "Messages" "پیام‌ها" "الرسائل" %}</span>
                     {% if unread_messages %}<span class="nav-badge">{{ unread_messages }}</span>{% endif %}
                 </a>
 
                 <a href="{% url 'admin_newsletter' %}" class="nav-item {% if page_title == 'Newsletter Subscribers' %}active{% endif %}">
                     <i class="ph ph-megaphone"></i>
-                    <span>{% if lang == 'fa' %}خبرنامه{% else %}Newsletter{% endif %}</span>
+                    <span>{% tr "Newsletter" "خبرنامه" "النشرة البريدية" %}</span>
                 </a>
             </nav>
 
             <div class="sidebar-footer">
                 <a href="/swagger/" target="_blank" class="nav-item">
                     <i class="ph ph-code"></i>
-                    <span>{% if lang == 'fa' %}مستندات API{% else %}API Docs{% endif %}</span>
+                    <span>{% tr "API Docs" "مستندات API" "وثائق API" %}</span>
                 </a>
                 <a href="/" target="_blank" class="nav-item">
                     <i class="ph ph-arrow-square-out"></i>
-                    <span>{% if lang == 'fa' %}مشاهده سایت{% else %}View Site{% endif %}</span>
+                    <span>{% tr "View Site" "مشاهده سایت" "عرض الموقع" %}</span>
                 </a>
             </div>
         </aside>
@@ -169,27 +169,30 @@
                     <button class="sidebar-toggle" id="sidebarToggle">
                         <i class="ph ph-list"></i>
                     </button>
-                    <h1 class="page-heading">{{ page_title }}</h1>
+                    <h1 class="page-heading">
+                        {% block page_heading %}{% page_heading page_title %}{% endblock %}
+                    </h1>
                 </div>
                 <div class="topbar-right">
-                    <!-- Language Switcher -->
+                    <!-- Language Switcher (English / Persian / Arabic) -->
                     <div class="dropdown">
                         <button class="dropdown-toggle topbar-btn" id="langDropdown">
                             <i class="ph ph-translate"></i>
-                            <span>{% if lang == 'fa' %}فارسی{% else %}English{% endif %}</span>
+                            <span>{{ lang_name }}</span>
                         </button>
                         <div class="dropdown-menu" id="langMenu">
-                            <a href="{% url 'set_language' 'en' %}" class="dropdown-item {% if lang == 'en' %}active{% endif %}">
-                                🇬🇧 English
+                            {% for language in languages %}
+                            <a href="{% url 'set_language' language.code %}"
+                               class="dropdown-item {% if lang == language.code %}active{% endif %}"
+                               {% if lang == language.code %}aria-current="true"{% endif %}>
+                                {{ language.flag }} {{ language.native }}
                             </a>
-                            <a href="{% url 'set_language' 'fa' %}" class="dropdown-item {% if lang == 'fa' %}active{% endif %}">
-                                🇮🇷 فارسی
-                            </a>
+                            {% endfor %}
                         </div>
                     </div>
 
                     <!-- Theme Switcher -->
-                    <button class="topbar-btn" id="themeToggle" title="Toggle Theme">
+                    <button class="topbar-btn" id="themeToggle" title="{% tr 'Toggle Theme' 'تغییر پوسته' 'تبديل المظهر' %}">
                         <i class="ph {% if theme == 'dark' %}ph-sun{% else %}ph-moon{% endif %}" id="themeIcon"></i>
                     </button>
 
@@ -202,7 +205,7 @@
                         <div class="dropdown-menu" id="userMenu">
                             <a href="{% url 'admin_logout' %}" class="dropdown-item">
                                 <i class="ph ph-sign-out"></i>
-                                {% if lang == 'fa' %}خروج{% else %}Logout{% endif %}
+                                {% tr "Logout" "خروج" "تسجيل الخروج" %}
                             </a>
                         </div>
                     </div>
@@ -230,7 +233,16 @@
         </div>
     </div>
 
-    <script src="{% static 'admin_panel/js/main.js' %}"></script>
+    <script>
+        // Strings used by the shared admin JavaScript (bulk actions, confirms)
+        window.DSH_I18N = {
+            confirmDelete: "{% tr 'Are you sure you want to delete this item?' 'آیا از حذف این مورد مطمئن هستید؟' 'هل أنت متأكد من حذف هذا العنصر؟' %}",
+            bulkNoSelection: "{% tr 'Select at least one row first.' 'ابتدا حداقل یک ردیف را انتخاب کنید.' 'حدّد صفًا واحدًا على الأقل أولًا.' %}",
+            bulkNoAction: "{% tr 'Choose a bulk action first.' 'ابتدا یک عملیات گروهی انتخاب کنید.' 'اختر إجراءً جماعيًا أولًا.' %}",
+            bulkConfirmDelete: "{% tr 'Delete %s selected item(s)? This cannot be undone.' 'حذف %s مورد انتخاب‌شده؟ این عمل قابل بازگشت نیست.' 'حذف %s من العناصر المحددة؟ لا يمكن التراجع عن ذلك.' %}"
+        };
+    </script>
+    <script src="{% static 'admin_panel/js/main.js' %}?v=3"></script>
     <script>
         // Theme toggle
         document.getElementById('themeToggle').addEventListener('click', function() {

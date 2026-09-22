@@ -1,264 +1,250 @@
+"""Language helpers for the AM Business templates.
+
+The site ships three languages — English (``en``), Persian (``fa``) and
+Arabic (``ar``).  Persian and Arabic are both right-to-left.
+
+The main entry point is the ``{% tr %}`` tag::
+
+    {% tr "Services" "خدمات" "الخدمات" %}
+
+It renders the string that matches the active language and falls back to
+English when a translation is missing.  Model values are resolved through
+``pick_lang`` so an empty Arabic/Persian field also falls back to English.
+"""
 from django import template
+
+from core.models import (
+    DEFAULT_LANGUAGE,
+    RTL_LANGUAGES,
+    SUPPORTED_LANGUAGES,
+    pick_lang,
+)
 
 register = template.Library()
 
 
+# ──────────────────────── Language registry ────────────────────────
+LANGUAGE_META = {
+    "en": {"name": "English", "native": "English", "flag": "🇬🇧", "short": "EN", "rtl": False},
+    "fa": {"name": "Persian", "native": "فارسی", "flag": "🇮🇷", "short": "FA", "rtl": True},
+    "ar": {"name": "Arabic", "native": "العربية", "flag": "🇸🇦", "short": "AR", "rtl": True},
+}
+
+LANGUAGE_ORDER = ("en", "fa", "ar")
+
+
+def normalize_lang(lang):
+    """Normalise an arbitrary language code (``en-us`` → ``en``)."""
+    lang = (lang or DEFAULT_LANGUAGE).split("-")[0].lower()
+    return lang if lang in SUPPORTED_LANGUAGES else DEFAULT_LANGUAGE
+
+
+@register.simple_tag(takes_context=True)
+def tr(context, en="", fa="", ar=""):
+    """Return the string for the active language.
+
+    ``{% tr "English" "فارسی" "العربية" %}`` — any argument may be omitted,
+    in which case English is used as the fallback.
+    """
+    lang = normalize_lang(context.get("lang"))
+    if lang == "fa" and fa:
+        return fa
+    if lang == "ar" and ar:
+        return ar
+    return en
+
+
+@register.simple_tag(takes_context=True)
+def current_lang(context):
+    """The active language code."""
+    return normalize_lang(context.get("lang"))
+
+
+@register.simple_tag(takes_context=True)
+def is_rtl(context):
+    """True when the active language is right-to-left (Persian or Arabic)."""
+    return normalize_lang(context.get("lang")) in RTL_LANGUAGES
+
+
+@register.simple_tag(takes_context=True)
+def text_dir(context):
+    """``rtl`` or ``ltr`` for the active language."""
+    return "rtl" if normalize_lang(context.get("lang")) in RTL_LANGUAGES else "ltr"
+
+
+@register.simple_tag(takes_context=True)
+def lang_name(context):
+    """Native name of the active language (used by the switcher button)."""
+    return LANGUAGE_META[normalize_lang(context.get("lang"))]["native"]
+
+
+@register.simple_tag
+def languages():
+    """The ordered list of selectable languages, for language switchers."""
+    return [
+        {"code": code, **LANGUAGE_META[code]}
+        for code in LANGUAGE_ORDER
+    ]
+
+
 @register.filter
 def lang_field(obj, field_and_lang):
+    """Usage: ``{{ object|lang_field:"title:fa" }}``
+
+    Resolves ``obj.get_title(lang)`` when available, otherwise falls back to
+    the ``<field>_<lang>`` attribute and finally to the English field.
     """
-    Usage: {{ object|lang_field:"title:lang" }}
-    Resolves to obj.get_title(lang) or obj.title_en
-    """
-    parts = field_and_lang.split(":")
+    if obj is None:
+        return ""
+    parts = str(field_and_lang).split(":")
     if len(parts) != 2:
         return ""
-    field_name, lang_var = parts
-    lang = "en"  # default
+    field_name, lang = parts
+    lang = normalize_lang(lang)
 
-    # Get lang from context if available
-    if hasattr(obj, f"get_{field_name}"):
-        method = getattr(obj, f"get_{field_name}")
+    getter = getattr(obj, f"get_{field_name}", None)
+    if callable(getter):
         try:
-            return method(lang)
+            return getter(lang)
         except Exception:
             pass
-
-    # Fallback to _en or _fa
-    fa_attr = f"{field_name}_{lang_var}"
-    en_attr = f"{field_name}_en"
-
-    if hasattr(obj, fa_attr):
-        return getattr(obj, fa_attr, "")
-    elif hasattr(obj, en_attr):
-        return getattr(obj, en_attr, "")
-    return ""
+    return pick_lang(obj, field_name, lang)
 
 
 @register.simple_tag(takes_context=True)
 def trans_field(context, obj, field_prefix):
+    """Usage: ``{% trans_field countdown "title" %}``
+
+    Picks ``<field_prefix>_<lang>`` from ``obj`` using the context language,
+    falling back to English when the translation is empty.
     """
-    Usage: {% trans_field obj "title" %}
-    Uses the 'lang' variable from context to pick title_en or title_fa
-    """
-    lang = context.get("lang", "en")
-    if lang == "fa":
-        attr = f"{field_prefix}_fa"
-    else:
-        attr = f"{field_prefix}_en"
-    return getattr(obj, attr, "")
+    return pick_lang(obj, field_prefix, context.get("lang"))
+
+
+def _make_getter(field, name):
+    """Build and register a ``simple_tag`` named ``name`` that reads
+    ``<field>_<lang>`` from any object, preferring the model's getter."""
+
+    @register.simple_tag(takes_context=True, name=name)
+    def _tag(context, obj):
+        lang = context.get("lang")
+        method = getattr(obj, f"get_{field}", None)
+        if callable(method):
+            try:
+                value = method(lang)
+                if value:
+                    return value
+            except Exception:
+                pass
+        return pick_lang(obj, field, lang)
+
+    return _tag
+
+
+# Field getters used across the frontend templates. The tag name is always
+# passed explicitly — a nested function would otherwise register as `_tag`
+# for every one of them.
+get_heading = _make_getter("heading", "get_heading")
+get_subheading = _make_getter("subheading", "get_subheading")
+get_title = _make_getter("title", "get_title")
+get_description = _make_getter("description", "get_description")
+get_content = _make_getter("content", "get_content")
+get_name = _make_getter("name", "get_name")
+get_button_text = _make_getter("button_text", "get_button_text")
+get_position = _make_getter("position", "get_position")
+get_bio = _make_getter("bio", "get_bio")
+get_quote = _make_getter("quote", "get_quote")
+get_role = _make_getter("author_role", "get_role")
+get_label = _make_getter("label", "get_label")
+get_ended_message = _make_getter("ended_message", "get_ended_message")
+get_why_title = _make_getter("why_choose_us_title", "get_why_title")
+get_why_content = _make_getter("why_choose_us_content", "get_why_content")
+get_who_we_are = _make_getter("who_we_are", "get_who_we_are")
+get_we_are_expert = _make_getter("we_are_expert", "get_we_are_expert")
+get_meta_title = _make_getter("meta_title", "get_meta_title")
+get_meta_description = _make_getter("meta_description", "get_meta_description")
 
 
 @register.simple_tag(takes_context=True)
-def get_heading(context, hero):
-    """Get hero heading for current language"""
-    lang = context.get("lang", "en")
-    if lang == "fa":
-        return hero.heading_fa
-    return hero.heading_en
-
-
-@register.simple_tag(takes_context=True)
-def get_subheading(context, hero):
-    """Get hero subheading for current language"""
-    lang = context.get("lang", "en")
-    if lang == "fa":
-        return hero.subheading_fa
-    return hero.subheading_en
-
-
-@register.simple_tag(takes_context=True)
-def get_cta_text(context, hero):
-    """Get CTA text for current language"""
-    lang = context.get("lang", "en")
-    if lang == "fa":
-        return hero.cta_text_fa
-    return hero.cta_text_en
-
-
-@register.simple_tag(takes_context=True)
-def get_title(context, obj):
-    """Get title for current language from any object with title_en/title_fa"""
-    lang = context.get("lang", "en")
-    if hasattr(obj, "get_title"):
-        try: return obj.get_title(lang)
-        except: pass
-    if lang == "fa":
-        return getattr(obj, "title_fa", getattr(obj, "title_en", ""))
-    return getattr(obj, "title_en", "")
-
-
-@register.simple_tag(takes_context=True)
-def get_description(context, obj):
-    """Get description for current language"""
-    lang = context.get("lang", "en")
-    if hasattr(obj, "get_description"):
-        try: return obj.get_description(lang)
-        except: pass
-    if lang == "fa":
-        return getattr(obj, "description_fa", getattr(obj, "description_en", ""))
-    return getattr(obj, "description_en", "")
-
-
-@register.simple_tag(takes_context=True)
-def get_content(context, obj):
-    """Get content for current language"""
-    lang = context.get("lang", "en")
-    if hasattr(obj, "get_content"):
-        try: return obj.get_content(lang)
-        except: pass
-    if lang == "fa":
-        return getattr(obj, "content_fa", getattr(obj, "content_en", ""))
-    return getattr(obj, "content_en", "")
-
-
-@register.simple_tag(takes_context=True)
-def get_name(context, obj):
-    """Get name for current language"""
-    lang = context.get("lang", "en")
-    if hasattr(obj, "get_name"):
-        try: return obj.get_name(lang)
-        except: pass
-    if lang == "fa":
-        return getattr(obj, "name_fa", getattr(obj, "name_en", ""))
-    return getattr(obj, "name_en", "")
-
-
-@register.simple_tag(takes_context=True)
-def get_button_text(context, obj):
-    """Get button text for current language"""
-    lang = context.get("lang", "en")
-    if hasattr(obj, "get_button_text"):
-        try: return obj.get_button_text(lang)
-        except: pass
-    if lang == "fa":
-        return getattr(obj, "button_text_fa", getattr(obj, "button_text_en", ""))
-    return getattr(obj, "button_text_en", "")
-
-
-@register.simple_tag(takes_context=True)
-def get_position(context, obj):
-    """Get position for current language"""
-    lang = context.get("lang", "en")
-    if hasattr(obj, "get_position"):
-        try: return obj.get_position(lang)
-        except: pass
-    if lang == "fa":
-        return getattr(obj, "position_fa", getattr(obj, "position_en", ""))
-    return getattr(obj, "position_en", "")
-
-
-@register.simple_tag(takes_context=True)
-def get_bio(context, obj):
-    """Get bio for current language"""
-    lang = context.get("lang", "en")
-    if hasattr(obj, "get_bio"):
-        try: return obj.get_bio(lang)
-        except: pass
-    if lang == "fa":
-        return getattr(obj, "bio_fa", getattr(obj, "bio_en", ""))
-    return getattr(obj, "bio_en", "")
-
-
-@register.simple_tag(takes_context=True)
-def get_quote(context, obj):
-    """Get quote for current language"""
-    lang = context.get("lang", "en")
-    if hasattr(obj, "get_quote"):
-        try: return obj.get_quote(lang)
-        except: pass
-    if lang == "fa":
-        return getattr(obj, "quote_fa", getattr(obj, "quote_en", ""))
-    return getattr(obj, "quote_en", "")
-
-
-@register.simple_tag(takes_context=True)
-def get_role(context, obj):
-    """Get role for current language"""
-    lang = context.get("lang", "en")
-    if hasattr(obj, "get_role"):
-        try: return obj.get_role(lang)
-        except: pass
-    if lang == "fa":
-        return getattr(obj, "author_role_fa", getattr(obj, "author_role_en", ""))
-    return getattr(obj, "author_role_en", "")
-
-
-@register.simple_tag(takes_context=True)
-def get_label(context, obj):
-    """Get label for current language"""
-    lang = context.get("lang", "en")
-    if lang == "fa":
-        return getattr(obj, "label_fa", getattr(obj, "label_en", ""))
-    return getattr(obj, "label_en", "")
-
-
-@register.simple_tag(takes_context=True)
-def get_ended_message(context, obj):
-    """Get ended message for current language"""
-    lang = context.get("lang", "en")
-    if hasattr(obj, "get_ended_message"):
-        try: return obj.get_ended_message(lang)
-        except: pass
-    if lang == "fa":
-        return getattr(obj, "ended_message_fa", getattr(obj, "ended_message_en", ""))
-    return getattr(obj, "ended_message_en", "")
-
-
-@register.simple_tag(takes_context=True)
-def get_why_title(context, obj):
-    """Get why_choose_us title for current language"""
-    lang = context.get("lang", "en")
-    if lang == "fa":
-        return getattr(obj, "why_choose_us_title_fa", getattr(obj, "why_choose_us_title_en", ""))
-    return getattr(obj, "why_choose_us_title_en", "")
-
-
-@register.simple_tag(takes_context=True)
-def get_why_content(context, obj):
-    """Get why_choose_us content for current language"""
-    lang = context.get("lang", "en")
-    if lang == "fa":
-        return getattr(obj, "why_choose_us_content_fa", getattr(obj, "why_choose_us_content_en", ""))
-    return getattr(obj, "why_choose_us_content_en", "")
-
-
-@register.simple_tag(takes_context=True)
-def get_who_we_are(context, obj):
-    """Get who_we_are for current language"""
-    lang = context.get("lang", "en")
-    if lang == "fa":
-        return getattr(obj, "who_we_are_fa", getattr(obj, "who_we_are_en", ""))
-    return getattr(obj, "who_we_are_en", "")
-
-
-@register.simple_tag(takes_context=True)
-def get_we_are_expert(context, obj):
-    """Get we_are_expert for current language"""
-    lang = context.get("lang", "en")
-    if lang == "fa":
-        return getattr(obj, "we_are_expert_fa", getattr(obj, "we_are_expert_en", ""))
-    return getattr(obj, "we_are_expert_en", "")
+def get_cta_text(context, obj):
+    """CTA text for the active language (hero, countdown, about, …)."""
+    lang = context.get("lang")
+    method = getattr(obj, "get_cta_text", None)
+    if callable(method):
+        try:
+            value = method(lang)
+            if value:
+                return value
+        except Exception:
+            pass
+    return pick_lang(obj, "cta_text", lang)
 
 
 @register.simple_tag(takes_context=True)
 def get_nav_title(context, obj):
-    """Get navigation title for current language"""
-    lang = context.get("lang", "en")
-    if hasattr(obj, "get_title"):
-        try: return obj.get_title(lang)
-        except: pass
-    if lang == "fa":
-        return getattr(obj, "title_fa", getattr(obj, "title_en", ""))
-    return getattr(obj, "title_en", "")
+    """Navigation item title for the active language."""
+    lang = context.get("lang")
+    method = getattr(obj, "get_title", None)
+    if callable(method):
+        try:
+            value = method(lang)
+            if value:
+                return value
+        except Exception:
+            pass
+    return pick_lang(obj, "title", lang)
 
 
 @register.simple_tag(takes_context=True)
 def site_name(context):
-    """Get site name for current language"""
-    lang = context.get("lang", "en")
+    """Site name for the active language."""
+    lang = context.get("lang")
     site = context.get("site_settings")
     if site:
-        if lang == "fa":
-            return site.site_name_fa
-        return site.site_name_en
+        return pick_lang(site, "site_name", lang) or "AM Business"
     return "AM Business"
+
+
+@register.simple_tag(takes_context=True)
+def site_field(context, field):
+    """Read a translated :class:`SiteSettings` field for the active language."""
+    site = context.get("site_settings")
+    return pick_lang(site, field, context.get("lang"))
+
+
+# Localised headings for the admin pages. The views keep passing the English
+# title (the sidebar uses it to highlight the active item), and templates turn
+# it into a label with this tag.
+ADMIN_PAGE_TITLES = {
+    "Dashboard": ("Dashboard", "داشبورد", "لوحة المعلومات"),
+    "Site Settings": ("Site Settings", "تنظیمات سایت", "إعدادات الموقع"),
+    "Social Links": ("Social Links", "شبکه‌های اجتماعی", "روابط التواصل"),
+    "Navigation": ("Navigation", "منوی ناوبری", "قائمة التنقل"),
+    "Hero Sections": ("Hero Sections", "بنرهای صفحه", "بانرات الصفحات"),
+    "Services": ("Services", "خدمات", "الخدمات"),
+    "About Section": ("About Section", "بخش درباره ما", "قسم من نحن"),
+    "Stat Counters": ("Stat Counters", "شمارنده‌ها", "العدادات"),
+    "Features": ("Features", "ویژگی‌ها", "الميزات"),
+    "Pricing Plans": ("Pricing Plans", "طرح‌های قیمت‌گذاری", "الخطط السعرية"),
+    "Testimonials": ("Testimonials", "نظرات مشتریان", "شهادات العملاء"),
+    "Team Members": ("Team Members", "اعضای تیم", "أعضاء الفريق"),
+    "Event Countdown": ("Event Countdown", "شمارش معکوس رویداد", "العد التنازلي للحدث"),
+    "Home Sections": ("Home Sections", "بخش‌های صفحه اصلی", "أقسام الصفحة الرئيسية"),
+    "Contact Messages": ("Contact Messages", "پیام‌های تماس", "رسائل التواصل"),
+    "Message Detail": ("Message Detail", "جزئیات پیام", "تفاصيل الرسالة"),
+    "Newsletter Subscribers": ("Newsletter Subscribers", "مشترکین خبرنامه", "مشتركو النشرة البريدية"),
+    "CMS Pages": ("CMS Pages", "صفحات CMS", "صفحات الموقع"),
+}
+
+
+@register.simple_tag(takes_context=True)
+def page_heading(context, title):
+    """Localise an admin page title (falls back to the English string)."""
+    labels = ADMIN_PAGE_TITLES.get(title)
+    if not labels:
+        return title
+    return {
+        "en": labels[0],
+        "fa": labels[1],
+        "ar": labels[2] or labels[0],
+    }[normalize_lang(context.get("lang"))]

@@ -1,38 +1,73 @@
 {% extends "admin_panel/base.html" %}
+{% load i18n_custom %}
 {% block content %}
 <div class="card">
     <div class="card-header">
-        <h3>{% if lang == 'fa' %}اعضای تیم{% else %}Team Members{% endif %}</h3>
-        <button class="btn btn-primary" onclick="openModal('{% if lang == 'fa' %}افزودن عضو{% else %}Add Member{% endif %}', document.getElementById('addForm').innerHTML)"><i class="ph ph-plus"></i> {% if lang == 'fa' %}افزودن{% else %}Add{% endif %}</button>
+        <h3>{% tr "Team Members" "اعضای تیم" "أعضاء الفريق" %}</h3>
+        <button class="btn btn-primary" onclick="openModal('{% tr "Add Member" "افزودن عضو" "إضافة عضو" %}', document.getElementById('addForm').innerHTML)"><i class="ph ph-plus"></i> {% tr "Add" "افزودن" "إضافة" %}</button>
     </div>
+    {% include "admin_panel/partials/_bulk_bar.html" %}
     <div class="table-wrapper">
         <table>
-            <thead><tr><th>#</th><th>{% if lang == 'fa' %}تصویر{% else %}Photo{% endif %}</th><th>{% if lang == 'fa' %}نام{% else %}Name{% endif %}</th><th>{% if lang == 'fa' %}سمت (EN){% else %}Position (EN){% endif %}</th><th>{% if lang == 'fa' %}وضعیت{% else %}Status{% endif %}</th><th>{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</th><th>{% if lang == 'fa' %}عملیات{% else %}Actions{% endif %}</th></tr></thead>
+            <thead>
+                <tr>
+                    {% include "admin_panel/partials/_bulk_head.html" %}
+                    <th>#</th>
+                    <th>{% tr "Photo" "تصویر" "الصورة" %}</th>
+                    <th>{% tr "Name" "نام" "الاسم" %}</th>
+                    <th>{% tr "Position (EN)" "سمت (EN)" "المنصب (EN)" %}</th>
+                    <th>{% tr "Position (AR)" "سمت (AR)" "المنصب (AR)" %}</th>
+                    <th>{% tr "Status" "وضعیت" "الحالة" %}</th>
+                    <th>{% tr "Order" "ترتیب" "الترتيب" %}</th>
+                    <th>{% tr "Actions" "عملیات" "الإجراءات" %}</th>
+                </tr>
+            </thead>
             <tbody>
                 {% for item in items %}
-                <tr><td>{{ item.pk }}</td><td>{% if item.image %}<img src="{{ item.image.url }}" class="image-preview">{% else %}-{% endif %}</td><td><strong>{{ item.name }}</strong></td><td>{{ item.position_en }}</td><td>{% if item.is_active %}<span class="badge badge-success">{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span>{% else %}<span class="badge badge-danger">{% if lang == 'fa' %}غیرفعال{% else %}Inactive{% endif %}</span>{% endif %}</td><td>{{ item.order }}</td>
-                <td><div class="btn-group"><button class="btn btn-outline btn-sm btn-icon" onclick="openModal('{% if lang == 'fa' %}ویرایش{% else %}Edit{% endif %}', document.getElementById('edit-{{ item.pk }}').innerHTML)"><i class="ph ph-pencil-simple"></i></button><form id="del-team-{{ item.pk }}" method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="pk" value="{{ item.pk }}"></form><button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('del-team-{{ item.pk }}')"><i class="ph ph-trash"></i></button></div></td></tr>
-                {% empty %}<tr><td colspan="7" class="empty-state"><p>{% if lang == 'fa' %}هنوز عضوی اضافه نشده{% else %}No team members yet{% endif %}</p></td></tr>{% endfor %}
+                <tr>
+                    {% include "admin_panel/partials/_bulk_cell.html" %}
+                    <td>{{ item.pk }}</td>
+                    <td>{% if item.image %}<img src="{{ item.image.url }}" class="image-preview">{% else %}-{% endif %}</td>
+                    <td><strong>{{ item.name }}</strong></td>
+                    <td>{{ item.position_en|default:"—" }}</td>
+                    <td dir="rtl">{{ item.position_ar|default:"—" }}</td>
+                    <td>{% if item.is_active %}<span class="badge badge-success">{% tr "Active" "فعال" "مفعّل" %}</span>{% else %}<span class="badge badge-danger">{% tr "Inactive" "غیرفعال" "غير مفعّل" %}</span>{% endif %}</td>
+                    <td>{{ item.order }}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-outline btn-sm btn-icon" onclick="openModal('{% tr "Edit" "ویرایش" "تعديل" %}', document.getElementById('edit-{{ item.pk }}').innerHTML)" title="{% tr 'Edit' 'ویرایش' 'تعديل' %}"><i class="ph ph-pencil-simple"></i></button>
+                            <form id="del-team-{{ item.pk }}" method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="pk" value="{{ item.pk }}"></form>
+                            <button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('del-team-{{ item.pk }}')" title="{% tr 'Delete' 'حذف' 'حذف' %}"><i class="ph ph-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="9" class="empty-state"><p>{% tr "No team members yet" "هنوز عضوی اضافه نشده" "لا يوجد أعضاء فريق بعد" %}</p></td></tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
 <div id="addForm" style="display:none"><form method="post" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="action" value="add">
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}نام{% else %}Name{% endif %}</label><input type="text" name="name" class="form-control" required></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</label><input type="number" name="order" class="form-control" value="0"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}سمت (EN){% else %}Position (EN){% endif %}</label><input type="text" name="position_en" class="form-control" required></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}سمت (FA){% else %}Position (FA){% endif %}</label><input type="text" name="position_fa" class="form-control" required dir="rtl"></div></div>
-<div class="form-group"><label class="form-label">{% if lang == 'fa' %}بیوگرافی (EN){% else %}Bio (EN){% endif %}</label><textarea name="bio_en" class="form-control" rows="3" required></textarea></div>
-<div class="form-group"><label class="form-label">{% if lang == 'fa' %}بیوگرافی (FA){% else %}Bio (FA){% endif %}</label><textarea name="bio_fa" class="form-control" rows="3" required dir="rtl"></textarea></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}تصویر{% else %}Photo{% endif %}</label><input type="file" name="image" class="form-control" accept="image/*"></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}تصویر مربعی{% else %}Square Photo{% endif %}</label><input type="file" name="photo_square" class="form-control" accept="image/*"></div></div>
-<div class="form-group"><label class="form-check"><input type="checkbox" name="is_active" checked><span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span></label></div>
-<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button></div></form></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Name" "نام" "الاسم" %}</label><input type="text" name="name" class="form-control" required></div><div class="form-group"><label class="form-label">{% tr "Order" "ترتیب" "الترتيب" %}</label><input type="number" name="order" class="form-control" value="0"></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Position (EN)" "سمت (EN)" "المنصب (EN)" %}</label><input type="text" name="position_en" class="form-control" required></div><div class="form-group"><label class="form-label">{% tr "Position (FA)" "سمت (FA)" "المنصب (FA)" %}</label><input type="text" name="position_fa" class="form-control" required dir="rtl"></div></div>
+<div class="form-group"><label class="form-label">{% tr "Position (AR)" "سمت (AR)" "المنصب (AR)" %}</label><input type="text" name="position_ar" class="form-control" dir="rtl"></div>
+<div class="form-group"><label class="form-label">{% tr "Bio (EN)" "بیوگرافی (EN)" "النبذة (EN)" %}</label><textarea name="bio_en" class="form-control" rows="3" required></textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Bio (FA)" "بیوگرافی (FA)" "النبذة (FA)" %}</label><textarea name="bio_fa" class="form-control" rows="3" required dir="rtl"></textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Bio (AR)" "بیوگرافی (AR)" "النبذة (AR)" %}</label><textarea name="bio_ar" class="form-control" rows="3" dir="rtl"></textarea></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Photo" "تصویر" "الصورة" %}</label><input type="file" name="image" class="form-control" accept="image/*"></div><div class="form-group"><label class="form-label">{% tr "Square Photo" "تصویر مربعی" "صورة مربعة" %}</label><input type="file" name="photo_square" class="form-control" accept="image/*"></div></div>
+<div class="form-group"><label class="form-check"><input type="checkbox" name="is_active" checked><span>{% tr "Active" "فعال" "مفعّل" %}</span></label></div>
+<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button></div></form></div>
 {% for item in items %}
 <div id="edit-{{ item.pk }}" style="display:none"><form method="post" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="action" value="edit"><input type="hidden" name="pk" value="{{ item.pk }}">
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}نام{% else %}Name{% endif %}</label><input type="text" name="name" class="form-control" value="{{ item.name }}" required></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</label><input type="number" name="order" class="form-control" value="{{ item.order }}"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}سمت (EN){% else %}Position (EN){% endif %}</label><input type="text" name="position_en" class="form-control" value="{{ item.position_en }}" required></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}سمت (FA){% else %}Position (FA){% endif %}</label><input type="text" name="position_fa" class="form-control" value="{{ item.position_fa }}" required dir="rtl"></div></div>
-<div class="form-group"><label class="form-label">{% if lang == 'fa' %}بیوگرافی (EN){% else %}Bio (EN){% endif %}</label><textarea name="bio_en" class="form-control" rows="3" required>{{ item.bio_en }}</textarea></div>
-<div class="form-group"><label class="form-label">{% if lang == 'fa' %}بیوگرافی (FA){% else %}Bio (FA){% endif %}</label><textarea name="bio_fa" class="form-control" rows="3" required dir="rtl">{{ item.bio_fa }}</textarea></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}تصویر{% else %}Photo{% endif %}</label>{% if item.image %}<div style="margin-bottom:4px"><img src="{{ item.image.url }}" class="image-preview"></div>{% endif %}<input type="file" name="image" class="form-control" accept="image/*"></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}تصویر مربعی{% else %}Square Photo{% endif %}</label>{% if item.photo_square %}<div style="margin-bottom:4px"><img src="{{ item.photo_square.url }}" class="image-preview"></div>{% endif %}<input type="file" name="photo_square" class="form-control" accept="image/*"></div></div>
-<div class="form-group"><label class="form-check"><input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}><span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span></label></div>
-<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button></div></form></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Name" "نام" "الاسم" %}</label><input type="text" name="name" class="form-control" value="{{ item.name }}" required></div><div class="form-group"><label class="form-label">{% tr "Order" "ترتیب" "الترتيب" %}</label><input type="number" name="order" class="form-control" value="{{ item.order }}"></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Position (EN)" "سمت (EN)" "المنصب (EN)" %}</label><input type="text" name="position_en" class="form-control" value="{{ item.position_en }}" required></div><div class="form-group"><label class="form-label">{% tr "Position (FA)" "سمت (FA)" "المنصب (FA)" %}</label><input type="text" name="position_fa" class="form-control" value="{{ item.position_fa }}" required dir="rtl"></div></div>
+<div class="form-group"><label class="form-label">{% tr "Position (AR)" "سمت (AR)" "المنصب (AR)" %}</label><input type="text" name="position_ar" class="form-control" value="{{ item.position_ar }}" dir="rtl"></div>
+<div class="form-group"><label class="form-label">{% tr "Bio (EN)" "بیوگرافی (EN)" "النبذة (EN)" %}</label><textarea name="bio_en" class="form-control" rows="3" required>{{ item.bio_en }}</textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Bio (FA)" "بیوگرافی (FA)" "النبذة (FA)" %}</label><textarea name="bio_fa" class="form-control" rows="3" required dir="rtl">{{ item.bio_fa }}</textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Bio (AR)" "بیوگرافی (AR)" "النبذة (AR)" %}</label><textarea name="bio_ar" class="form-control" rows="3" dir="rtl">{{ item.bio_ar }}</textarea></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Photo" "تصویر" "الصورة" %}</label>{% if item.image %}<div style="margin-bottom:4px"><img src="{{ item.image.url }}" class="image-preview"></div>{% endif %}<input type="file" name="image" class="form-control" accept="image/*"></div><div class="form-group"><label class="form-label">{% tr "Square Photo" "تصویر مربعی" "صورة مربعة" %}</label>{% if item.photo_square %}<div style="margin-bottom:4px"><img src="{{ item.photo_square.url }}" class="image-preview"></div>{% endif %}<input type="file" name="photo_square" class="form-control" accept="image/*"></div></div>
+<div class="form-group"><label class="form-check"><input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}><span>{% tr "Active" "فعال" "مفعّل" %}</span></label></div>
+<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button></div></form></div>
 {% endfor %}
 {% endblock %}

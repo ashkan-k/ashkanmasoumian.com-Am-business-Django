@@ -82,7 +82,14 @@ LANGUAGE_CODE = "en"
 LANGUAGES = [
     ("en", "English"),
     ("fa", "فارسی"),
+    ("ar", "العربية"),
 ]
+# Right-to-left languages (Persian and Arabic share the same text direction)
+RTL_LANGUAGES = ["fa", "ar"]
+# Remember the visitor's language choice for a year
+LANGUAGE_COOKIE_NAME = "django_language"
+LANGUAGE_COOKIE_AGE = 365 * 24 * 60 * 60
+LANGUAGE_COOKIE_SAMESITE = "Lax"
 LOCALE_PATHS = [BASE_DIR / "locale"]
 
 TIME_ZONE = "UTC"

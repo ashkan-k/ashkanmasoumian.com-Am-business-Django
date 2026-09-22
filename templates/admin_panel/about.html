@@ -1,48 +1,56 @@
 {% extends "admin_panel/base.html" %}
+{% load i18n_custom %}
 {% block content %}
 <div class="card">
     <div class="card-header">
-        <h3>{% if lang == 'fa' %}بخش درباره ما{% else %}About Section{% endif %}</h3>
+        <h3>{% tr "About Section" "بخش درباره ما" "قسم من نحن" %}</h3>
     </div>
     <div class="card-body">
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="tabs" data-group="about">
-                <button type="button" class="tab-btn active" data-tab="about-main">{% if lang == 'fa' %}محتوای اصلی{% else %}Main Content{% endif %}</button>
-                <button type="button" class="tab-btn" data-tab="about-who">{% if lang == 'fa' %}ما کیستیم{% else %}Who We Are{% endif %}</button>
-                <button type="button" class="tab-btn" data-tab="about-why">{% if lang == 'fa' %}چرا ما{% else %}Why Choose Us{% endif %}</button>
+                <button type="button" class="tab-btn active" data-tab="about-main">{% tr "Main Content" "محتوای اصلی" "المحتوى الرئيسي" %}</button>
+                <button type="button" class="tab-btn" data-tab="about-who">{% tr "Who We Are" "ما کیستیم" "من نحن" %}</button>
+                <button type="button" class="tab-btn" data-tab="about-why">{% tr "Why Choose Us" "چرا ما" "لماذا تختارنا" %}</button>
             </div>
             <div class="tab-content active" id="about-main" data-group="about">
                 <div class="form-row">
-                    <div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (EN){% else %}Title (EN){% endif %}</label><input type="text" name="title_en" class="form-control" value="{{ obj.title_en }}"></div>
-                    <div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (FA){% else %}Title (FA){% endif %}</label><input type="text" name="title_fa" class="form-control" value="{{ obj.title_fa }}" dir="rtl"></div>
+                    <div class="form-group"><label class="form-label">{% tr "Title (EN)" "عنوان (EN)" "العنوان (EN)" %}</label><input type="text" name="title_en" class="form-control" value="{{ obj.title_en }}"></div>
+                    <div class="form-group"><label class="form-label">{% tr "Title (FA)" "عنوان (FA)" "العنوان (FA)" %}</label><input type="text" name="title_fa" class="form-control" value="{{ obj.title_fa }}" dir="rtl"></div>
                 </div>
-                <div class="form-group"><label class="form-label">{% if lang == 'fa' %}محتوا (EN){% else %}Content (EN){% endif %}</label><textarea name="content_en" class="form-control" rows="5">{{ obj.content_en }}</textarea></div>
-                <div class="form-group"><label class="form-label">{% if lang == 'fa' %}محتوا (FA){% else %}Content (FA){% endif %}</label><textarea name="content_fa" class="form-control" rows="5" dir="rtl">{{ obj.content_fa }}</textarea></div>
-                <div class="form-group"><label class="form-label">{% if lang == 'fa' %}تصویر{% else %}Image{% endif %}</label>{% if obj.image %}<div style="margin-bottom:8px"><img src="{{ obj.image.url }}" class="image-preview"></div>{% endif %}<input type="file" name="image" class="form-control" accept="image/*"></div>
+                <div class="form-group"><label class="form-label">{% tr "Title (AR)" "عنوان (AR)" "العنوان (AR)" %}</label><input type="text" name="title_ar" class="form-control" value="{{ obj.title_ar }}" dir="rtl"></div>
+                <div class="form-group"><label class="form-label">{% tr "Content (EN)" "محتوا (EN)" "المحتوى (EN)" %}</label><textarea name="content_en" class="form-control" rows="5">{{ obj.content_en }}</textarea></div>
+                <div class="form-group"><label class="form-label">{% tr "Content (FA)" "محتوا (FA)" "المحتوى (FA)" %}</label><textarea name="content_fa" class="form-control" rows="5" dir="rtl">{{ obj.content_fa }}</textarea></div>
+                <div class="form-group"><label class="form-label">{% tr "Content (AR)" "محتوا (AR)" "المحتوى (AR)" %}</label><textarea name="content_ar" class="form-control" rows="5" dir="rtl">{{ obj.content_ar }}</textarea></div>
+                <div class="form-group"><label class="form-label">{% tr "Image" "تصویر" "الصورة" %}</label>{% if obj.image %}<div style="margin-bottom:8px"><img src="{{ obj.image.url }}" class="image-preview"></div>{% endif %}<input type="file" name="image" class="form-control" accept="image/*"></div>
             </div>
             <div class="tab-content" id="about-who" data-group="about">
-                <div class="form-group"><label class="form-label">{% if lang == 'fa' %}ما کیستیم (EN){% else %}Who We Are (EN){% endif %}</label><textarea name="who_we_are_en" class="form-control" rows="4">{{ obj.who_we_are_en }}</textarea></div>
-                <div class="form-group"><label class="form-label">{% if lang == 'fa' %}ما کیستیم (FA){% else %}Who We Are (FA){% endif %}</label><textarea name="who_we_are_fa" class="form-control" rows="4" dir="rtl">{{ obj.who_we_are_fa }}</textarea></div>
-                <div class="form-group"><label class="form-label">{% if lang == 'fa' %}ما متخصصیم (EN){% else %}We Are Expert (EN){% endif %}</label><textarea name="we_are_expert_en" class="form-control" rows="4">{{ obj.we_are_expert_en }}</textarea></div>
-                <div class="form-group"><label class="form-label">{% if lang == 'fa' %}ما متخصصیم (FA){% else %}We Are Expert (FA){% endif %}</label><textarea name="we_are_expert_fa" class="form-control" rows="4" dir="rtl">{{ obj.we_are_expert_fa }}</textarea></div>
+                <div class="form-group"><label class="form-label">{% tr "Who We Are (EN)" "ما کیستیم (EN)" "من نحن (EN)" %}</label><textarea name="who_we_are_en" class="form-control" rows="4">{{ obj.who_we_are_en }}</textarea></div>
+                <div class="form-group"><label class="form-label">{% tr "Who We Are (FA)" "ما کیستیم (FA)" "من نحن (FA)" %}</label><textarea name="who_we_are_fa" class="form-control" rows="4" dir="rtl">{{ obj.who_we_are_fa }}</textarea></div>
+                <div class="form-group"><label class="form-label">{% tr "Who We Are (AR)" "ما کیستیم (AR)" "من نحن (AR)" %}</label><textarea name="who_we_are_ar" class="form-control" rows="4" dir="rtl">{{ obj.who_we_are_ar }}</textarea></div>
+                <div class="form-group"><label class="form-label">{% tr "We Are Expert (EN)" "ما متخصصیم (EN)" "خبراؤنا (EN)" %}</label><textarea name="we_are_expert_en" class="form-control" rows="4">{{ obj.we_are_expert_en }}</textarea></div>
+                <div class="form-group"><label class="form-label">{% tr "We Are Expert (FA)" "ما متخصصیم (FA)" "خبراؤنا (FA)" %}</label><textarea name="we_are_expert_fa" class="form-control" rows="4" dir="rtl">{{ obj.we_are_expert_fa }}</textarea></div>
+                <div class="form-group"><label class="form-label">{% tr "We Are Expert (AR)" "ما متخصصیم (AR)" "خبراؤنا (AR)" %}</label><textarea name="we_are_expert_ar" class="form-control" rows="4" dir="rtl">{{ obj.we_are_expert_ar }}</textarea></div>
             </div>
             <div class="tab-content" id="about-why" data-group="about">
                 <div class="form-row">
-                    <div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (EN){% else %}Title (EN){% endif %}</label><input type="text" name="why_choose_us_title_en" class="form-control" value="{{ obj.why_choose_us_title_en }}"></div>
-                    <div class="form-group"><label class="form-label">{% if lang == 'fa' %}عنوان (FA){% else %}Title (FA){% endif %}</label><input type="text" name="why_choose_us_title_fa" class="form-control" value="{{ obj.why_choose_us_title_fa }}" dir="rtl"></div>
+                    <div class="form-group"><label class="form-label">{% tr "Title (EN)" "عنوان (EN)" "العنوان (EN)" %}</label><input type="text" name="why_choose_us_title_en" class="form-control" value="{{ obj.why_choose_us_title_en }}"></div>
+                    <div class="form-group"><label class="form-label">{% tr "Title (FA)" "عنوان (FA)" "العنوان (FA)" %}</label><input type="text" name="why_choose_us_title_fa" class="form-control" value="{{ obj.why_choose_us_title_fa }}" dir="rtl"></div>
                 </div>
-                <div class="form-group"><label class="form-label">{% if lang == 'fa' %}توضیحات (EN){% else %}Content (EN){% endif %}</label><textarea name="why_choose_us_content_en" class="form-control" rows="4">{{ obj.why_choose_us_content_en }}</textarea></div>
-                <div class="form-group"><label class="form-label">{% if lang == 'fa' %}توضیحات (FA){% else %}Content (FA){% endif %}</label><textarea name="why_choose_us_content_fa" class="form-control" rows="4" dir="rtl">{{ obj.why_choose_us_content_fa }}</textarea></div>
-                <div class="form-group"><label class="form-label">{% if lang == 'fa' %}تصویر{% else %}Image{% endif %}</label>{% if obj.why_choose_us_image %}<div style="margin-bottom:8px"><img src="{{ obj.why_choose_us_image.url }}" class="image-preview"></div>{% endif %}<input type="file" name="why_choose_us_image" class="form-control" accept="image/*"></div>
+                <div class="form-group"><label class="form-label">{% tr "Title (AR)" "عنوان (AR)" "العنوان (AR)" %}</label><input type="text" name="why_choose_us_title_ar" class="form-control" value="{{ obj.why_choose_us_title_ar }}" dir="rtl"></div>
+                <div class="form-group"><label class="form-label">{% tr "Content (EN)" "توضیحات (EN)" "المحتوى (EN)" %}</label><textarea name="why_choose_us_content_en" class="form-control" rows="4">{{ obj.why_choose_us_content_en }}</textarea></div>
+                <div class="form-group"><label class="form-label">{% tr "Content (FA)" "توضیحات (FA)" "المحتوى (FA)" %}</label><textarea name="why_choose_us_content_fa" class="form-control" rows="4" dir="rtl">{{ obj.why_choose_us_content_fa }}</textarea></div>
+                <div class="form-group"><label class="form-label">{% tr "Content (AR)" "توضیحات (AR)" "المحتوى (AR)" %}</label><textarea name="why_choose_us_content_ar" class="form-control" rows="4" dir="rtl">{{ obj.why_choose_us_content_ar }}</textarea></div>
+                <div class="form-group"><label class="form-label">{% tr "Image" "تصویر" "الصورة" %}</label>{% if obj.why_choose_us_image %}<div style="margin-bottom:8px"><img src="{{ obj.why_choose_us_image.url }}" class="image-preview"></div>{% endif %}<input type="file" name="why_choose_us_image" class="form-control" accept="image/*"></div>
                 <div class="form-row">
-                    <div class="form-group"><label class="form-label">{% if lang == 'fa' %}متن دکمه (EN){% else %}CTA (EN){% endif %}</label><input type="text" name="cta_text_en" class="form-control" value="{{ obj.cta_text_en }}"></div>
-                    <div class="form-group"><label class="form-label">{% if lang == 'fa' %}متن دکمه (FA){% else %}CTA (FA){% endif %}</label><input type="text" name="cta_text_fa" class="form-control" value="{{ obj.cta_text_fa }}" dir="rtl"></div>
+                    <div class="form-group"><label class="form-label">{% tr "CTA (EN)" "متن دکمه (EN)" "نص الزر (EN)" %}</label><input type="text" name="cta_text_en" class="form-control" value="{{ obj.cta_text_en }}"></div>
+                    <div class="form-group"><label class="form-label">{% tr "CTA (FA)" "متن دکمه (FA)" "نص الزر (FA)" %}</label><input type="text" name="cta_text_fa" class="form-control" value="{{ obj.cta_text_fa }}" dir="rtl"></div>
                 </div>
-                <div class="form-group"><label class="form-label">{% if lang == 'fa' %}لینک دکمه{% else %}CTA URL{% endif %}</label><input type="text" name="cta_url" class="form-control" value="{{ obj.cta_url }}"></div>
+                <div class="form-group"><label class="form-label">{% tr "CTA (AR)" "متن دکمه (AR)" "نص الزر (AR)" %}</label><input type="text" name="cta_text_ar" class="form-control" value="{{ obj.cta_text_ar }}" dir="rtl"></div>
+                <div class="form-group"><label class="form-label">{% tr "CTA URL" "لینک دکمه" "رابط الزر" %}</label><input type="text" name="cta_url" class="form-control" value="{{ obj.cta_url }}"></div>
             </div>
-            <div class="form-group"><label class="form-check"><input type="checkbox" name="is_active" {% if obj.is_active %}checked{% endif %}><span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span></label></div>
-            <div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button></div>
+            <div class="form-group"><label class="form-check"><input type="checkbox" name="is_active" {% if obj.is_active %}checked{% endif %}><span>{% tr "Active" "فعال" "مفعّل" %}</span></label></div>
+            <div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button></div>
         </form>
     </div>
 </div>

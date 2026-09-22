@@ -1,34 +1,48 @@
 {% extends "admin_panel/base.html" %}
+{% load i18n_custom %}
 {% block content %}
 <div class="card">
     <div class="card-header">
-        <h3>{% if lang == 'fa' %}شبکه‌های اجتماعی{% else %}Social Links{% endif %}</h3>
-        <button class="btn btn-primary" onclick="openModal('{% if lang == 'fa' %}افزودن لینک{% else %}Add Link{% endif %}', document.getElementById('addForm').innerHTML)">
-            <i class="ph ph-plus"></i> {% if lang == 'fa' %}افزودن{% else %}Add{% endif %}
+        <h3>{% tr "Social Links" "شبکه‌های اجتماعی" "روابط التواصل الاجتماعي" %}</h3>
+        <button class="btn btn-primary" onclick="openModal('{% tr 'Add Link' 'افزودن لینک' 'إضافة رابط' %}', document.getElementById('addForm').innerHTML)">
+            <i class="ph ph-plus"></i> {% tr "Add" "افزودن" "إضافة" %}
         </button>
     </div>
+    {% include "admin_panel/partials/_bulk_bar.html" %}
     <div class="table-wrapper">
         <table>
-            <thead><tr><th>#</th><th>{% if lang == 'fa' %}پلتفرم{% else %}Platform{% endif %}</th><th>URL</th><th>{% if lang == 'fa' %}آیکن{% else %}Icon{% endif %}</th><th>{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</th><th>{% if lang == 'fa' %}وضعیت{% else %}Status{% endif %}</th><th>{% if lang == 'fa' %}عملیات{% else %}Actions{% endif %}</th></tr></thead>
+            <thead>
+                <tr>
+                    {% include "admin_panel/partials/_bulk_head.html" %}
+                    <th>#</th>
+                    <th>{% tr "Platform" "پلتفرم" "المنصة" %}</th>
+                    <th>URL</th>
+                    <th>{% tr "Icon" "آیکون" "الأيقونة" %}</th>
+                    <th>{% tr "Order" "ترتیب" "الترتيب" %}</th>
+                    <th>{% tr "Status" "وضعیت" "الحالة" %}</th>
+                    <th>{% tr "Actions" "عملیات" "الإجراءات" %}</th>
+                </tr>
+            </thead>
             <tbody>
                 {% for item in items %}
                 <tr>
+                    {% include "admin_panel/partials/_bulk_cell.html" %}
                     <td>{{ item.pk }}</td>
                     <td><span class="badge badge-accent">{{ item.get_platform_display }}</span></td>
                     <td><a href="{{ item.url }}" target="_blank">{{ item.url|truncatechars:50 }}</a></td>
                     <td>{% if item.icon_image %}<img src="{{ item.icon_image.url }}" style="width:32px;height:32px;object-fit:contain;">{% else %}—{% endif %}</td>
                     <td>{{ item.order }}</td>
-                    <td>{% if item.is_active %}<span class="badge badge-success">{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span>{% else %}<span class="badge badge-danger">{% if lang == 'fa' %}غیرفعال{% else %}Inactive{% endif %}</span>{% endif %}</td>
+                    <td>{% if item.is_active %}<span class="badge badge-success">{% tr "Active" "فعال" "مفعّل" %}</span>{% else %}<span class="badge badge-danger">{% tr "Inactive" "غیرفعال" "غير مفعّل" %}</span>{% endif %}</td>
                     <td>
                         <div class="btn-group">
-                            <button class="btn btn-outline btn-sm btn-icon" onclick="openModal('Edit', document.getElementById('edit-{{ item.pk }}').innerHTML)"><i class="ph ph-pencil-simple"></i></button>
+                            <button class="btn btn-outline btn-sm btn-icon" onclick="openModal('{% tr 'Edit' 'ویرایش' 'تعديل' %}', document.getElementById('edit-{{ item.pk }}').innerHTML)" title="{% tr 'Edit' 'ویرایش' 'تعديل' %}"><i class="ph ph-pencil-simple"></i></button>
                             <form id="del-{{ item.pk }}" method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="pk" value="{{ item.pk }}"></form>
-                            <button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('del-{{ item.pk }}')"><i class="ph ph-trash"></i></button>
+                            <button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('del-{{ item.pk }}')" title="{% tr 'Delete' 'حذف' 'حذف' %}"><i class="ph ph-trash"></i></button>
                         </div>
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="7" class="empty-state"><p>{% if lang == 'fa' %}هنوز لینکی اضافه نشده{% else %}No links yet{% endif %}</p></td></tr>
+                <tr><td colspan="8" class="empty-state"><p>{% tr "No links yet" "هنوز لینکی اضافه نشده" "لا توجد روابط بعد" %}</p></td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -37,21 +51,21 @@
 
 <div id="addForm" style="display:none">
 <form method="post" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="action" value="add">
-<div class="form-row"><div class="form-group"><label class="form-label">Platform</label><select name="platform" class="form-control">
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Platform" "پلتفرم" "المنصة" %}</label><select name="platform" class="form-control">
 <option value="phone">Phone</option><option value="location">Location</option><option value="email">Email</option>
 <option value="linkedin">LinkedIn</option><option value="whatsapp">WhatsApp</option><option value="instagram">Instagram</option>
 <option value="facebook">Facebook</option><option value="twitter">Twitter/X</option>
 <option value="youtube">YouTube</option><option value="telegram">Telegram</option><option value="dribbble">Dribbble</option><option value="github">GitHub</option>
 </select></div><div class="form-group"><label class="form-label">URL</label><input type="url" name="url" class="form-control" value="#"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}آیکن سفارشی{% else %}Custom Icon Image{% endif %}</label><input type="file" name="icon_image" class="form-control" accept="image/*"><small>{% if lang == 'fa' %}اختیاری - اگر آپلود نشود از آیکن پیش‌فرض استفاده می‌شود{% else %}Optional - if not uploaded, default icon will be used{% endif %}</small></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</label><input type="number" name="order" class="form-control" value="0"></div></div>
-<div class="form-row"><div class="form-group" style="display:flex;align-items:flex-end"><label class="form-check"><input type="checkbox" name="is_active" checked><span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span></label></div></div>
-<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button></div></form>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Custom Icon Image" "آیکون سفارشی" "أيقونة مخصصة" %}</label><input type="file" name="icon_image" class="form-control" accept="image/*"><small>{% tr "Optional - if not uploaded, default icon will be used" "اختیاری - اگر آپلود نشود از آیکن پیش‌فرض استفاده می‌شود" "اختياري - إذا لم يتم الرفع ستُستخدم الأيقونة الافتراضية" %}</small></div><div class="form-group"><label class="form-label">{% tr "Order" "ترتیب" "الترتيب" %}</label><input type="number" name="order" class="form-control" value="0"></div></div>
+<div class="form-row"><div class="form-group" style="display:flex;align-items:flex-end"><label class="form-check"><input type="checkbox" name="is_active" checked><span>{% tr "Active" "فعال" "مفعّل" %}</span></label></div></div>
+<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button></div></form>
 </div>
 
 {% for item in items %}
 <div id="edit-{{ item.pk }}" style="display:none">
 <form method="post" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="action" value="edit"><input type="hidden" name="pk" value="{{ item.pk }}">
-<div class="form-row"><div class="form-group"><label class="form-label">Platform</label><select name="platform" class="form-control">
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Platform" "پلتفرم" "المنصة" %}</label><select name="platform" class="form-control">
 <option value="phone" {% if item.platform == "phone" %}selected{% endif %}>Phone</option>
 <option value="location" {% if item.platform == "location" %}selected{% endif %}>Location</option>
 <option value="email" {% if item.platform == "email" %}selected{% endif %}>Email</option>
@@ -65,12 +79,12 @@
 <option value="dribbble" {% if item.platform == "dribbble" %}selected{% endif %}>Dribbble</option>
 <option value="github" {% if item.platform == "github" %}selected{% endif %}>GitHub</option>
 </select></div><div class="form-group"><label class="form-label">URL</label><input type="url" name="url" class="form-control" value="{{ item.url }}"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}آیکن سفارشی{% else %}Custom Icon Image{% endif %}</label>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Custom Icon Image" "آیکون سفارشی" "أيقونة مخصصة" %}</label>
 {% if item.icon_image %}<div style="margin-bottom:8px;"><img src="{{ item.icon_image.url }}" style="width:48px;height:48px;object-fit:contain;"></div>{% endif %}
 <input type="file" name="icon_image" class="form-control" accept="image/*"></div>
-<div class="form-group"><label class="form-label">{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</label><input type="number" name="order" class="form-control" value="{{ item.order }}"></div></div>
-<div class="form-row"><div class="form-group" style="display:flex;align-items:flex-end"><label class="form-check"><input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}><span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span></label></div></div>
-<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button></div></form>
+<div class="form-group"><label class="form-label">{% tr "Order" "ترتیب" "الترتيب" %}</label><input type="number" name="order" class="form-control" value="{{ item.order }}"></div></div>
+<div class="form-row"><div class="form-group" style="display:flex;align-items:flex-end"><label class="form-check"><input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}><span>{% tr "Active" "فعال" "مفعّل" %}</span></label></div></div>
+<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button></div></form>
 </div>
 {% endfor %}
 {% endblock %}

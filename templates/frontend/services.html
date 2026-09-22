@@ -1,6 +1,5 @@
 {% extends "frontend/base.html" %}
 {% load static i18n_custom %}
-
 {% block content %}
 {% if hero %}
 <div class="hero v-h-full overlay" style="background-image: url('{% if hero.background_image %}{{ hero.background_image.url }}{% else %}{% static 'frontend/images/bg_hero.jpg' %}{% endif %}')">
@@ -19,8 +18,8 @@
 {% if services %}
 <div class="section section-3"><div class="container">
     <div class="row"><div class="col-lg-6 mb-5">
-        <span class="subheading" style="color:#e2a83e;">{% if lang == 'fa' %}خدمات{% else %}Services{% endif %}</span>
-        <h2 class="heading">{% if lang == 'fa' %}خدمات ما{% else %}Our Services{% endif %}</h2>
+        <span class="subheading" style="color:#e2a83e;">{% tr "Services" "خدمات" "الخدمات" %}</span>
+        <h2 class="heading">{% tr "Our Services" "خدمات ما" "خدماتنا" %}</h2>
     </div></div>
     <div class="row features-wrap">
         {% for service in services %}
@@ -42,7 +41,7 @@
     {% if about %}{% get_why_title about as why_t %}{% if why_t %}
     <div class="box-white pt-5 p-md-5 mx-md-5"><div class="container"><div class="row">
         <div class="col-lg-6 align-self-center mb-5 mb-lg-0"><div class="text-wrap">
-            <span class="subheading" style="color:#e2a83e;">{% if lang == 'fa' %}چرا ما{% else %}Why AM Business{% endif %}</span>
+            <span class="subheading" style="color:#e2a83e;">{% tr "Why AM Business" "چرا ما" "لماذا إي إم بيزنس" %}</span>
             <h2 class="heading mb-4" style="font-size:40px;">{{ why_t }}</h2>
             <p>{% get_why_content about %}</p>
             {% trans_field about "cta_text" as cta %}{% if cta %}

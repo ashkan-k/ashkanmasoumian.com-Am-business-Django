@@ -98,10 +98,105 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ─── Delete Confirmation ───
     window.confirmDelete = function(formId) {
-        if (confirm('Are you sure you want to delete this item?')) {
+        if (confirm(window.DSH_I18N && window.DSH_I18N.confirmDelete || 'Are you sure you want to delete this item?')) {
             document.getElementById(formId).submit();
         }
     };
+
+    // ─── Bulk Actions ───
+    // Each admin list page renders a `.bulk-form` holding the hidden
+    // `action`/`bulk_action` inputs and the toolbar. The row checkboxes live
+    // inside the table (so they can sit in their own cells) and are linked to
+    // the form through the HTML5 `form="<id>"` attribute — which means they
+    // must be looked up on the document, not inside the form element.
+    document.querySelectorAll('.bulk-form').forEach(function(form) {
+        var formId = form.id;
+        var rowChecks = Array.prototype.slice.call(
+            document.querySelectorAll('input.row-check[form="' + formId + '"]')
+        );
+        var selectAll = document.querySelector('input.select-all[form="' + formId + '"]');
+        var actionSelect = form.querySelector('.bulk-select');
+        var actionInput = form.querySelector('.bulk-action-input');
+        var applyBtn = form.querySelector('.bulk-apply');
+        var clearBtn = form.querySelector('.bulk-clear');
+        var bar = form.querySelector('.bulk-bar');
+        var countEl = form.querySelector('.bulk-count-value');
+        var i18n = window.DSH_I18N || {};
+
+        if (!rowChecks.length) return;
+
+        function selectedRows() {
+            return rowChecks.filter(function(c) { return c.checked; });
+        }
+
+        function sync() {
+            var chosen = selectedRows();
+            var n = chosen.length;
+
+            if (countEl) countEl.textContent = n;
+            if (bar) bar.classList.toggle('active', n > 0);
+            if (selectAll) {
+                selectAll.checked = n > 0 && n === rowChecks.length;
+                selectAll.indeterminate = n > 0 && n < rowChecks.length;
+            }
+
+            rowChecks.forEach(function(c) {
+                var tr = c.closest('tr');
+                if (tr) tr.classList.toggle('row-selected', c.checked);
+            });
+        }
+
+        function setAll(state) {
+            rowChecks.forEach(function(c) { c.checked = state; });
+            sync();
+        }
+
+        if (selectAll) {
+            selectAll.addEventListener('change', function() { setAll(selectAll.checked); });
+        }
+
+        rowChecks.forEach(function(c) {
+            c.addEventListener('change', sync);
+        });
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                setAll(false);
+                if (actionSelect) actionSelect.selectedIndex = 0;
+            });
+        }
+
+        if (applyBtn) {
+            applyBtn.addEventListener('click', function(e) {
+                var chosen = selectedRows();
+                if (!chosen.length) {
+                    e.preventDefault();
+                    alert(i18n.bulkNoSelection || 'Select at least one row first.');
+                    return;
+                }
+                if (!actionSelect || !actionSelect.value) {
+                    e.preventDefault();
+                    alert(i18n.bulkNoAction || 'Choose a bulk action first.');
+                    if (actionSelect) actionSelect.focus();
+                    return;
+                }
+                var option = actionSelect.options[actionSelect.selectedIndex];
+                if (option && option.dataset.confirm === '1') {
+                    var template = i18n.bulkConfirmDelete ||
+                        'Delete %s selected item(s)? This cannot be undone.';
+                    if (!confirm(template.replace('%s', chosen.length))) {
+                        e.preventDefault();
+                        return;
+                    }
+                }
+                if (actionInput) actionInput.value = actionSelect.value;
+            });
+        }
+
+        // Reflect checkboxes restored by the browser (back/forward navigation)
+        sync();
+    });
 
     // ─── Form submission to modal ───
     window.openEditModal = function(title, formHTML) {

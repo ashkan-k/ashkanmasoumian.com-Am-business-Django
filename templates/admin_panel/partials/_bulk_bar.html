@@ -1,0 +1,42 @@
+{% load i18n_custom %}
+{% comment %}
+Bulk-action toolbar for admin list pages.
+
+Rendered from the `bulk` context built by `core.views.bulk_menu`, so the
+dropdown always lists exactly the actions the backend accepts for this page.
+Row checkboxes in the table stay in their own cells and are linked to this
+form through `form="bulk-<page_key>"`.
+{% endcomment %}
+<form id="bulk-{{ bulk.page_key }}" class="bulk-form" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="bulk">
+    <input type="hidden" name="bulk_action" class="bulk-action-input" value="">
+    <div class="bulk-bar">
+        <span class="bulk-count">
+            {% tr "Selected:" "انتخاب‌شده:" "المحدد:" %}
+            <strong class="bulk-count-value">0</strong>
+        </span>
+        <select class="bulk-select" aria-label="{% tr 'Bulk action' 'عملیات گروهی' 'إجراء جماعي' %}">
+            <option value="">{% tr "— Choose a bulk action —" "— یک عملیات گروهی انتخاب کنید —" "— اختر إجراءً جماعيًا —" %}</option>
+            {% for group in bulk.groups %}
+            <optgroup label="{{ group.label }}">
+                {% for action in group.actions %}
+                <option value="{{ action.key }}" data-confirm="{% if action.confirm %}1{% else %}0{% endif %}">
+                    {{ action.label }}
+                </option>
+                {% endfor %}
+            </optgroup>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm bulk-apply">
+            <i class="ph ph-lightning"></i> {% tr "Apply" "اعمال" "تطبيق" %}
+        </button>
+        <button type="button" class="btn btn-outline btn-sm bulk-clear">
+            <i class="ph ph-x"></i> {% tr "Clear selection" "لغو انتخاب" "إلغاء التحديد" %}
+        </button>
+        <span class="bulk-actions-spacer"></span>
+        <span class="bulk-hint">
+            {% tr "Use the header checkbox to select every row." "با چک‌باکس سرستون همه ردیف‌ها را انتخاب کنید." "استخدم مربع التحديد في رأس الجدول لتحديد كل الصفوف." %}
+        </span>
+    </div>
+</form>

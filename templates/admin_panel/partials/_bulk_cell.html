@@ -1,0 +1,5 @@
+{% comment %}Row checkbox cell for a bulk-action table. Expects `item.pk`.{% endcomment %}
+<td class="col-check">
+    <input type="checkbox" class="row-check" name="pks" value="{{ item.pk }}"
+           form="bulk-{{ bulk.page_key }}" aria-label="Select row">
+</td>

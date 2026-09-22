@@ -1,20 +1,20 @@
-{% load static %}
+{% load static i18n_custom %}
 <!DOCTYPE html>
-<html lang="{{ lang }}" dir="{% if lang == 'fa' %}rtl{% else %}ltr{% endif %}">
+<html lang="{{ lang }}" dir="{% if is_rtl %}rtl{% else %}ltr{% endif %}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login | AM Business Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>{% tr "Login" "ورود" "تسجيل الدخول" %} | AM Business Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Vazirmatn:wght@300;400;500;600;700;800&family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
-    <link rel="stylesheet" href="{% static 'admin_panel/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'admin_panel/css/style.css' %}?v=3">
 </head>
-<body class="theme-{{ theme }}">
+<body class="theme-{{ theme }}" data-lang="{{ lang }}">
     <div class="login-page">
         <div class="login-card">
             <div class="login-logo">AM</div>
-            <h1 class="login-title">{% if lang == 'fa' %}ورود به پنل مدیریت{% else %}Admin Login{% endif %}</h1>
-            <p class="login-subtitle">{% if lang == 'fa' %}اطلاعات خود را وارد کنید{% else %}Enter your credentials to continue{% endif %}</p>
+            <h1 class="login-title">{% tr "Admin Login" "ورود به پنل مدیریت" "تسجيل الدخول إلى لوحة التحكم" %}</h1>
+            <p class="login-subtitle">{% tr "Enter your credentials to continue" "اطلاعات خود را وارد کنید" "أدخل بياناتك للمتابعة" %}</p>
 
             {% if messages %}
             {% for message in messages %}
@@ -25,21 +25,23 @@
             <form method="post" action="{% url 'admin_login' %}">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label class="form-label">{% if lang == 'fa' %}نام کاربری{% else %}Username{% endif %}</label>
-                    <input type="text" name="username" class="form-control" placeholder="{% if lang == 'fa' %}نام کاربری{% else %}Enter username{% endif %}" required autofocus>
+                    <label class="form-label">{% tr "Username" "نام کاربری" "اسم المستخدم" %}</label>
+                    <input type="text" name="username" class="form-control" placeholder="{% tr 'Enter username' 'نام کاربری را وارد کنید' 'أدخل اسم المستخدم' %}" required autofocus>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">{% if lang == 'fa' %}رمز عبور{% else %}Password{% endif %}</label>
-                    <input type="password" name="password" class="form-control" placeholder="{% if lang == 'fa' %}رمز عبور{% else %}Enter password{% endif %}" required>
+                    <label class="form-label">{% tr "Password" "رمز عبور" "كلمة المرور" %}</label>
+                    <input type="password" name="password" class="form-control" placeholder="{% tr 'Enter password' 'رمز عبور را وارد کنید' 'أدخل كلمة المرور' %}" required>
                 </div>
                 <button type="submit" class="btn btn-primary">
-                    {% if lang == 'fa' %}ورود{% else %}Sign In{% endif %}
+                    {% tr "Sign In" "ورود" "دخول" %}
                 </button>
             </form>
 
             <div style="margin-top: 24px; display: flex; gap: 8px; justify-content: center;">
-                <a href="{% url 'set_language' 'en' %}" class="btn btn-outline btn-sm">🇬🇧 EN</a>
-                <a href="{% url 'set_language' 'fa' %}" class="btn btn-outline btn-sm">🇮🇷 FA</a>
+                {% for language in languages %}
+                <a href="{% url 'set_language' language.code %}"
+                   class="btn {% if lang == language.code %}btn-primary{% else %}btn-outline{% endif %} btn-sm">{{ language.flag }} {{ language.short }}</a>
+                {% endfor %}
             </div>
         </div>
     </div>

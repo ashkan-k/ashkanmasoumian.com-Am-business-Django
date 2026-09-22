@@ -1,40 +1,77 @@
 {% extends "admin_panel/base.html" %}
+{% load i18n_custom %}
 {% block content %}
 <div class="card">
     <div class="card-header">
-        <h3>{% if lang == 'fa' %}قیمت‌گذاری{% else %}Pricing Plans{% endif %}</h3>
-        <button class="btn btn-primary" onclick="openModal('{% if lang == 'fa' %}افزودن طرح{% else %}Add Plan{% endif %}', document.getElementById('addForm').innerHTML)"><i class="ph ph-plus"></i> {% if lang == 'fa' %}افزودن{% else %}Add{% endif %}</button>
+        <h3>{% tr "Pricing Plans" "قیمت‌گذاری" "الخطط السعرية" %}</h3>
+        <button class="btn btn-primary" onclick="openModal('{% tr "Add Plan" "افزودن طرح" "إضافة خطة" %}', document.getElementById('addForm').innerHTML)"><i class="ph ph-plus"></i> {% tr "Add" "افزودن" "إضافة" %}</button>
     </div>
+    {% include "admin_panel/partials/_bulk_bar.html" %}
     <div class="table-wrapper">
         <table>
-            <thead><tr><th>#</th><th>{% if lang == 'fa' %}نام (EN){% else %}Name (EN){% endif %}</th><th>{% if lang == 'fa' %}نام (FA){% else %}Name (FA){% endif %}</th><th>{% if lang == 'fa' %}قیمت{% else %}Price{% endif %}</th><th>{% if lang == 'fa' %}محبوب{% else %}Popular{% endif %}</th><th>{% if lang == 'fa' %}وضعیت{% else %}Status{% endif %}</th><th>{% if lang == 'fa' %}عملیات{% else %}Actions{% endif %}</th></tr></thead>
+            <thead>
+                <tr>
+                    {% include "admin_panel/partials/_bulk_head.html" %}
+                    <th>#</th>
+                    <th>{% tr "Name (EN)" "نام (EN)" "الاسم (EN)" %}</th>
+                    <th>{% tr "Name (FA)" "نام (FA)" "الاسم (FA)" %}</th>
+                    <th>{% tr "Name (AR)" "نام (AR)" "الاسم (AR)" %}</th>
+                    <th>{% tr "Price" "قیمت" "السعر" %}</th>
+                    <th>{% tr "Popular" "محبوب" "مميّز" %}</th>
+                    <th>{% tr "Status" "وضعیت" "الحالة" %}</th>
+                    <th>{% tr "Actions" "عملیات" "الإجراءات" %}</th>
+                </tr>
+            </thead>
             <tbody>
                 {% for item in items %}
-                <tr><td>{{ item.pk }}</td><td><strong>{{ item.name_en }}</strong></td><td dir="rtl">{{ item.name_fa }}</td><td>{{ item.currency }}{{ item.price }}{{ item.cents }}</td><td>{% if item.is_popular %}<span class="badge badge-accent">{% if lang == 'fa' %}محبوب{% else %}Popular{% endif %}</span>{% else %}-{% endif %}</td><td>{% if item.is_active %}<span class="badge badge-success">{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span>{% else %}<span class="badge badge-danger">{% if lang == 'fa' %}غیرفعال{% else %}Inactive{% endif %}</span>{% endif %}</td>
-                <td><div class="btn-group"><button class="btn btn-outline btn-sm btn-icon" onclick="openModal('{% if lang == 'fa' %}ویرایش plan{% else %}Edit Plan{% endif %}', document.getElementById('edit-{{ item.pk }}').innerHTML)"><i class="ph ph-pencil-simple"></i></button><form id="del-price-{{ item.pk }}" method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="pk" value="{{ item.pk }}"></form><button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('del-price-{{ item.pk }}')"><i class="ph ph-trash"></i></button></div></td></tr>
-                {% empty %}<tr><td colspan="7" class="empty-state"><p>{% if lang == 'fa' %}هنوز plan ای اضافه نشده{% else %}No plans yet{% endif %}</p></td></tr>{% endfor %}
+                <tr>
+                    {% include "admin_panel/partials/_bulk_cell.html" %}
+                    <td>{{ item.pk }}</td>
+                    <td><strong>{{ item.name_en }}</strong></td>
+                    <td dir="rtl">{{ item.name_fa }}</td>
+                    <td dir="rtl">{{ item.name_ar|default:"—" }}</td>
+                    <td>{{ item.currency }}{{ item.price }}{{ item.cents }}</td>
+                    <td>{% if item.is_popular %}<span class="badge badge-accent">{% tr "Popular" "محبوب" "مميّز" %}</span>{% else %}-{% endif %}</td>
+                    <td>{% if item.is_active %}<span class="badge badge-success">{% tr "Active" "فعال" "مفعّل" %}</span>{% else %}<span class="badge badge-danger">{% tr "Inactive" "غیرفعال" "غير مفعّل" %}</span>{% endif %}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-outline btn-sm btn-icon" onclick="openModal('{% tr "Edit Plan" "ویرایش طرح" "تعديل الخطة" %}', document.getElementById('edit-{{ item.pk }}').innerHTML)" title="{% tr 'Edit' 'ویرایش' 'تعديل' %}"><i class="ph ph-pencil-simple"></i></button>
+                            <form id="del-price-{{ item.pk }}" method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="pk" value="{{ item.pk }}"></form>
+                            <button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('del-price-{{ item.pk }}')" title="{% tr 'Delete' 'حذف' 'حذف' %}"><i class="ph ph-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="9" class="empty-state"><p>{% tr "No plans yet" "هنوز طرحی اضافه نشده" "لا توجد خطط بعد" %}</p></td></tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
 <div id="addForm" style="display:none"><form method="post">{% csrf_token %}<input type="hidden" name="action" value="add">
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}نام (EN){% else %}Name (EN){% endif %}</label><input type="text" name="name_en" class="form-control" required></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}نام (FA){% else %}Name (FA){% endif %}</label><input type="text" name="name_fa" class="form-control" required dir="rtl"></div></div>
-<div class="form-group"><label class="form-label">{% if lang == 'fa' %}توضیحات (EN){% else %}Description (EN){% endif %}</label><textarea name="description_en" class="form-control" rows="2" required></textarea></div>
-<div class="form-group"><label class="form-label">{% if lang == 'fa' %}توضیحات (FA){% else %}Description (FA){% endif %}</label><textarea name="description_fa" class="form-control" rows="2" required dir="rtl"></textarea></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}قیمت{% else %}Price{% endif %}</label><input type="number" name="price" class="form-control" step="0.01" required></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}واحد پول{% else %}Currency{% endif %}</label><input type="text" name="currency" class="form-control" value="$"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}سنت{% else %}Cents{% endif %}</label><input type="text" name="cents" class="form-control" value=".99"></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</label><input type="number" name="order" class="form-control" value="0"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}متن دکمه (EN){% else %}Button (EN){% endif %}</label><input type="text" name="button_text_en" class="form-control" value="Buy"></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}متن دکمه (FA){% else %}Button (FA){% endif %}</label><input type="text" name="button_text_fa" class="form-control" value="خرید" dir="rtl"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-check"><input type="checkbox" name="is_popular"><span>{% if lang == 'fa' %}محبوب{% else %}Popular{% endif %}</span></label></div><div class="form-group"><label class="form-check"><input type="checkbox" name="is_active" checked><span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span></label></div></div>
-<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button></div></form></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Name (EN)" "نام (EN)" "الاسم (EN)" %}</label><input type="text" name="name_en" class="form-control" required></div><div class="form-group"><label class="form-label">{% tr "Name (FA)" "نام (FA)" "الاسم (FA)" %}</label><input type="text" name="name_fa" class="form-control" required dir="rtl"></div></div>
+<div class="form-group"><label class="form-label">{% tr "Name (AR)" "نام (AR)" "الاسم (AR)" %}</label><input type="text" name="name_ar" class="form-control" dir="rtl"></div>
+<div class="form-group"><label class="form-label">{% tr "Description (EN)" "توضیحات (EN)" "الوصف (EN)" %}</label><textarea name="description_en" class="form-control" rows="2" required></textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Description (FA)" "توضیحات (FA)" "الوصف (FA)" %}</label><textarea name="description_fa" class="form-control" rows="2" required dir="rtl"></textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Description (AR)" "توضیحات (AR)" "الوصف (AR)" %}</label><textarea name="description_ar" class="form-control" rows="2" dir="rtl"></textarea></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Price" "قیمت" "السعر" %}</label><input type="number" name="price" class="form-control" step="0.01" required></div><div class="form-group"><label class="form-label">{% tr "Currency" "واحد پول" "العملة" %}</label><input type="text" name="currency" class="form-control" value="$"></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Cents" "سنت" "السنتات" %}</label><input type="text" name="cents" class="form-control" value=".99"></div><div class="form-group"><label class="form-label">{% tr "Order" "ترتیب" "الترتيب" %}</label><input type="number" name="order" class="form-control" value="0"></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Button (EN)" "متن دکمه (EN)" "نص الزر (EN)" %}</label><input type="text" name="button_text_en" class="form-control" value="Buy"></div><div class="form-group"><label class="form-label">{% tr "Button (FA)" "متن دکمه (FA)" "نص الزر (FA)" %}</label><input type="text" name="button_text_fa" class="form-control" value="خرید" dir="rtl"></div></div>
+<div class="form-group"><label class="form-label">{% tr "Button (AR)" "متن دکمه (AR)" "نص الزر (AR)" %}</label><input type="text" name="button_text_ar" class="form-control" dir="rtl"></div>
+<div class="form-row"><div class="form-group"><label class="form-check"><input type="checkbox" name="is_popular"><span>{% tr "Popular" "محبوب" "مميّز" %}</span></label></div><div class="form-group"><label class="form-check"><input type="checkbox" name="is_active" checked><span>{% tr "Active" "فعال" "مفعّل" %}</span></label></div></div>
+<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button></div></form></div>
 {% for item in items %}
 <div id="edit-{{ item.pk }}" style="display:none"><form method="post">{% csrf_token %}<input type="hidden" name="action" value="edit"><input type="hidden" name="pk" value="{{ item.pk }}">
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}نام (EN){% else %}Name (EN){% endif %}</label><input type="text" name="name_en" class="form-control" value="{{ item.name_en }}" required></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}نام (FA){% else %}Name (FA){% endif %}</label><input type="text" name="name_fa" class="form-control" value="{{ item.name_fa }}" required dir="rtl"></div></div>
-<div class="form-group"><label class="form-label">{% if lang == 'fa' %}توضیحات (EN){% else %}Description (EN){% endif %}</label><textarea name="description_en" class="form-control" rows="2" required>{{ item.description_en }}</textarea></div>
-<div class="form-group"><label class="form-label">{% if lang == 'fa' %}توضیحات (FA){% else %}Description (FA){% endif %}</label><textarea name="description_fa" class="form-control" rows="2" required dir="rtl">{{ item.description_fa }}</textarea></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}قیمت{% else %}Price{% endif %}</label><input type="number" name="price" class="form-control" step="0.01" value="{{ item.price }}" required></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}واحد پول{% else %}Currency{% endif %}</label><input type="text" name="currency" class="form-control" value="{{ item.currency }}"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}سنت{% else %}Cents{% endif %}</label><input type="text" name="cents" class="form-control" value="{{ item.cents }}"></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</label><input type="number" name="order" class="form-control" value="{{ item.order }}"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}متن دکمه (EN){% else %}Button (EN){% endif %}</label><input type="text" name="button_text_en" class="form-control" value="{{ item.button_text_en }}"></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}متن دکمه (FA){% else %}Button (FA){% endif %}</label><input type="text" name="button_text_fa" class="form-control" value="{{ item.button_text_fa }}" dir="rtl"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-check"><input type="checkbox" name="is_popular" {% if item.is_popular %}checked{% endif %}><span>{% if lang == 'fa' %}محبوب{% else %}Popular{% endif %}</span></label></div><div class="form-group"><label class="form-check"><input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}><span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span></label></div></div>
-<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button></div></form></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Name (EN)" "نام (EN)" "الاسم (EN)" %}</label><input type="text" name="name_en" class="form-control" value="{{ item.name_en }}" required></div><div class="form-group"><label class="form-label">{% tr "Name (FA)" "نام (FA)" "الاسم (FA)" %}</label><input type="text" name="name_fa" class="form-control" value="{{ item.name_fa }}" required dir="rtl"></div></div>
+<div class="form-group"><label class="form-label">{% tr "Name (AR)" "نام (AR)" "الاسم (AR)" %}</label><input type="text" name="name_ar" class="form-control" value="{{ item.name_ar }}" dir="rtl"></div>
+<div class="form-group"><label class="form-label">{% tr "Description (EN)" "توضیحات (EN)" "الوصف (EN)" %}</label><textarea name="description_en" class="form-control" rows="2" required>{{ item.description_en }}</textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Description (FA)" "توضیحات (FA)" "الوصف (FA)" %}</label><textarea name="description_fa" class="form-control" rows="2" required dir="rtl">{{ item.description_fa }}</textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Description (AR)" "توضیحات (AR)" "الوصف (AR)" %}</label><textarea name="description_ar" class="form-control" rows="2" dir="rtl">{{ item.description_ar }}</textarea></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Price" "قیمت" "السعر" %}</label><input type="number" name="price" class="form-control" step="0.01" value="{{ item.price }}" required></div><div class="form-group"><label class="form-label">{% tr "Currency" "واحد پول" "العملة" %}</label><input type="text" name="currency" class="form-control" value="{{ item.currency }}"></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Cents" "سنت" "السنتات" %}</label><input type="text" name="cents" class="form-control" value="{{ item.cents }}"></div><div class="form-group"><label class="form-label">{% tr "Order" "ترتیب" "الترتيب" %}</label><input type="number" name="order" class="form-control" value="{{ item.order }}"></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Button (EN)" "متن دکمه (EN)" "نص الزر (EN)" %}</label><input type="text" name="button_text_en" class="form-control" value="{{ item.button_text_en }}"></div><div class="form-group"><label class="form-label">{% tr "Button (FA)" "متن دکمه (FA)" "نص الزر (FA)" %}</label><input type="text" name="button_text_fa" class="form-control" value="{{ item.button_text_fa }}" dir="rtl"></div></div>
+<div class="form-group"><label class="form-label">{% tr "Button (AR)" "متن دکمه (AR)" "نص الزر (AR)" %}</label><input type="text" name="button_text_ar" class="form-control" value="{{ item.button_text_ar }}" dir="rtl"></div>
+<div class="form-row"><div class="form-group"><label class="form-check"><input type="checkbox" name="is_popular" {% if item.is_popular %}checked{% endif %}><span>{% tr "Popular" "محبوب" "مميّز" %}</span></label></div><div class="form-group"><label class="form-check"><input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}><span>{% tr "Active" "فعال" "مفعّل" %}</span></label></div></div>
+<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button></div></form></div>
 {% endfor %}
 {% endblock %}

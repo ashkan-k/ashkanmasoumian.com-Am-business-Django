@@ -1,36 +1,71 @@
 {% extends "admin_panel/base.html" %}
+{% load i18n_custom %}
 {% block content %}
 <div class="card">
     <div class="card-header">
-        <h3>{% if lang == 'fa' %}نظرات مشتریان{% else %}Testimonials{% endif %}</h3>
-        <button class="btn btn-primary" onclick="openModal('{% if lang == 'fa' %}افزودن{% else %}Add{% endif %}', document.getElementById('addForm').innerHTML)"><i class="ph ph-plus"></i> {% if lang == 'fa' %}افزودن{% else %}Add{% endif %}</button>
+        <h3>{% tr "Testimonials" "نظرات مشتریان" "شهادات العملاء" %}</h3>
+        <button class="btn btn-primary" onclick="openModal('{% tr "Add" "افزودن" "إضافة" %}', document.getElementById('addForm').innerHTML)"><i class="ph ph-plus"></i> {% tr "Add" "افزودن" "إضافة" %}</button>
     </div>
+    {% include "admin_panel/partials/_bulk_bar.html" %}
     <div class="table-wrapper">
         <table>
-            <thead><tr><th>#</th><th>{% if lang == 'fa' %}نویسنده{% else %}Author{% endif %}</th><th>{% if lang == 'fa' %}نقل قول (EN){% else %}Quote (EN){% endif %}</th><th>{% if lang == 'fa' %}سمت{% else %}Role{% endif %}</th><th>{% if lang == 'fa' %}وضعیت{% else %}Status{% endif %}</th><th>{% if lang == 'fa' %}عملیات{% else %}Actions{% endif %}</th></tr></thead>
+            <thead>
+                <tr>
+                    {% include "admin_panel/partials/_bulk_head.html" %}
+                    <th>#</th>
+                    <th>{% tr "Author" "نویسنده" "الكاتب" %}</th>
+                    <th>{% tr "Quote (EN)" "نقل قول (EN)" "الاقتباس (EN)" %}</th>
+                    <th>{% tr "Quote (AR)" "نقل قول (AR)" "الاقتباس (AR)" %}</th>
+                    <th>{% tr "Role (EN)" "سمت (EN)" "المنصب (EN)" %}</th>
+                    <th>{% tr "Role (AR)" "سمت (AR)" "المنصب (AR)" %}</th>
+                    <th>{% tr "Status" "وضعیت" "الحالة" %}</th>
+                    <th>{% tr "Actions" "عملیات" "الإجراءات" %}</th>
+                </tr>
+            </thead>
             <tbody>
                 {% for item in items %}
-                <tr><td>{{ item.pk }}</td><td><strong>{{ item.author_name }}</strong>{% if item.author_image %}<br><img src="{{ item.author_image.url }}" class="image-preview" style="width:40px;height:40px;margin-top:4px">{% endif %}</td><td class="truncate" style="max-width:250px">{{ item.quote_en }}</td><td>{{ item.author_role_en }}</td><td>{% if item.is_active %}<span class="badge badge-success">{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span>{% else %}<span class="badge badge-danger">{% if lang == 'fa' %}غیرفعال{% else %}Inactive{% endif %}</span>{% endif %}</td>
-                <td><div class="btn-group"><button class="btn btn-outline btn-sm btn-icon" onclick="openModal('{% if lang == 'fa' %}ویرایش{% else %}Edit{% endif %}', document.getElementById('edit-{{ item.pk }}').innerHTML)"><i class="ph ph-pencil-simple"></i></button><form id="del-test-{{ item.pk }}" method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="pk" value="{{ item.pk }}"></form><button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('del-test-{{ item.pk }}')"><i class="ph ph-trash"></i></button></div></td></tr>
-                {% empty %}<tr><td colspan="6" class="empty-state"><p>{% if lang == 'fa' %}هنوز نظری اضافه نشده{% else %}No testimonials yet{% endif %}</p></td></tr>{% endfor %}
+                <tr>
+                    {% include "admin_panel/partials/_bulk_cell.html" %}
+                    <td>{{ item.pk }}</td>
+                    <td><strong>{{ item.author_name }}</strong>{% if item.author_image %}<br><img src="{{ item.author_image.url }}" class="image-preview" style="width:40px;height:40px;margin-top:4px">{% endif %}</td>
+                    <td class="truncate" style="max-width:250px">{{ item.quote_en }}</td>
+                    <td class="truncate" style="max-width:250px" dir="rtl">{{ item.quote_ar|default:"—" }}</td>
+                    <td>{{ item.author_role_en|default:"—" }}</td>
+                    <td dir="rtl">{{ item.author_role_ar|default:"—" }}</td>
+                    <td>{% if item.is_active %}<span class="badge badge-success">{% tr "Active" "فعال" "مفعّل" %}</span>{% else %}<span class="badge badge-danger">{% tr "Inactive" "غیرفعال" "غير مفعّل" %}</span>{% endif %}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-outline btn-sm btn-icon" onclick="openModal('{% tr "Edit" "ویرایش" "تعديل" %}', document.getElementById('edit-{{ item.pk }}').innerHTML)" title="{% tr 'Edit' 'ویرایش' 'تعديل' %}"><i class="ph ph-pencil-simple"></i></button>
+                            <form id="del-test-{{ item.pk }}" method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="pk" value="{{ item.pk }}"></form>
+                            <button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('del-test-{{ item.pk }}')" title="{% tr 'Delete' 'حذف' 'حذف' %}"><i class="ph ph-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="9" class="empty-state"><p>{% tr "No testimonials yet" "هنوز نظری اضافه نشده" "لا توجد شهادات بعد" %}</p></td></tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
 <div id="addForm" style="display:none"><form method="post" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="action" value="add">
-<div class="form-group"><label class="form-label">{% if lang == 'fa' %}نقل قول (EN){% else %}Quote (EN){% endif %}</label><textarea name="quote_en" class="form-control" rows="3" required></textarea></div>
-<div class="form-group"><label class="form-label">{% if lang == 'fa' %}نقل قول (FA){% else %}Quote (FA){% endif %}</label><textarea name="quote_fa" class="form-control" rows="3" required dir="rtl"></textarea></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}نام نویسنده{% else %}Author Name{% endif %}</label><input type="text" name="author_name" class="form-control" required></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}تصویر نویسنده{% else %}Author Image{% endif %}</label><input type="file" name="author_image" class="form-control" accept="image/*"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}سمت (EN){% else %}Role (EN){% endif %}</label><input type="text" name="author_role_en" class="form-control"></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}سمت (FA){% else %}Role (FA){% endif %}</label><input type="text" name="author_role_fa" class="form-control" dir="rtl"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</label><input type="number" name="order" class="form-control" value="0"></div><div class="form-group" style="display:flex;align-items:flex-end"><label class="form-check"><input type="checkbox" name="is_active" checked><span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span></label></div></div>
-<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button></div></form></div>
+<div class="form-group"><label class="form-label">{% tr "Quote (EN)" "نقل قول (EN)" "الاقتباس (EN)" %}</label><textarea name="quote_en" class="form-control" rows="3" required></textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Quote (FA)" "نقل قول (FA)" "الاقتباس (FA)" %}</label><textarea name="quote_fa" class="form-control" rows="3" required dir="rtl"></textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Quote (AR)" "نقل قول (AR)" "الاقتباس (AR)" %}</label><textarea name="quote_ar" class="form-control" rows="3" dir="rtl"></textarea></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Author Name" "نام نویسنده" "اسم الكاتب" %}</label><input type="text" name="author_name" class="form-control" required></div><div class="form-group"><label class="form-label">{% tr "Author Image" "تصویر نویسنده" "صورة الكاتب" %}</label><input type="file" name="author_image" class="form-control" accept="image/*"></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Role (EN)" "سمت (EN)" "المنصب (EN)" %}</label><input type="text" name="author_role_en" class="form-control"></div><div class="form-group"><label class="form-label">{% tr "Role (FA)" "سمت (FA)" "المنصب (FA)" %}</label><input type="text" name="author_role_fa" class="form-control" dir="rtl"></div></div>
+<div class="form-group"><label class="form-label">{% tr "Role (AR)" "سمت (AR)" "المنصب (AR)" %}</label><input type="text" name="author_role_ar" class="form-control" dir="rtl"></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Order" "ترتیب" "الترتيب" %}</label><input type="number" name="order" class="form-control" value="0"></div><div class="form-group" style="display:flex;align-items:flex-end"><label class="form-check"><input type="checkbox" name="is_active" checked><span>{% tr "Active" "فعال" "مفعّل" %}</span></label></div></div>
+<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button></div></form></div>
 {% for item in items %}
 <div id="edit-{{ item.pk }}" style="display:none"><form method="post" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="action" value="edit"><input type="hidden" name="pk" value="{{ item.pk }}">
-<div class="form-group"><label class="form-label">{% if lang == 'fa' %}نقل قول (EN){% else %}Quote (EN){% endif %}</label><textarea name="quote_en" class="form-control" rows="3" required>{{ item.quote_en }}</textarea></div>
-<div class="form-group"><label class="form-label">{% if lang == 'fa' %}نقل قول (FA){% else %}Quote (FA){% endif %}</label><textarea name="quote_fa" class="form-control" rows="3" required dir="rtl">{{ item.quote_fa }}</textarea></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}نام نویسنده{% else %}Author Name{% endif %}</label><input type="text" name="author_name" class="form-control" value="{{ item.author_name }}" required></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}تصویر نویسنده{% else %}Author Image{% endif %}</label>{% if item.author_image %}<div style="margin-bottom:4px"><img src="{{ item.author_image.url }}" class="image-preview" style="width:40px;height:40px"></div>{% endif %}<input type="file" name="author_image" class="form-control" accept="image/*"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}سمت (EN){% else %}Role (EN){% endif %}</label><input type="text" name="author_role_en" class="form-control" value="{{ item.author_role_en }}"></div><div class="form-group"><label class="form-label">{% if lang == 'fa' %}سمت (FA){% else %}Role (FA){% endif %}</label><input type="text" name="author_role_fa" class="form-control" value="{{ item.author_role_fa }}" dir="rtl"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% if lang == 'fa' %}ترتیب{% else %}Order{% endif %}</label><input type="number" name="order" class="form-control" value="{{ item.order }}"></div><div class="form-group" style="display:flex;align-items:flex-end"><label class="form-check"><input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}><span>{% if lang == 'fa' %}فعال{% else %}Active{% endif %}</span></label></div></div>
-<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% if lang == 'fa' %}ذخیره{% else %}Save{% endif %}</button></div></form></div>
+<div class="form-group"><label class="form-label">{% tr "Quote (EN)" "نقل قول (EN)" "الاقتباس (EN)" %}</label><textarea name="quote_en" class="form-control" rows="3" required>{{ item.quote_en }}</textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Quote (FA)" "نقل قول (FA)" "الاقتباس (FA)" %}</label><textarea name="quote_fa" class="form-control" rows="3" required dir="rtl">{{ item.quote_fa }}</textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Quote (AR)" "نقل قول (AR)" "الاقتباس (AR)" %}</label><textarea name="quote_ar" class="form-control" rows="3" dir="rtl">{{ item.quote_ar }}</textarea></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Author Name" "نام نویسنده" "اسم الكاتب" %}</label><input type="text" name="author_name" class="form-control" value="{{ item.author_name }}" required></div><div class="form-group"><label class="form-label">{% tr "Author Image" "تصویر نویسنده" "صورة الكاتب" %}</label>{% if item.author_image %}<div style="margin-bottom:4px"><img src="{{ item.author_image.url }}" class="image-preview" style="width:40px;height:40px"></div>{% endif %}<input type="file" name="author_image" class="form-control" accept="image/*"></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Role (EN)" "سمت (EN)" "المنصب (EN)" %}</label><input type="text" name="author_role_en" class="form-control" value="{{ item.author_role_en }}"></div><div class="form-group"><label class="form-label">{% tr "Role (FA)" "سمت (FA)" "المنصب (FA)" %}</label><input type="text" name="author_role_fa" class="form-control" value="{{ item.author_role_fa }}" dir="rtl"></div></div>
+<div class="form-group"><label class="form-label">{% tr "Role (AR)" "سمت (AR)" "المنصب (AR)" %}</label><input type="text" name="author_role_ar" class="form-control" value="{{ item.author_role_ar }}" dir="rtl"></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Order" "ترتیب" "الترتيب" %}</label><input type="number" name="order" class="form-control" value="{{ item.order }}"></div><div class="form-group" style="display:flex;align-items:flex-end"><label class="form-check"><input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}><span>{% tr "Active" "فعال" "مفعّل" %}</span></label></div></div>
+<div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button></div></form></div>
 {% endfor %}
 {% endblock %}
