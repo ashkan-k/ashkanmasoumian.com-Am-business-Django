@@ -16,51 +16,8 @@
 </div>
 {% endif %}
 
-<!-- Event Countdown -->
-{% if countdown %}
-<div class="section" style="background-color:#530e69;background-image:url('{% static 'frontend/images/patterns/pattern-footer.svg' %}');background-size:300px;background-repeat:repeat;position:relative;padding:60px 0;">
-    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(83,14,105,0.92);"></div>
-    <div class="container" style="position:relative;z-index:1;">
-        <div class="row mb-4">
-            <div class="col-12 text-center">
-                <h3 class="subheading" style="color:rgba(255,255,255,0.7);">{% trans_field countdown "subheading" %}</h3>
-                <h2 class="heading" style="color:#e2a83e !important;font-size:42px;">{% trans_field countdown "title" %}</h2>
-            </div>
-        </div>
-        <div class="row justify-content-center">
-            <div class="col-lg-8 col-md-10">
-                <div class="row text-center" id="countdown-timer" data-event-date="{{ countdown.event_date|date:'c' }}">
-                    <div class="col-3"><div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
-                        <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-days">0</span>
-                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% tr "Days" "روز" "أيام" %}</span>
-                    </div></div>
-                    <div class="col-3"><div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
-                        <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-hours">00</span>
-                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% tr "Hours" "ساعت" "ساعات" %}</span>
-                    </div></div>
-                    <div class="col-3"><div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
-                        <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-minutes">00</span>
-                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% tr "Minutes" "دقیقه" "دقائق" %}</span>
-                    </div></div>
-                    <div class="col-3"><div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
-                        <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-seconds">00</span>
-                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% tr "Seconds" "ثانیه" "ثوانٍ" %}</span>
-                    </div></div>
-                </div>
-                <div id="countdown-ended" style="display:none;text-align:center;margin-top:20px;">
-                    <p style="color:#fff;font-size:20px;font-weight:500;">{% trans_field countdown "ended_message" %}</p>
-                </div>
-                {% trans_field countdown "cta_text" as cd_cta %}
-                {% if cd_cta %}
-                <div class="text-center mt-4">
-                    <a href="{{ countdown.cta_url }}" class="btn btn-primary-outline white px-5">{{ cd_cta }}</a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
+<!-- Event Countdown (background, texts and image are editable in the dashboard) -->
+{% include "frontend/partials/_countdown.html" %}
 
 {% if about %}
 <div class="section">

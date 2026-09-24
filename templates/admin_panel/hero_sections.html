@@ -22,7 +22,11 @@
                     <li>{% tr "<strong>About</strong> → About page (URL: /about/)" "<strong>About</strong> → صفحه درباره ما (آدرس /about/)" "<strong>About</strong> → صفحة من نحن (الرابط: /about/)" %}</li>
                     <li>{% tr "<strong>Services</strong> → Services page (URL: /services/)" "<strong>Services</strong> → صفحه خدمات (آدرس /services/)" "<strong>Services</strong> → صفحة الخدمات (الرابط: /services/)" %}</li>
                     <li>{% tr "<strong>Contact</strong> → Contact page (URL: /contact/)" "<strong>Contact</strong> → صفحه تماس با ما (آدرس /contact/)" "<strong>Contact</strong> → صفحة التواصل (الرابط: /contact/)" %}</li>
+                    <li>{% tr "<strong>Portfolio / Blog / …</strong> → a CMS page (URL: /page/&lt;slug&gt;/) — create the page under «Pages» first, then add its hero here." "<strong>Portfolio / Blog / …</strong> → یک صفحه CMS (آدرس /page/&lt;slug&gt;/) — ابتدا صفحه را در بخش «صفحات» بسازید، بعد بنر آن را اینجا اضافه کنید." "<strong>Portfolio / Blog / …</strong> → صفحة CMS (الرابط: /page/&lt;slug&gt;/) — أنشئ الصفحة أولًا في «الصفحات» ثم أضف بانرها هنا." %}</li>
                 </ul>
+                <p style="margin:10px 0 0;color:var(--text-secondary,#666);line-height:1.6;">
+                    {% tr "Each page can have one hero section, so pages that already have one are disabled in the «Page» list — edit that row instead." "هر صفحه فقط یک بنر می‌تواند داشته باشد؛ بنابراین صفحه‌هایی که بنر دارند در فهرست «صفحه» غیرفعال هستند — همان ردیف را ویرایش کنید." "لكل صفحة بانر واحد فقط، لذا الصفحات التي لديها بانر معطّلة في قائمة «الصفحة» — حرّر ذلك الصف بدلًا من ذلك." %}
+                </p>
             </div>
         </div>
     </div>
@@ -79,7 +83,14 @@
         <input type="hidden" name="action" value="add">
         <div class="form-group">
             <label class="form-label">{% tr "Page" "صفحه" "الصفحة" %}</label>
-            <select name="page" class="form-control"><option value="home">Home</option><option value="about">About</option><option value="services">Services</option><option value="contact">Contact</option></select>
+            <select name="page" class="form-control" required>
+                {% for option in taken_pages %}
+                <option value="{{ option.value }}" {% if option.hero %}disabled{% endif %}>
+                    {{ option.label }}{% if option.hero %} — {% tr "already has a hero (edit that row)" "از قبل بنر دارد (همان ردیف را ویرایش کنید)" "لديه بانر بالفعل (حرّر ذلك الصف)" %}{% endif %}
+                </option>
+                {% endfor %}
+            </select>
+            <small class="form-help">{% tr "Need a hero for a page that is not listed? Create the page under «Pages» and pick «Other / Custom Page» here." "برای صفحه‌ای که در فهرست نیست بنر می‌خواهید؟ صفحه را در بخش «صفحات» بسازید و اینجا «سایر / صفحه سفارشی» را انتخاب کنید." "تحتاج بانرًا لصفحة غير مدرجة؟ أنشئ الصفحة في «الصفحات» واختر «أخرى / صفحة مخصصة» هنا." %}</small>
         </div>
         <div class="form-row">
             <div class="form-group"><label class="form-label">{% tr "Heading (EN)" "عنوان (EN)" "العنوان (EN)" %}</label><input type="text" name="heading_en" class="form-control" required></div>

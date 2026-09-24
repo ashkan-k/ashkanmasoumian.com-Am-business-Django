@@ -1,0 +1,182 @@
+{% extends "admin_panel/base.html" %}
+{% load i18n_custom %}
+{% block content %}
+
+<!-- Info Banner -->
+<div class="card" style="background:var(--bg-secondary,#f8f9fa);border:1px solid var(--border,#e2e8f0);margin-bottom:20px;">
+    <div style="padding:16px 20px;display:flex;align-items:flex-start;gap:12px;">
+        <i class="ph ph-palette" style="font-size:24px;color:var(--accent,#6366f1);flex-shrink:0;margin-top:2px;"></i>
+        <div>
+            <p style="margin:0 0 8px;font-weight:600;color:var(--text-primary,#333);">{% tr "Backgrounds & Headings of Every Section" "پس‌زمینه و عنوان همه بخش‌ها" "خلفيات وعناوين كل قسم" %}</p>
+            <p style="margin:0 0 8px;color:var(--text-secondary,#666);line-height:1.7;">
+                {% tr "Choose a colour from the palette, pick one with the colour picker, or type a value such as <code>#530e69</code>, <code>rgba(83,14,105,0.9)</code> or <code>white</code>." "یک رنگ از پالت انتخاب کنید، یا با انتخابگر رنگ بردارید، یا مقداری مانند <code>#530e69</code> یا <code>rgba(83,14,105,0.9)</code> یا <code>white</code> تایپ کنید." "اختر لونًا من اللوحة، أو استخدم منتقي الألوان، أو اكتب قيمة مثل <code>#530e69</code> أو <code>rgba(83,14,105,0.9)</code> أو <code>white</code>." %}
+            </p>
+            <p style="margin:0;color:var(--text-secondary,#666);line-height:1.7;">
+                {% tr "<strong>Leave a colour empty to keep the theme default.</strong> Empty heading fields keep the built-in wording of the template, so you only fill in what you want to change." "<strong>اگر رنگی را خالی بگذارید، پیش‌فرض قالب استفاده می‌شود.</strong> فیلدهای عنوان خالی هم متن پیش‌فرض قالب را نگه می‌دارند؛ فقط چیزی را پر کنید که می‌خواهید تغییر کند." "<strong>اترك اللون فارغًا للإبقاء على الافتراضي.</strong> حقول العناوين الفارغة تحتفظ بالنص الافتراضي للقالب، فاملأ فقط ما تريد تغييره." %}
+            </p>
+            <p style="margin:8px 0 0;color:var(--text-secondary,#666);line-height:1.7;">
+                {% tr "Uploading a background image overrides the background colour. The overlay colour (with its opacity) is drawn on top of the image to keep the text readable." "آپلود تصویر پس‌زمینه، رنگ پس‌زمینه را کنار می‌زند. رنگ پوشش (overlay) با شفافیت تعیین‌شده روی تصویر قرار می‌گیرد تا متن خوانا بماند." "رفع صورة خلفية يلغي لون الخلفية. يُرسم لون التغطية (مع نسبة الشفافية) فوق الصورة ليبقى النص مقروءًا." %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>{% tr "Sections & Backgrounds" "بخش‌ها و پس‌زمینه‌ها" "الأقسام والخلفيات" %}</h3>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>{% tr "Section" "بخش" "القسم" %}</th>
+                    <th>{% tr "Background" "پس‌زمینه" "الخلفية" %}</th>
+                    <th>{% tr "Title (EN)" "عنوان (EN)" "العنوان (EN)" %}</th>
+                    <th>{% tr "Title (FA)" "عنوان (FA)" "العنوان (FA)" %}</th>
+                    <th>{% tr "Status" "وضعیت" "الحالة" %}</th>
+                    <th>{% tr "Actions" "عملیات" "الإجراءات" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>
+                        <strong>{{ item.get_section_display }}</strong>
+                        <br><small class="text-muted">{{ item.section }}</small>
+                    </td>
+                    <td>
+                        {% if item.background_image %}
+                        <span class="badge badge-accent">{% tr "Image" "تصویر" "صورة" %}</span>
+                        {% elif item.background_color %}
+                        <span style="display:inline-flex;align-items:center;gap:8px;">
+                            <span style="width:20px;height:20px;border-radius:5px;border:1px solid var(--border,#ddd);background-color:{{ item.background_color }};"></span>
+                            <code style="font-size:0.78rem;">{{ item.background_color }}</code>
+                        </span>
+                        {% else %}
+                        <span class="text-muted">{% tr "Theme default" "پیش‌فرض قالب" "الافتراضي" %}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ item.title_en|default:"—" }}</td>
+                    <td dir="rtl">{{ item.title_fa|default:"—" }}</td>
+                    <td>{% if item.is_active %}<span class="badge badge-success">{% tr "Active" "فعال" "مفعّل" %}</span>{% else %}<span class="badge badge-danger">{% tr "Inactive" "غیرفعال" "غير مفعّل" %}</span>{% endif %}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-outline btn-sm" onclick="openModal('{{ item.get_section_display }}', document.getElementById('sec-{{ item.pk }}').innerHTML)">
+                                <i class="ph ph-pencil-simple"></i> {% tr "Edit" "ویرایش" "تعديل" %}
+                            </button>
+                            <form id="reset-sec-{{ item.pk }}" method="post" style="display:inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="reset">
+                                <input type="hidden" name="pk" value="{{ item.pk }}">
+                            </form>
+                            <button class="btn btn-danger btn-sm" title="{% tr 'Reset to theme default' 'بازگشت به پیش‌فرض قالب' 'إعادة إلى الافتراضي' %}"
+                                    onclick="if (confirm('{% tr "Reset this section to the theme default (colours, image and headings)?" "این بخش به پیش‌فرض قالب بازگردد (رنگ‌ها، تصویر و عنوان‌ها)؟" "إعادة هذا القسم إلى الوضع الافتراضي (الألوان والصورة والعناوين)؟" %}')) { document.getElementById('reset-sec-{{ item.pk }}').submit(); }">
+                                <i class="ph ph-arrow-counter-clockwise"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="empty-state"><p>{% tr "No sections yet" "هنوز بخشی وجود ندارد" "لا توجد أقسام بعد" %}</p></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{# ── One edit form per section (injected into the modal) ── #}
+{% for item in items %}
+<div id="sec-{{ item.pk }}" style="display:none">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="edit">
+        <input type="hidden" name="pk" value="{{ item.pk }}">
+
+        <div class="form-section-title"><i class="ph ph-text-t"></i> {% tr "Headings" "عنوان‌ها" "العناوين" %}</div>
+        <div class="form-row">
+            <div class="form-group"><label class="form-label">{% tr "Subheading (EN)" "زیرعنوان (EN)" "العنوان الفرعي (EN)" %}</label><input type="text" name="subheading_en" class="form-control" value="{{ item.subheading_en }}"></div>
+            <div class="form-group"><label class="form-label">{% tr "Subheading (FA)" "زیرعنوان (FA)" "العنوان الفرعي (FA)" %}</label><input type="text" name="subheading_fa" class="form-control" value="{{ item.subheading_fa }}" dir="rtl"></div>
+        </div>
+        <div class="form-group"><label class="form-label">{% tr "Subheading (AR)" "زیرعنوان (AR)" "العنوان الفرعي (AR)" %}</label><input type="text" name="subheading_ar" class="form-control" value="{{ item.subheading_ar }}" dir="rtl"></div>
+
+        <div class="form-row">
+            <div class="form-group"><label class="form-label">{% tr "Title (EN)" "عنوان (EN)" "العنوان (EN)" %}</label><input type="text" name="title_en" class="form-control" value="{{ item.title_en }}"></div>
+            <div class="form-group"><label class="form-label">{% tr "Title (FA)" "عنوان (FA)" "العنوان (FA)" %}</label><input type="text" name="title_fa" class="form-control" value="{{ item.title_fa }}" dir="rtl"></div>
+        </div>
+        <div class="form-group"><label class="form-label">{% tr "Title (AR)" "عنوان (AR)" "العنوان (AR)" %}</label><input type="text" name="title_ar" class="form-control" value="{{ item.title_ar }}" dir="rtl"></div>
+
+        <div class="form-group"><label class="form-label">{% tr "Description (EN)" "توضیح (EN)" "الوصف (EN)" %}</label><textarea name="subtitle_en" class="form-control" rows="2">{{ item.subtitle_en }}</textarea></div>
+        <div class="form-group"><label class="form-label">{% tr "Description (FA)" "توضیح (FA)" "الوصف (FA)" %}</label><textarea name="subtitle_fa" class="form-control" rows="2" dir="rtl">{{ item.subtitle_fa }}</textarea></div>
+        <div class="form-group"><label class="form-label">{% tr "Description (AR)" "توضیح (AR)" "الوصف (AR)" %}</label><textarea name="subtitle_ar" class="form-control" rows="2" dir="rtl">{{ item.subtitle_ar }}</textarea></div>
+        <small class="form-help">{% tr "The two description lines under the title. Empty = the template default." "این متن زیر عنوان نمایش داده می‌شود. خالی = پیش‌فرض قالب." "يظهر هذا النص أسفل العنوان. فارغ = الافتراضي." %}</small>
+
+        <div class="form-section-title"><i class="ph ph-paint-bucket"></i> {% tr "Background" "پس‌زمینه" "الخلفية" %}</div>
+        <div class="form-group">
+            <label class="form-label">{% tr "Background Colour" "رنگ پس‌زمینه" "لون الخلفية" %}</label>
+            {% tr "Leave empty to keep the theme default." "خالی بگذارید تا پیش‌فرض قالب استفاده شود." "اتركه فارغًا للإبقاء على الافتراضي." as bg_hint %}
+            {% include "admin_panel/partials/_color_field.html" with name="background_color" value=item.background_color palette=palette allow_empty=True hint=bg_hint %}
+        </div>
+        <div class="form-group">
+            <label class="form-label">{% tr "Background Image" "تصویر پس‌زمینه" "صورة الخلفية" %}</label>
+            {% if item.background_image %}<div style="margin-bottom:8px"><img src="{{ item.background_image.url }}" class="image-preview"></div>{% endif %}
+            <input type="file" name="background_image" class="form-control" accept="image/*">
+            {% if item.background_image %}
+            <label class="form-check" style="margin-top:8px;"><input type="checkbox" name="remove_background_image"><span>{% tr "Remove the current background image" "حذف تصویر پس‌زمینه فعلی" "حذف صورة الخلفية الحالية" %}</span></label>
+            {% endif %}
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">{% tr "Overlay Colour" "رنگ پوشش" "لون التغطية" %}</label>
+                {% tr "Drawn over the background to keep the text readable." "روی پس‌زمینه کشیده می‌شود تا متن خوانا بماند." "يُرسم فوق الخلفية ليبقى النص مقروءًا." as ov_hint %}
+                {% include "admin_panel/partials/_color_field.html" with name="overlay_color" value=item.overlay_color palette=palette allow_empty=True hint=ov_hint %}
+            </div>
+            <div class="form-group">
+                <label class="form-label">{% tr "Overlay Opacity (%)" "شفافیت پوشش (٪)" "شفافية التغطية (٪)" %}</label>
+                <input type="number" name="overlay_opacity" class="form-control" min="0" max="100" step="1" value="{{ item.overlay_opacity }}">
+                <small class="form-help">{% tr "0 = no overlay, 90 = almost opaque." "۰ = بدون پوشش، ۹۰ = تقریباً مات." "0 = بلا تغطية، 90 = شبه معتم." %}</small>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-check"><input type="checkbox" name="show_pattern" {% if item.show_pattern %}checked{% endif %}><span>{% tr "Show the decorative pattern" "نمایش طرح تزئینی" "إظهار النقش الزخرفي" %}</span></label>
+        </div>
+
+        <div class="form-section-title"><i class="ph ph-eyedropper"></i> {% tr "Text & Cards" "متن و کارت‌ها" "النص والبطاقات" %}</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">{% tr "Body Text Colour" "رنگ متن" "لون النص" %}</label>
+                {% include "admin_panel/partials/_color_field.html" with name="text_color" value=item.text_color palette=palette allow_empty=True %}
+            </div>
+            <div class="form-group">
+                <label class="form-label">{% tr "Heading Colour" "رنگ عنوان" "لون العنوان" %}</label>
+                {% include "admin_panel/partials/_color_field.html" with name="heading_color" value=item.heading_color palette=palette allow_empty=True %}
+            </div>
+        </div>
+        {% if item.ui_cards %}
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">{% tr "Card Background" "پس‌زمینه کارت" "خلفية البطاقة" %}</label>
+                {% include "admin_panel/partials/_color_field.html" with name="card_background" value=item.card_background palette=palette allow_empty=True %}
+            </div>
+            <div class="form-group">
+                <label class="form-label">{% tr "Card Text Colour" "رنگ متن کارت" "لون نص البطاقة" %}</label>
+                {% include "admin_panel/partials/_color_field.html" with name="card_text_color" value=item.card_text_color palette=palette allow_empty=True %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label class="form-label">{% tr "Items to Show" "تعداد آیتم‌های نمایش‌داده‌شده" "عدد العناصر المعروضة" %}</label>
+            <input type="number" name="item_limit" class="form-control" min="0" step="1" value="{{ item.item_limit }}">
+            <small class="form-help">{% tr "How many cards/items of this section appear on the website. 0 = show every active item (recommended)." "چند کارت/آیتم از این بخش در سایت نمایش داده شود. ۰ = نمایش همه آیتم‌های فعال (پیشنهادی)." "كم بطاقة/عنصرًا من هذا القسم يظهر على الموقع. 0 = عرض كل العناصر المفعّلة (موصى به)." %}</small>
+        </div>
+        <div class="form-group" style="margin-top:14px;">
+            <label class="form-check"><input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}><span>{% tr "Active" "فعال" "مفعّل" %}</span></label>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button>
+        </div>
+    </form>
+</div>
+{% endfor %}
+{% endblock %}

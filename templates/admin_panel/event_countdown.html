@@ -1,12 +1,17 @@
 {% extends "admin_panel/base.html" %}
 {% load i18n_custom %}
 {% block content %}
+
+<!-- Where the background of this section is edited -->
+{% include "admin_panel/partials/_sections_hint.html" %}
+
 <div class="card">
     <div class="card-header"><h3>{% tr "Event Countdown" "شمارش معکوس رویداد" "العد التنازلي للحدث" %}</h3></div>
     <div class="card-body">
-        <form method="post">{% csrf_token %}<input type="hidden" name="action" value="edit">
+        <form method="post" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="action" value="edit">
         <div class="tabs" data-group="cd">
             <button type="button" class="tab-btn active" data-tab="cd-main">{% tr "Content" "محتوا" "المحتوى" %}</button>
+            <button type="button" class="tab-btn" data-tab="cd-image">{% tr "Image" "تصویر" "الصورة" %}</button>
             <button type="button" class="tab-btn" data-tab="cd-end">{% tr "End Message" "پیام اتمام" "رسالة الانتهاء" %}</button>
         </div>
         <div class="tab-content active" id="cd-main" data-group="cd">
@@ -23,6 +28,32 @@
             <div class="form-row">
                 <div class="form-group"><label class="form-label">{% tr "Event Date" "تاریخ رویداد" "تاريخ الحدث" %}</label><input type="datetime-local" name="event_date" class="form-control" value="{% if obj %}{{ obj.event_date|date:'Y-m-d\TH:i' }}{% endif %}" required></div>
                 <div class="form-group" style="display:flex;align-items:flex-end"><label class="form-check"><input type="checkbox" name="is_active" {% if obj and obj.is_active %}checked{% elif not obj %}checked{% endif %}><span>{% tr "Active" "فعال" "مفعّل" %}</span></label></div>
+            </div>
+        </div>
+        <div class="tab-content" id="cd-image" data-group="cd">
+            <p style="color:var(--text-secondary,#666);line-height:1.6;">
+                {% tr "Add a photo next to the countdown text — for example an image of the company, the team or the event. Leave it empty to keep the text centred on its own." "یک تصویر کنار متن شمارش معکوس اضافه کنید — مثلاً تصویری از شرکت، تیم یا رویداد. اگر خالی بماند، متن به‌تنهایی در وسط نمایش داده می‌شود." "أضف صورة بجانب نص العد التنازلي — مثل صورة الشركة أو الفريق أو الحدث. اتركه فارغًا ليبقى النص في الوسط وحده." %}
+            </p>
+            <div class="form-group">
+                <label class="form-label">{% tr "Image" "تصویر" "الصورة" %}</label>
+                {% if obj and obj.image %}<div style="margin-bottom:8px"><img src="{{ obj.image.url }}" class="image-preview"></div>{% endif %}
+                <input type="file" name="image" class="form-control" accept="image/*">
+                {% if obj and obj.image %}
+                <label class="form-check" style="margin-top:8px;"><input type="checkbox" name="remove_image"><span>{% tr "Remove the current image" "حذف تصویر فعلی" "حذف الصورة الحالية" %}</span></label>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-label">{% tr "Image Position" "موقعیت تصویر" "موضع الصورة" %}</label>
+                <select name="image_position" class="form-control">
+                    <option value="right" {% if not obj or obj.image_position == 'right' %}selected{% endif %}>{% tr "Right of the text" "سمت راست متن" "يمين النص" %}</option>
+                    <option value="left" {% if obj and obj.image_position == 'left' %}selected{% endif %}>{% tr "Left of the text" "سمت چپ متن" "يسار النص" %}</option>
+                </select>
+                <small class="form-help">{% tr "On right-to-left languages the sides are mirrored automatically." "در زبان‌های راست‌به‌چپ، طرفین به‌صورت خودکار آینه می‌شوند." "في اللغات من اليمين إلى اليسار ينعكس الجانبان تلقائيًا." %}</small>
+            </div>
+            <div class="form-group"><label class="form-label">{% tr "Image Alt Text (EN)" "متن جایگزین تصویر (EN)" "النص البديل للصورة (EN)" %}</label><input type="text" name="image_alt_en" class="form-control" value="{% if obj %}{{ obj.image_alt_en }}{% endif %}"></div>
+            <div class="form-row">
+                <div class="form-group"><label class="form-label">{% tr "Image Alt Text (FA)" "متن جایگزین تصویر (FA)" "النص البديل (FA)" %}</label><input type="text" name="image_alt_fa" class="form-control" value="{% if obj %}{{ obj.image_alt_fa }}{% endif %}" dir="rtl"></div>
+                <div class="form-group"><label class="form-label">{% tr "Image Alt Text (AR)" "متن جایگزین تصویر (AR)" "النص البديل (AR)" %}</label><input type="text" name="image_alt_ar" class="form-control" value="{% if obj %}{{ obj.image_alt_ar }}{% endif %}" dir="rtl"></div>
             </div>
         </div>
         <div class="tab-content" id="cd-end" data-group="cd">
@@ -42,3 +73,4 @@
     </div>
 </div>
 {% endblock %}
+

@@ -113,6 +113,11 @@
                     <span>{% tr "Home Sections" "بخش‌های صفحه اصلی" "أقسام الصفحة الرئيسية" %}</span>
                 </a>
 
+                <a href="{% url 'admin_sections' %}" class="nav-item {% if page_title == 'Sections & Backgrounds' %}active{% endif %}">
+                    <i class="ph ph-palette"></i>
+                    <span>{% tr "Sections & Backgrounds" "بخش‌ها و پس‌زمینه‌ها" "الأقسام والخلفيات" %}</span>
+                </a>
+
                 <div class="nav-section">{% tr "Site" "سایت" "الموقع" %}</div>
 
                 <a href="{% url 'admin_navigation' %}" class="nav-item {% if page_title == 'Navigation' %}active{% endif %}">

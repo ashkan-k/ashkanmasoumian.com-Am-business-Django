@@ -26,62 +26,22 @@
     </div>
 </div>
 
-<!-- Event Countdown -->
-{% if countdown %}
-<div class="section" style="background-color:#530e69;background-image:url('{% static 'frontend/images/patterns/pattern-footer.svg' %}');background-size:300px;background-repeat:repeat;position:relative;padding:60px 0;">
-    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(83,14,105,0.92);"></div>
-    <div class="container" style="position:relative;z-index:1;">
-        <div class="row mb-4">
-            <div class="col-12 text-center">
-                <h3 class="subheading" style="color:rgba(255,255,255,0.7);">{% trans_field countdown "subheading" %}</h3>
-                <h2 class="heading" style="color:#e2a83e !important;font-size:42px;">{% trans_field countdown "title" %}</h2>
-            </div>
-        </div>
-        <div class="row justify-content-center">
-            <div class="col-lg-8 col-md-10">
-                <div class="row text-center" id="countdown-timer" data-event-date="{{ countdown.event_date|date:'c' }}">
-                    <div class="col-3"><div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
-                        <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-days">0</span>
-                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% tr "Days" "روز" "أيام" %}</span>
-                    </div></div>
-                    <div class="col-3"><div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
-                        <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-hours">00</span>
-                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% tr "Hours" "ساعت" "ساعات" %}</span>
-                    </div></div>
-                    <div class="col-3"><div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
-                        <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-minutes">00</span>
-                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% tr "Minutes" "دقیقه" "دقائق" %}</span>
-                    </div></div>
-                    <div class="col-3"><div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
-                        <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-seconds">00</span>
-                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% tr "Seconds" "ثانیه" "ثوانٍ" %}</span>
-                    </div></div>
-                </div>
-                <div id="countdown-ended" style="display:none;text-align:center;margin-top:20px;">
-                    <p style="color:#fff;font-size:20px;font-weight:500;">{% trans_field countdown "ended_message" %}</p>
-                </div>
-                {% trans_field countdown "cta_text" as cd_cta %}
-                {% if cd_cta %}
-                <div class="text-center mt-4">
-                    <a href="{{ countdown.cta_url }}" class="btn btn-primary-outline white px-5">{{ cd_cta }}</a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
+<!-- Event Countdown (background, texts and image are editable in the dashboard) -->
+{% include "frontend/partials/_countdown.html" %}
 
 <!-- About AM Business -->
-<div class="section" style="background-color:#fff;">
-    <div class="container">
+{% with s=sections.about_home %}
+<div class="section am-section am-about-section" style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#fff{% endif %};--am-heading-default:#222222;--am-text-default:#555555;{% sec_bg_style s %}">
+    {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
+    {% if s.overlay %}<div class="am-section-overlay"></div>{% endif %}
+    <div class="container am-section-inner">
         <div class="row align-items-center">
             <div class="col-lg-6 mb-5 mb-lg-0">
                 <div class="text-wrap">
-                    <span class="subheading" style="color:#e2a83e;">{% tr "About Us" "درباره ما" "من نحن" %}</span>
-                    <h2 class="heading mb-4" style="font-size:48px; color:#222;">{% tr "About AM Business" "درباره ای ام بیزینس" "عن إي إم بيزنس" %}</h2>
-                    <p style="color:#555; line-height:1.8;">
-                        {% if home_about %}{% get_content home_about %}{% elif lang == 'ar' %}
+                    <span class="subheading am-section-subheading">{% sec_text s "subheading" "About Us" "درباره ما" "من نحن" %}</span>
+                    <h2 class="heading mb-4 am-section-title" style="font-size:48px;">{% sec_text s "title" "About AM Business" "درباره ای ام بیزینس" "عن إي إم بيزنس" %}</h2>
+                    <p class="am-section-text" style="line-height:1.8;">
+                        {% sec_text s "subtitle" "" as about_sub %}{% if about_sub %}{{ about_sub }}{% elif home_about %}{% get_content home_about %}{% elif lang == 'ar' %}
                         إي إم بيزنس شركة متكاملة لنمو الأعمال والتحول مقرها مسقط، عُمان، وتخدم الشركات الطموحة والمؤسسين والمنظمات والمؤسسات في دول مجلس التعاون الخليجي.
                         <br><br>
                         نجمع بين البحث والاستراتيجية والإبداع والتسويق والقدرات الرقمية والذكاء الاصطناعي لمساعدة عملائنا على اتخاذ قرارات أفضل وبناء علامات أقوى وتعزيز موقعهم في السوق وتطوير قدرات أكثر ذكاءً وتحقيق نمو مستدام.
@@ -96,7 +56,10 @@
                         {% endif %}
                     </p>
                     <p class="mt-5">
-                        <a href="/about/" class="btn btn-primary-gradient">{% tr "Read More" "بیشتر بخوانید" "اقرأ المزيد" %}</a>
+                        {% get_cta_text home_about as about_cta %}
+                        <a href="{% if home_about and home_about.cta_url and home_about.cta_url != '#' %}{{ home_about.cta_url }}{% else %}/about/{% endif %}" class="btn btn-primary-gradient">
+                            {% if about_cta %}{{ about_cta }}{% else %}{% tr "Read More" "بیشتر بخوانید" "اقرأ المزيد" %}{% endif %}
+                        </a>
                     </p>
                 </div>
             </div>
@@ -110,28 +73,34 @@
         </div>
     </div>
 </div>
+{% endwith %}
 
 <!-- Services -->
-{% if services %}
 <div class="section section-3">
+    {% if services %}
     <div class="container">
         <div class="row">
-            <div class="col-lg-6 mb-5">
-                <span class="subheading" style="color:#e2a83e;">{% tr "Services" "خدمات" "الخدمات" %}</span>
-                <h2 class="heading" style="color:#222;">{% tr "Our Services" "خدمات ما" "خدماتنا" %}</h2>
+            <div class="col-lg-6 mb-5 am-section" style="--am-heading-default:#222222;--am-text-default:#e2a83e;">
+                {% with s=sections.services %}
+                <span class="subheading am-section-subheading">{% sec_text s "subheading" "Services" "خدمات" "الخدمات" %}</span>
+                <h2 class="heading am-section-title">{% sec_text s "title" "Our Services" "خدمات ما" "خدماتنا" %}</h2>
+                {% sec_text s "subtitle" "" as services_sub %}{% if services_sub %}<p class="am-section-subtitle" style="--am-text-default:#555555;">{{ services_sub }}</p>{% endif %}
+                {% endwith %}
             </div>
         </div>
         <div class="row features-wrap">
             {% for service in services %}
-            <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="col-md-6 col-lg-4 col-xl-{{ service_columns|default:3 }}">
                 <div class="feature"><div>
                     <div class="svg-wrap">
                         {% if service.custom_icon %}
-                        <img src="{{ service.custom_icon.url }}" alt="{{ service.title_en }}" style="width:50px;height:50px;object-fit:contain;">
+                        <img src="{{ service.custom_icon.url }}" alt="{{ service.title_en }}" class="am-icon-raster" style="width:44px;height:44px;object-fit:contain;">
                         {% elif service.image %}
-                        <img src="{{ service.image.url }}" alt="{{ service.title_en }}" style="width:50px;height:50px;object-fit:contain;">
+                        <img src="{{ service.image.url }}" alt="{{ service.title_en }}" class="am-icon-raster" style="width:44px;height:44px;object-fit:contain;">
+                        {% elif service.has_custom_svg %}
+                        {{ service.custom_svg|safe }}
                         {% else %}
-                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-gear" fill="currentColor"><path fill-rule="evenodd" d="M8 5.754a2.246 2.246 0 1 0 0 4.492 2.246 2.246 0 0 0 0-4.492zM4.754 8a3.246 3.246 0 1 1 6.492 0 3.246 3.246 0 0 1-6.492 0z"/></svg>
+                        <span class="{{ service.icon_class }}" aria-hidden="true"></span>
                         {% endif %}
                     </div>
                     <h3>{% get_title service %}</h3>
@@ -141,17 +110,31 @@
             {% endfor %}
         </div>
     </div>
+    {% endif %}
 
-    <!-- Why AM Business (inside services section) -->
-    <div class="box-white pt-5 p-md-5 mx-md-5">
-        <div class="container">
+    <!-- Why AM Business (its own editable section) -->
+    {% if about or home_why %}
+    {% with s=sections.why %}
+    <div class="box-white pt-5 p-md-5 mx-md-5 am-section am-why-section" style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#fff{% endif %};--am-heading-default:#222222;--am-text-default:#555555;{% sec_bg_style s %}">
+        {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
+        {% if s.overlay %}<div class="am-section-overlay"></div>{% endif %}
+        <div class="container am-section-inner">
             <div class="row">
                 <div class="col-lg-6 align-self-center mb-5 mb-lg-0">
                     <div class="text-wrap">
-                        <span class="subheading" style="color:#e2a83e;">{% tr "Why AM Business" "چرا ما" "لماذا إي إم بيزنس" %}</span>
-                        <h2 class="heading mb-4" style="font-size:40px; color:#222;">{% tr "Why AM Business?" "چرا ای ام بیزینس؟" "لماذا إي إم بيزنس؟" %}</h2>
-                        <div style="color:#555; line-height:2;">
-                            {% if about %}
+                        <span class="subheading am-section-subheading">{% sec_text s "subheading" "Why AM Business" "چرا ما" "لماذا إي إم بيزنس" %}</span>
+                        <h2 class="heading mb-4 am-section-title" style="font-size:40px;">
+                            {% sec_text s "title" "" as why_custom_title %}{% if why_custom_title %}{{ why_custom_title }}{% elif home_why %}{% get_title home_why %}{% elif about %}{% get_why_title about %}{% else %}{% tr "Why AM Business?" "چرا ای ام بیزینس؟" "لماذا إي إم بيزنس؟" %}{% endif %}
+                        </h2>
+                        <div class="am-section-text" style="line-height:2;">
+                            {% sec_text s "subtitle" "" as why_custom_text %}
+                            {% if why_custom_text %}
+                            {{ why_custom_text|linebreaks }}
+                            {% elif home_why and home_why.content_en %}
+                            {% get_content home_why %}
+                            {% elif about and about.why_choose_us_content_en %}
+                            {% get_why_content about %}
+                            {% else %}
                             <p><strong style="color:#222;">{% tr "Research Before Recommendation" "تحقیق قبل از توصیه" "البحث قبل التوصية" %}</strong><br>
                             {% tr "We understand the business, market, and challenge before recommending a solution." "ما کسب و کار، بازار و چالش را قبل از ارائه راهکار درک می‌کنیم." "نفهم النشاط والسوق والتحدي قبل أن نقترح حلًا." %}</p>
                             <p><strong style="color:#222;">{% tr "Strategy Before Execution" "استراتژی قبل از اجرا" "الاستراتيجية قبل التنفيذ" %}</strong><br>
@@ -169,7 +152,9 @@
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    {% if about and about.why_choose_us_image %}
+                    {% if home_why and home_why.image %}
+                    <img src="{{ home_why.image.url }}" alt="Why AM Business" class="img-fluid img-overlap" style="border-radius:8px;">
+                    {% elif about and about.why_choose_us_image %}
                     <img src="{{ about.why_choose_us_image.url }}" alt="Why AM Business" class="img-fluid img-overlap" style="border-radius:8px;">
                     {% else %}
                     <img src="{% static 'frontend/images/why-am-business.jpg' %}" alt="Why AM Business" class="img-fluid img-overlap" style="border-radius:8px;">
@@ -178,26 +163,34 @@
             </div>
         </div>
     </div>
+    {% endwith %}
+    {% endif %}
 </div>
-{% endif %}
 
-<!-- Pricing -->
+<!-- Pricing (every active plan in the dashboard is rendered) -->
 {% if pricing_plans %}
-<div class="section section-pricing" style="background-color:#530e69; background-image:url('{% static 'frontend/images/patterns/pattern-footer.svg' %}'); background-size:300px; background-repeat:repeat; position:relative;">
-    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(83,14,105,0.92);"></div>
-    <div class="container" style="position:relative;z-index:1;">
+{% with s=sections.pricing %}
+<div class="section section-pricing am-section am-pricing-section" style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#530e69{% endif %};--am-heading-default:#e2a83e;--am-text-default:rgba(255,255,255,0.8);{% sec_bg_style s %}">
+    {% if s.background_image %}
+    <div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>
+    {% elif s.show_pattern or not s %}
+    <div class="am-section-pattern" style="background-image:url('{% static 'frontend/images/patterns/pattern-footer.svg' %}');background-size:300px;background-repeat:repeat;"></div>
+    {% endif %}
+    {% if s.overlay %}<div class="am-section-overlay"></div>{% endif %}
+    <div class="container am-section-inner">
         <div class="row mb-5">
             <div class="col-12 text-center">
-                <h3 class="subheading" style="color:rgba(255,255,255,0.7);">{% tr "Prices for everyone" "قیمت‌گذاری برای همه" "أسعار تناسب الجميع" %}</h3>
-                <h2 class="text-white heading" style="color:#e2a83e !important;">{% tr "Pricing" "قیمت‌گذاری" "الأسعار" %}</h2>
+                <h3 class="subheading am-section-subheading">{% sec_text s "subheading" "Prices for everyone" "قیمت‌گذاری برای همه" "أسعار تناسب الجميع" %}</h3>
+                <h2 class="heading am-section-title">{% sec_text s "title" "Pricing" "قیمت‌گذاری" "الأسعار" %}</h2>
+                {% sec_text s "subtitle" "" as pricing_sub %}{% if pricing_sub %}<p class="am-section-subtitle">{{ pricing_sub }}</p>{% endif %}
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-9 mx-auto">
+            <div class="col-lg-{% if pricing_plans|length > 3 %}11{% else %}9{% endif %} mx-auto">
                 <div class="row align-items-baseline">
                     {% for plan in pricing_plans %}
-                    <div class="col-lg-4">
-                        <div class="pricing mb-4 mb-md-0" style="background-color:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15);">
+                    <div class="col-md-6 col-lg-{{ plan_columns }}">
+                        <div class="pricing mb-4 am-section-card{% if plan.is_popular %} is-popular{% endif %}" style="background-color:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15);">
                             <h3 class="mb-4">{% get_name plan %}</h3>
                             <p class="mb-4">{% get_description plan %}</p>
                             <div class="line"></div>
@@ -215,21 +208,35 @@
         </div>
     </div>
 </div>
+{% endwith %}
 {% endif %}
 
 <!-- Features -->
 {% if features %}
-<div class="section-5 bg-image overlay v-h-full" style="background-image: url('{% static 'frontend/images/bg_hero_2.jpg' %}')">
-    <div class="container">
+{% with s=sections.features %}
+<div class="section-5 bg-image overlay v-h-full am-section am-features-section" style="background-image: url('{% if s.background_image %}{{ s.background_image.url }}{% else %}{% static 'frontend/images/bg_hero_2.jpg' %}{% endif %}');--am-heading-default:#ffffff;--am-text-default:rgba(255,255,255,0.85);{% sec_bg_style s %}">
+    {% if s.overlay %}<div class="am-section-overlay"></div>{% endif %}
+    <div class="container am-section-inner">
         <div class="row align-items-md-center v-h-full">
             <div class="col-lg-12">
-                <h3 class="subheading text-white">{% tr "Features" "ویژگی‌ها" "الميزات" %}</h3>
-                <h2 class="heading text-white">{% tr "More Features" "ویژگی‌های بیشتر" "ميزات إضافية" %}</h2>
-                <p class="text-white mb-5">{% tr "Our additional features" "امکانات بیشتر ما" "ميزاتنا الإضافية" %}</p>
+                <h3 class="subheading am-section-subheading">{% sec_text s "subheading" "Features" "ویژگی‌ها" "الميزات" %}</h3>
+                <h2 class="heading am-section-title">{% sec_text s "title" "More Features" "ویژگی‌های بیشتر" "ميزات إضافية" %}</h2>
+                <p class="mb-5 am-section-subtitle">{% sec_text s "subtitle" "Our additional features" "امکانات بیشتر ما" "ميزاتنا الإضافية" %}</p>
                 <div class="row">
                     {% for feature in features %}
-                    <div class="col-lg-4">
-                        <div class="feature dark"><div>
+                    <div class="col-md-6 col-lg-{{ feature_columns }}">
+                        <div class="feature dark am-section-card"><div>
+                            {% if feature.has_icon %}
+                            <div class="svg-wrap">
+                                {% if feature.custom_icon %}
+                                <img src="{{ feature.custom_icon.url }}" alt="{{ feature.title_en }}" class="am-icon-raster" style="width:44px;height:44px;object-fit:contain;">
+                                {% elif feature.has_custom_svg %}
+                                {{ feature.custom_svg|safe }}
+                                {% else %}
+                                <span class="{{ feature.icon_class }}" aria-hidden="true"></span>
+                                {% endif %}
+                            </div>
+                            {% endif %}
                             <h3>{% get_title feature %}</h3>
                             <p>{% get_description feature %}</p>
                         </div></div>
@@ -240,40 +247,52 @@
         </div>
     </div>
 </div>
+{% endwith %}
 {% endif %}
 
 <!-- Testimonials & Team -->
 {% if testimonials or team_members %}
 <div class="section section-6 half-overlay">
     {% if testimonials %}
+    {% with s=sections.testimonials %}
     <div class="container">
-        <div class="box-white"><div class="row"><div class="col-lg-7 mx-auto text-center">
-            <h3 class="subheading">{% tr "Testimonials" "نظرات" "الشهادات" %}</h3>
-            <h2 class="heading mb-5">{% tr "People Says..." "مشتریان چه می‌گویند..." "ماذا يقول عملاؤنا..." %}</h2>
-            <div class="testimonial-wrap"><div id="testimonial">
-                {% for t in testimonials %}
-                <div><div class="item-testimonial">
-                    <blockquote class="mb-4">{% get_quote t %}</blockquote>
-                    <div class="bio-pic">
-                        {% if t.author_image %}<img src="{{ t.author_image.url }}" alt="{{ t.author_name }}" class="img-fluid mb-2">{% endif %}
-                        <div><strong class="d-block">{{ t.author_name }}</strong><span class="d-block">{% get_role t %}</span></div>
-                    </div>
+        <div class="box-white am-section am-testimonials-section" style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#fff{% endif %};--am-heading-default:#222222;--am-text-default:#666666;{% sec_bg_style s %}">
+            {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
+            {% if s.overlay %}<div class="am-section-overlay"></div>{% endif %}
+            <div class="row am-section-inner"><div class="col-lg-7 mx-auto text-center">
+                <h3 class="subheading am-section-subheading">{% sec_text s "subheading" "Testimonials" "نظرات" "الشهادات" %}</h3>
+                <h2 class="heading mb-5 am-section-title">{% sec_text s "title" "People Says..." "مشتریان چه می‌گویند..." "ماذا يقول عملاؤنا..." %}</h2>
+                {% sec_text s "subtitle" "" as testimonials_sub %}{% if testimonials_sub %}<p class="am-section-subtitle mb-4">{{ testimonials_sub }}</p>{% endif %}
+                <div class="testimonial-wrap"><div id="testimonial">
+                    {% for t in testimonials %}
+                    <div><div class="item-testimonial">
+                        <blockquote class="mb-4">{% get_quote t %}</blockquote>
+                        <div class="bio-pic">
+                            {% if t.author_image %}<img src="{{ t.author_image.url }}" alt="{{ t.author_name }}" class="img-fluid mb-2">{% endif %}
+                            <div><strong class="d-block">{{ t.author_name }}</strong><span class="d-block">{% get_role t %}</span></div>
+                        </div>
+                    </div></div>
+                    {% endfor %}
                 </div></div>
-                {% endfor %}
             </div></div>
-        </div></div></div>
+        </div>
     </div>
+    {% endwith %}
     {% endif %}
 
     {% if team_members %}
-    <div class="container">
-        <div class="row mb-5"><div class="col-lg-7">
-            <h3 class="subheading text-white">{% tr "Team" "تیم" "الفريق" %}</h3>
-            <h2 class="heading text-white">{% tr "Meet our team" "تیم ما را بشناسید" "تعرّف على فريقنا" %}</h2>
+    {% with s=sections.team %}
+    <div class="container am-section am-team-section" style="{% if s.bg_color %}background-color:{{ s.bg_color }};{% endif %}--am-heading-default:#ffffff;--am-text-default:rgba(255,255,255,0.85);{% sec_bg_style s %}">
+        {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
+        {% if s.overlay %}<div class="am-section-overlay"></div>{% endif %}
+        <div class="row mb-5 am-section-inner"><div class="col-lg-7">
+            <h3 class="subheading am-section-subheading">{% sec_text s "subheading" "Team" "تیم" "الفريق" %}</h3>
+            <h2 class="heading am-section-title">{% sec_text s "title" "Meet our team" "تیم ما را بشناسید" "تعرّف على فريقنا" %}</h2>
+            {% sec_text s "subtitle" "" as team_sub %}{% if team_sub %}<p class="am-section-subtitle">{{ team_sub }}</p>{% endif %}
         </div></div>
-        <div class="row justify-content-center"><div class="col-lg-9"><div class="row justify-content-between">
+        <div class="row justify-content-center am-section-inner"><div class="col-lg-9"><div class="row justify-content-between">
             {% for member in team_members %}
-            <div class="col-lg-6 mb-5 mb-lg-0">
+            <div class="col-lg-{{ team_columns }} mb-5 mb-lg-0">
                 <div class="team">
                     {% if member.image %}<img src="{{ member.image.url }}" alt="{{ member.name }}" class="img-fluid">{% endif %}
                     <h3>{{ member.name }}</h3>
@@ -284,6 +303,7 @@
             {% endfor %}
         </div></div></div>
     </div>
+    {% endwith %}
     {% endif %}
 </div>
 {% endif %}

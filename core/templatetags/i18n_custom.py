@@ -157,12 +157,57 @@ get_quote = _make_getter("quote", "get_quote")
 get_role = _make_getter("author_role", "get_role")
 get_label = _make_getter("label", "get_label")
 get_ended_message = _make_getter("ended_message", "get_ended_message")
+get_image_alt = _make_getter("image_alt", "get_image_alt")
 get_why_title = _make_getter("why_choose_us_title", "get_why_title")
 get_why_content = _make_getter("why_choose_us_content", "get_why_content")
 get_who_we_are = _make_getter("who_we_are", "get_who_we_are")
 get_we_are_expert = _make_getter("we_are_expert", "get_we_are_expert")
 get_meta_title = _make_getter("meta_title", "get_meta_title")
 get_meta_description = _make_getter("meta_description", "get_meta_description")
+
+
+@register.simple_tag(takes_context=True)
+def sec_text(context, style, prefix, en="", fa="", ar=""):
+    """Heading text of an editable section.
+
+    Usage::
+
+        {% sec_text sections.pricing "title" "Pricing" "قیمت‌گذاری" "الأسعار" %}
+
+    The value stored on the :class:`~core.models.SectionStyle` row wins; when
+    that field is empty (or the section has no row yet) the built-in default
+    for the active language is used instead.
+    """
+    if style:
+        value = pick_lang(style, prefix, context.get("lang"))
+        if value:
+            return value
+
+    lang = normalize_lang(context.get("lang"))
+    if lang == "fa" and fa:
+        return fa
+    if lang == "ar" and ar:
+        return ar
+    return en
+
+
+@register.simple_tag(takes_context=True)
+def sec_bg_style(context, style):
+    """Inline CSS custom properties for a section wrapper (may be empty)."""
+    if not style:
+        return ""
+    return style.style_attribute()
+
+
+@register.simple_tag(takes_context=True)
+def sec_has(context, style):
+    """True when the section has any heading configured (for fallback logic)."""
+    if not style:
+        return False
+    for prefix in ("title", "subheading", "subtitle"):
+        if pick_lang(style, prefix, context.get("lang")):
+            return True
+    return False
 
 
 @register.simple_tag(takes_context=True)
@@ -230,6 +275,7 @@ ADMIN_PAGE_TITLES = {
     "Team Members": ("Team Members", "اعضای تیم", "أعضاء الفريق"),
     "Event Countdown": ("Event Countdown", "شمارش معکوس رویداد", "العد التنازلي للحدث"),
     "Home Sections": ("Home Sections", "بخش‌های صفحه اصلی", "أقسام الصفحة الرئيسية"),
+    "Sections & Backgrounds": ("Sections & Backgrounds", "بخش‌ها و پس‌زمینه‌ها", "الأقسام والخلفيات"),
     "Contact Messages": ("Contact Messages", "پیام‌های تماس", "رسائل التواصل"),
     "Message Detail": ("Message Detail", "جزئیات پیام", "تفاصيل الرسالة"),
     "Newsletter Subscribers": ("Newsletter Subscribers", "مشترکین خبرنامه", "مشتركو النشرة البريدية"),

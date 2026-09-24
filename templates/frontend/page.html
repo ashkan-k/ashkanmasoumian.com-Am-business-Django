@@ -1,0 +1,67 @@
+{% extends "frontend/base.html" %}
+{% load static i18n_custom %}
+{% block content %}
+
+<!-- Hero (uses the hero section assigned to this page, or the «Custom Page» one) -->
+<div class="hero v-h-full overlay" style="background-image: url('{% if hero and hero.background_image %}{{ hero.background_image.url }}{% else %}{% static 'frontend/images/bg_hero.jpg' %}{% endif %}')">
+    <div class="container">
+        <div class="row align-items-center v-h-full">
+            <div class="col-lg-10 col-xxl-6 mx-auto text-center">
+                <h1 class="heading-2 text-white mb-4" data-aos="fade-up" style="color:#e2a83e !important;">
+                    {% if hero %}{% get_heading hero %}{% else %}{% get_title page %}{% endif %}
+                </h1>
+                {% if hero %}
+                {% get_subheading hero as sub %}{% if sub %}
+                <p class="subheading text-white mb-5" data-aos="fade-up" data-aos-delay="100">{{ sub }}</p>{% endif %}
+                {% get_cta_text hero as hero_cta %}{% if hero_cta %}
+                <p data-aos="fade-up" data-aos-delay="200"><a href="{{ hero.cta_url }}" class="btn btn-primary-gradient">{{ hero_cta }}</a></p>{% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section" style="background-color:#fff;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-9 mx-auto">
+                <div class="page-content" style="color:#555; line-height:1.9;">
+                    {% get_content page as page_body %}
+                    {% if page_body %}{{ page_body|linebreaks }}{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if services %}
+<div class="section section-3">
+    <div class="container">
+        <div class="row mb-5"><div class="col-lg-6">
+            {% with s=sections.services %}
+            <span class="subheading" style="color:#e2a83e;">{% sec_text s "subheading" "Services" "خدمات" "الخدمات" %}</span>
+            <h2 class="heading">{% sec_text s "title" "Our Services" "خدمات ما" "خدماتنا" %}</h2>
+            {% endwith %}
+        </div></div>
+        <div class="row features-wrap">
+            {% for service in services %}
+            <div class="col-md-6 col-lg-4 col-xl-3"><div class="feature"><div>
+                <div class="svg-wrap">
+                    {% if service.custom_icon %}
+                    <img src="{{ service.custom_icon.url }}" alt="{{ service.title_en }}" class="am-icon-raster" style="width:44px;height:44px;object-fit:contain;">
+                    {% elif service.image %}
+                    <img src="{{ service.image.url }}" alt="{{ service.title_en }}" class="am-icon-raster" style="width:44px;height:44px;object-fit:contain;">
+                    {% elif service.has_custom_svg %}
+                    {{ service.custom_svg|safe }}
+                    {% else %}
+                    <span class="{{ service.icon_class }}" aria-hidden="true"></span>
+                    {% endif %}
+                </div>
+                <h3>{% get_title service %}</h3><p>{% get_description service %}</p>
+            </div></div></div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,30 @@
+{% load i18n_custom %}
+{% comment %}
+Reusable colour input: a native picker, a free-text field (hex, rgb() or a
+CSS colour name) and a palette of one-click swatches.
+
+Parameters (pass with {% include "..." with name=... value=... %}):
+  name        – form field name (required)
+  value       – current value (may be empty)
+  palette     – list of preset colours (the views provide `color_palette`)
+  hint        – optional help text shown under the swatches
+  allow_empty – when true an empty value means "keep the theme default"
+  input_id    – optional id for the text input
+{% endcomment %}
+<div class="color-field{% if not value %} color-field-empty{% endif %}" data-color-field>
+    <div class="color-field-top">
+        <input type="color" value="{% if value %}{{ value }}{% else %}#530e69{% endif %}"
+               aria-label="{{ name }}" tabindex="-1">
+        <input type="text" name="{{ name }}" id="{{ input_id|default:name }}"
+               class="form-control color-text" value="{{ value }}"
+               placeholder="{% if allow_empty %}{% tr 'Empty = theme default' 'خالی = پیش‌فرض قالب' 'فارغ = الافتراضي' %}{% else %}#530e69{% endif %}">
+    </div>
+    <div class="color-swatches">
+        {% for color in palette %}
+        <button type="button" class="color-swatch{% if value|lower == color|lower %} active{% endif %}"
+                data-color="{{ color }}" style="background-color:{{ color }}"
+                title="{{ color }}" aria-label="{{ color }}"></button>
+        {% endfor %}
+    </div>
+    {% if hint %}<small class="color-field-hint">{{ hint }}</small>{% endif %}
+</div>

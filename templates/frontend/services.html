@@ -9,42 +9,61 @@
                 <h1 class="heading-2 text-white mb-4" data-aos="fade-up" style="color:#e2a83e !important;">{% get_heading hero %}</h1>
                 {% get_subheading hero as sub %}{% if sub %}
                 <p class="subheading text-white mb-5" data-aos="fade-up" data-aos-delay="100">{{ sub }}</p>{% endif %}
+                {% get_cta_text hero as hero_cta %}{% if hero_cta %}
+                <p data-aos="fade-up" data-aos-delay="200"><a href="{{ hero.cta_url }}" class="btn btn-primary-gradient">{{ hero_cta }}</a></p>{% endif %}
             </div>
         </div>
     </div>
 </div>
 {% endif %}
 
-{% if services %}
-<div class="section section-3"><div class="container">
-    <div class="row"><div class="col-lg-6 mb-5">
-        <span class="subheading" style="color:#e2a83e;">{% tr "Services" "خدمات" "الخدمات" %}</span>
-        <h2 class="heading">{% tr "Our Services" "خدمات ما" "خدماتنا" %}</h2>
+{% if services or about %}
+<div class="section section-3">
+    {% if services %}
+    <div class="container">
+    <div class="row"><div class="col-lg-6 mb-5 am-section" style="--am-heading-default:#222222;--am-text-default:#e2a83e;">
+        {% with s=sections.services %}
+        <span class="subheading am-section-subheading">{% sec_text s "subheading" "Services" "خدمات" "الخدمات" %}</span>
+        <h2 class="heading am-section-title">{% sec_text s "title" "Our Services" "خدمات ما" "خدماتنا" %}</h2>
+        {% sec_text s "subtitle" "" as services_sub %}{% if services_sub %}<p class="am-section-subtitle" style="--am-text-default:#555555;">{{ services_sub }}</p>{% endif %}
+        {% endwith %}
     </div></div>
     <div class="row features-wrap">
         {% for service in services %}
-        <div class="col-md-6 col-lg-4 col-xl-3"><div class="feature"><div>
+        <div class="col-md-6 col-lg-4 col-xl-{{ service_columns|default:3 }}"><div class="feature"><div>
             <div class="svg-wrap">
                 {% if service.custom_icon %}
-                <img src="{{ service.custom_icon.url }}" alt="{{ service.title_en }}" style="width:50px;height:50px;object-fit:contain;">
+                <img src="{{ service.custom_icon.url }}" alt="{{ service.title_en }}" class="am-icon-raster" style="width:44px;height:44px;object-fit:contain;">
                 {% elif service.image %}
-                <img src="{{ service.image.url }}" alt="{{ service.title_en }}" style="width:50px;height:50px;object-fit:contain;">
+                <img src="{{ service.image.url }}" alt="{{ service.title_en }}" class="am-icon-raster" style="width:44px;height:44px;object-fit:contain;">
+                {% elif service.has_custom_svg %}
+                {{ service.custom_svg|safe }}
                 {% else %}
-                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-gear" fill="currentColor"><path fill-rule="evenodd" d="M8 5.754a2.246 2.246 0 1 0 0 4.492 2.246 2.246 0 0 0 0-4.492zM4.754 8a3.246 3.246 0 1 1 6.492 0 3.246 3.246 0 0 1-6.492 0z"/></svg>
+                <span class="{{ service.icon_class }}" aria-hidden="true"></span>
                 {% endif %}
             </div>
             <h3>{% get_title service %}</h3><p>{% get_description service %}</p>
         </div></div></div>
         {% endfor %}
     </div>
-</div>
-    {% if about %}{% get_why_title about as why_t %}{% if why_t %}
-    <div class="box-white pt-5 p-md-5 mx-md-5"><div class="container"><div class="row">
+    </div>
+    {% endif %}
+    {% if about %}
+    {% with s=sections.why %}
+    <div class="box-white pt-5 p-md-5 mx-md-5 am-section am-why-section" style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#fff{% endif %};--am-heading-default:#222222;--am-text-default:#555555;{% sec_bg_style s %}">
+        {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
+        {% if s.overlay %}<div class="am-section-overlay"></div>{% endif %}
+        <div class="container am-section-inner"><div class="row">
         <div class="col-lg-6 align-self-center mb-5 mb-lg-0"><div class="text-wrap">
-            <span class="subheading" style="color:#e2a83e;">{% tr "Why AM Business" "چرا ما" "لماذا إي إم بيزنس" %}</span>
-            <h2 class="heading mb-4" style="font-size:40px;">{{ why_t }}</h2>
-            <p>{% get_why_content about %}</p>
-            {% trans_field about "cta_text" as cta %}{% if cta %}
+            <span class="subheading am-section-subheading">{% sec_text s "subheading" "Why AM Business" "چرا ما" "لماذا إي إم بيزنس" %}</span>
+            <h2 class="heading mb-4 am-section-title" style="font-size:40px;">
+                {% sec_text s "title" "" as why_title %}{% if why_title %}{{ why_title }}{% elif about %}{% get_why_title about %}{% else %}{% tr "Why AM Business?" "چرا ای ام بیزینس؟" "لماذا إي إم بيزنس؟" %}{% endif %}
+            </h2>
+            {% sec_text s "subtitle" "" as why_sub %}
+            <div class="am-section-text">
+            {% if why_sub %}{{ why_sub|linebreaks }}{% elif about %}<p>{% get_why_content about %}</p>{% endif %}
+            </div>
+            {% get_cta_text about as cta %}{% if cta %}
             <p class="mt-5"><a href="{{ about.cta_url }}" class="btn btn-primary-gradient-white-bg">{{ cta }}</a></p>{% endif %}
         </div></div>
         <div class="col-lg-6">
@@ -52,7 +71,8 @@
             {% else %}<img src="{% static 'frontend/images/why-am-business.jpg' %}" alt="Why AM Business" class="img-fluid img-overlap">{% endif %}
         </div>
     </div></div></div>
-    {% endif %}{% endif %}
+    {% endwith %}
+    {% endif %}
 </div>
 {% endif %}
 {% endblock %}

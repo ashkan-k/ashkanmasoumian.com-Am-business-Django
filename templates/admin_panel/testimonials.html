@@ -1,6 +1,7 @@
 {% extends "admin_panel/base.html" %}
 {% load i18n_custom %}
 {% block content %}
+{% include "admin_panel/partials/_sections_hint.html" %}
 <div class="card">
     <div class="card-header">
         <h3>{% tr "Testimonials" "نظرات مشتریان" "شهادات العملاء" %}</h3>
@@ -49,8 +50,8 @@
     </div>
 </div>
 <div id="addForm" style="display:none"><form method="post" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="action" value="add">
-<div class="form-group"><label class="form-label">{% tr "Quote (EN)" "نقل قول (EN)" "الاقتباس (EN)" %}</label><textarea name="quote_en" class="form-control" rows="3" required></textarea></div>
-<div class="form-group"><label class="form-label">{% tr "Quote (FA)" "نقل قول (FA)" "الاقتباس (FA)" %}</label><textarea name="quote_fa" class="form-control" rows="3" required dir="rtl"></textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Quote (EN)" "نقل قول (EN)" "الاقتباس (EN)" %}</label><textarea name="quote_en" class="form-control" rows="3"></textarea><small class="form-help">{% tr "Every quote field is optional — fill in only the languages you use." "همه فیلدهای نقل قول اختیاری هستند — فقط زبان‌هایی را پر کنید که استفاده می‌کنید." "جميع حقول الاقتباس اختيارية — املأ فقط اللغات التي تستخدمها." %}</small></div>
+<div class="form-group"><label class="form-label">{% tr "Quote (FA)" "نقل قول (FA)" "الاقتباس (FA)" %}</label><textarea name="quote_fa" class="form-control" rows="3" dir="rtl"></textarea></div>
 <div class="form-group"><label class="form-label">{% tr "Quote (AR)" "نقل قول (AR)" "الاقتباس (AR)" %}</label><textarea name="quote_ar" class="form-control" rows="3" dir="rtl"></textarea></div>
 <div class="form-row"><div class="form-group"><label class="form-label">{% tr "Author Name" "نام نویسنده" "اسم الكاتب" %}</label><input type="text" name="author_name" class="form-control" required></div><div class="form-group"><label class="form-label">{% tr "Author Image" "تصویر نویسنده" "صورة الكاتب" %}</label><input type="file" name="author_image" class="form-control" accept="image/*"></div></div>
 <div class="form-row"><div class="form-group"><label class="form-label">{% tr "Role (EN)" "سمت (EN)" "المنصب (EN)" %}</label><input type="text" name="author_role_en" class="form-control"></div><div class="form-group"><label class="form-label">{% tr "Role (FA)" "سمت (FA)" "المنصب (FA)" %}</label><input type="text" name="author_role_fa" class="form-control" dir="rtl"></div></div>
@@ -59,8 +60,8 @@
 <div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button></div></form></div>
 {% for item in items %}
 <div id="edit-{{ item.pk }}" style="display:none"><form method="post" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="action" value="edit"><input type="hidden" name="pk" value="{{ item.pk }}">
-<div class="form-group"><label class="form-label">{% tr "Quote (EN)" "نقل قول (EN)" "الاقتباس (EN)" %}</label><textarea name="quote_en" class="form-control" rows="3" required>{{ item.quote_en }}</textarea></div>
-<div class="form-group"><label class="form-label">{% tr "Quote (FA)" "نقل قول (FA)" "الاقتباس (FA)" %}</label><textarea name="quote_fa" class="form-control" rows="3" required dir="rtl">{{ item.quote_fa }}</textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Quote (EN)" "نقل قول (EN)" "الاقتباس (EN)" %}</label><textarea name="quote_en" class="form-control" rows="3">{{ item.quote_en }}</textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Quote (FA)" "نقل قول (FA)" "الاقتباس (FA)" %}</label><textarea name="quote_fa" class="form-control" rows="3" dir="rtl">{{ item.quote_fa }}</textarea></div>
 <div class="form-group"><label class="form-label">{% tr "Quote (AR)" "نقل قول (AR)" "الاقتباس (AR)" %}</label><textarea name="quote_ar" class="form-control" rows="3" dir="rtl">{{ item.quote_ar }}</textarea></div>
 <div class="form-row"><div class="form-group"><label class="form-label">{% tr "Author Name" "نام نویسنده" "اسم الكاتب" %}</label><input type="text" name="author_name" class="form-control" value="{{ item.author_name }}" required></div><div class="form-group"><label class="form-label">{% tr "Author Image" "تصویر نویسنده" "صورة الكاتب" %}</label>{% if item.author_image %}<div style="margin-bottom:4px"><img src="{{ item.author_image.url }}" class="image-preview" style="width:40px;height:40px"></div>{% endif %}<input type="file" name="author_image" class="form-control" accept="image/*"></div></div>
 <div class="form-row"><div class="form-group"><label class="form-label">{% tr "Role (EN)" "سمت (EN)" "المنصب (EN)" %}</label><input type="text" name="author_role_en" class="form-control" value="{{ item.author_role_en }}"></div><div class="form-group"><label class="form-label">{% tr "Role (FA)" "سمت (FA)" "المنصب (FA)" %}</label><input type="text" name="author_role_fa" class="form-control" value="{{ item.author_role_fa }}" dir="rtl"></div></div>

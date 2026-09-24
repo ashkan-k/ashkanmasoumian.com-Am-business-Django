@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
 import os
+import re
 
 
 # ──────────────────────── Language helpers ────────────────────────
@@ -40,6 +41,86 @@ class TimestampedModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+# ──────────────────────── Colour helpers ────────────────────────
+# Dashboard colour fields accept either a palette entry or a hand-typed
+# value, so everything is normalised before it reaches a template.
+_HEX_RE = re.compile(r"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$")
+_RGB_RE = re.compile(r"^rgba?\(\s*[0-9]{1,3}\s*,\s*[0-9]{1,3}\s*,\s*[0-9]{1,3}\s*(?:,\s*(?:0|1|0?\.[0-9]{1,3})\s*)?\)$")
+_NAME_RE = re.compile(r"^[a-zA-Z]{3,20}$")
+
+
+def safe_css_color(value):
+    """Return a CSS-safe colour string, or ``""`` when the value is unusable.
+
+    Accepts ``#rgb``/``#rrggbb``/``#rrggbbaa`` hex codes, ``rgb()``/``rgba()``
+    functions and plain colour names.  Anything else (including attempts to
+    inject extra CSS declarations) is rejected.
+    """
+    value = (value or "").strip()
+    if not value:
+        return ""
+    if _HEX_RE.match(value) or _RGB_RE.match(value) or _NAME_RE.match(value):
+        return value
+    return ""
+
+
+#: Keys of the editable sections (used by :class:`SectionStyle`).
+SECTION_KEYS = (
+    "countdown",
+    "pricing",
+    "features",
+    "testimonials",
+    "why",
+    "team",
+    "services",
+    "about_home",
+    "newsletter",
+)
+
+
+# ──────────────────────── Icon library ────────────────────────
+#: Icons offered to services and features: value → (English label, CSS class).
+#: The classes come from the bundled icomoon icon font, which inherits
+#: `currentColor`, so hover/colour changes work without extra markup.
+ICON_LIBRARY = {
+    "gear": ("Settings/Gear", "icon-cog"),
+    "star": ("Star / Quality", "icon-star"),
+    "chart": ("Growth chart", "icon-line-chart"),
+    "bullseye": ("Branding / Target", "icon-bullseye"),
+    "rocket": ("Launch / Startup", "icon-rocket"),
+    "shield": ("Trust / Security", "icon-shield"),
+    "idea": ("Idea / Strategy", "icon-lightbulb-o"),
+    "handshake": ("Partnership", "icon-handshake-o"),
+    "users": ("Team / People", "icon-users"),
+    "globe": ("Global / Web", "icon-globe"),
+    "briefcase": ("Business", "icon-briefcase"),
+    "camera": ("Camera / Media", "icon-camera"),
+    "image": ("Image / Design", "icon-image"),
+    "layers": ("Layers / Stack", "icon-layers"),
+    "window": ("Website / Window", "icon-window-maximize"),
+    "bag-check": ("eCommerce", "icon-shopping-bag"),
+    "phone": ("Mobile / App", "icon-mobile"),
+    "check": ("Check / Approval", "icon-check-circle"),
+    "clock": ("Speed / Delivery", "icon-clock-o"),
+    "trophy": ("Award / Result", "icon-trophy"),
+    "megaphone": ("Marketing", "icon-bullhorn"),
+    "code": ("Development", "icon-code"),
+    "paint": ("Creative / Brand", "icon-paint-brush"),
+    "search": ("Research / Analysis", "icon-search"),
+}
+
+
+def icon_choices(values):
+    """``[(value, label), …]`` for the given :data:`ICON_LIBRARY` keys."""
+    return [(value, ICON_LIBRARY[value][0]) for value in values if value in ICON_LIBRARY]
+
+
+def icon_css_class(value):
+    """CSS class for an icon value (``""`` when the value is unknown)."""
+    entry = ICON_LIBRARY.get((value or "").strip())
+    return entry[1] if entry else ""
 
 
 class SiteSettings(TimestampedModel):
@@ -161,6 +242,13 @@ class HeroSection(TimestampedModel):
         ("about", "About"),
         ("services", "Services"),
         ("contact", "Contact"),
+        ("portfolio", "Portfolio"),
+        ("projects", "Projects"),
+        ("blog", "Blog"),
+        ("pricing", "Pricing"),
+        ("team", "Team"),
+        ("gallery", "Gallery"),
+        ("custom", "Other / Custom Page"),
     ]
     page = models.CharField(max_length=50, choices=PAGE_CHOICES, unique=True, verbose_name="Page")
     heading_en = models.CharField(max_length=300, verbose_name="Heading (EN)")
@@ -205,6 +293,10 @@ class Service(TimestampedModel):
         ("bullseye", "Branding"),
         ("phone", "Mobile"),
     ]
+    #: Icon-font class rendered for each choice. Font icons inherit
+    #: `currentColor`, so the hover colour change works out of the box.
+    ICON_CLASSES = {value: ICON_LIBRARY[value][1] for value in (
+        "camera", "gear", "image", "layers", "window", "bag-check", "bullseye", "phone")}
     title_en = models.CharField(max_length=200, verbose_name="Title (EN)")
     title_fa = models.CharField(max_length=200, verbose_name="Title (FA)")
     title_ar = models.CharField(max_length=200, blank=True, default="", verbose_name="Title (AR)")
@@ -244,6 +336,15 @@ class Service(TimestampedModel):
 
     def get_description(self, lang='en'):
         return pick_lang(self, "description", lang)
+
+    @property
+    def icon_class(self):
+        """Icon-font class for the selected icon (falls back to the gear)."""
+        return self.ICON_CLASSES.get(self.icon or "", self.ICON_CLASSES["gear"])
+
+    @property
+    def has_custom_svg(self):
+        return bool((self.custom_svg or "").strip())
 
 
 class AboutSection(TimestampedModel):
@@ -336,13 +437,27 @@ class StatCounter(TimestampedModel):
 
 class Feature(TimestampedModel):
     """Feature items (More Features section)"""
+    ICON_CHOICES = icon_choices([
+        "star", "chart", "bullseye", "rocket", "shield", "idea", "handshake",
+        "users", "globe", "briefcase", "camera", "image", "layers", "window",
+        "bag-check", "phone", "check", "clock", "trophy", "megaphone", "code",
+        "paint", "search", "gear",
+        "",
+    ])
     title_en = models.CharField(max_length=200, verbose_name="Title (EN)")
     title_fa = models.CharField(max_length=200, verbose_name="Title (FA)")
     title_ar = models.CharField(max_length=200, blank=True, default="", verbose_name="Title (AR)")
     description_en = models.TextField(verbose_name="Description (EN)")
     description_fa = models.TextField(verbose_name="Description (FA)")
     description_ar = models.TextField(blank=True, default="", verbose_name="Description (AR)")
-    icon = models.CharField(max_length=100, blank=True, default="", verbose_name="Icon")
+    icon = models.CharField(max_length=100, choices=ICON_CHOICES, blank=True, default="",
+                            verbose_name="Icon",
+                            help_text="Pick one of the built-in icons, or upload/paste your own below.")
+    custom_svg = models.TextField(blank=True, default="", verbose_name="Custom SVG Icon",
+                                  help_text="Paste SVG code here — it takes precedence over the icon above.")
+    custom_icon = models.ImageField(upload_to="features/icons/", blank=True, null=True,
+                                    verbose_name="Custom Icon Image",
+                                    help_text="Upload an icon image (PNG/SVG). Takes precedence over everything above.")
     is_active = models.BooleanField(default=True, verbose_name="Is Active")
     order = models.PositiveIntegerField(default=0, verbose_name="Order")
 
@@ -359,6 +474,25 @@ class Feature(TimestampedModel):
 
     def get_description(self, lang='en'):
         return pick_lang(self, "description", lang)
+
+    @property
+    def icon_class(self):
+        """Icon-font class for the selected icon (``""`` when unusable).
+
+        Older rows stored a bare name such as ``star`` that never resolved to
+        a font class — those now simply render no icon box at all instead of
+        an empty coloured square.
+        """
+        return icon_css_class(self.icon)
+
+    @property
+    def has_custom_svg(self):
+        return bool((self.custom_svg or "").strip())
+
+    @property
+    def has_icon(self):
+        """True when anything at all should be drawn above the title."""
+        return bool(self.custom_icon or self.has_custom_svg or self.icon_class)
 
 
 class PricingPlan(TimestampedModel):
@@ -400,12 +534,12 @@ class PricingPlan(TimestampedModel):
 
 class Testimonial(TimestampedModel):
     """Customer testimonials"""
-    quote_en = models.TextField(verbose_name="Quote (EN)")
-    quote_fa = models.TextField(verbose_name="Quote (FA)")
+    quote_en = models.TextField(blank=True, default="", verbose_name="Quote (EN)")
+    quote_fa = models.TextField(blank=True, default="", verbose_name="Quote (FA)")
     quote_ar = models.TextField(blank=True, default="", verbose_name="Quote (AR)")
     author_name = models.CharField(max_length=200, verbose_name="Author Name")
-    author_role_en = models.CharField(max_length=200, verbose_name="Author Role (EN)")
-    author_role_fa = models.CharField(max_length=200, verbose_name="Author Role (FA)")
+    author_role_en = models.CharField(max_length=200, blank=True, default="", verbose_name="Author Role (EN)")
+    author_role_fa = models.CharField(max_length=200, blank=True, default="", verbose_name="Author Role (FA)")
     author_role_ar = models.CharField(max_length=200, blank=True, default="", verbose_name="Author Role (AR)")
     author_image = models.ImageField(upload_to="testimonials/", blank=True, null=True, verbose_name="Author Image")
     is_active = models.BooleanField(default=True, verbose_name="Is Active")
@@ -490,6 +624,10 @@ class NewsletterSubscriber(TimestampedModel):
 
 class EventCountdown(TimestampedModel):
     """Event countdown for homepage"""
+    IMAGE_POSITION_CHOICES = [
+        ("right", "Right side"),
+        ("left", "Left side"),
+    ]
     title_en = models.CharField(max_length=200, default="Event Countdown", verbose_name="Title (EN)")
     title_fa = models.CharField(max_length=200, default="شمارش معکوس رویداد", verbose_name="Title (FA)")
     title_ar = models.CharField(max_length=200, blank=True, default="العد التنازلي للحدث", verbose_name="Title (AR)")
@@ -507,6 +645,13 @@ class EventCountdown(TimestampedModel):
     cta_text_fa = models.CharField(max_length=100, default="شروع کنید", verbose_name="CTA Text (FA)")
     cta_text_ar = models.CharField(max_length=100, blank=True, default="ابدأ الآن", verbose_name="CTA Text (AR)")
     cta_url = models.CharField(max_length=500, blank=True, default="#", verbose_name="CTA URL")
+    image = models.ImageField(upload_to="countdown/", blank=True, null=True, verbose_name="Image",
+                              help_text="Shown next to the countdown text (for example the company or event photo)")
+    image_position = models.CharField(max_length=10, choices=IMAGE_POSITION_CHOICES, default="right",
+                                      verbose_name="Image Position")
+    image_alt_en = models.CharField(max_length=200, blank=True, default="", verbose_name="Image Alt Text (EN)")
+    image_alt_fa = models.CharField(max_length=200, blank=True, default="", verbose_name="Image Alt Text (FA)")
+    image_alt_ar = models.CharField(max_length=200, blank=True, default="", verbose_name="Image Alt Text (AR)")
     is_active = models.BooleanField(default=True, verbose_name="Is Active")
 
     class Meta:
@@ -527,6 +672,9 @@ class EventCountdown(TimestampedModel):
 
     def get_cta_text(self, lang='en'):
         return pick_lang(self, "cta_text", lang)
+
+    def get_image_alt(self, lang='en'):
+        return pick_lang(self, "image_alt", lang) or self.get_title(lang)
 
     def save(self, *args, **kwargs):
         if not self.pk and EventCountdown.objects.exists():
@@ -624,3 +772,137 @@ class HomeSection(TimestampedModel):
 
     def get_cta_text(self, lang='en'):
         return pick_lang(self, "cta_text", lang)
+
+
+class SectionStyle(TimestampedModel):
+    """Appearance (background, colours) and headings of a homepage section.
+
+    One row per section key.  Empty colour/heading fields mean "keep the
+    theme default", so an untouched install renders exactly like before.
+    """
+
+    SECTION_CHOICES = [
+        ("countdown", "Event Countdown"),
+        ("pricing", "Pricing"),
+        ("features", "More Features"),
+        ("testimonials", "Testimonials"),
+        ("why", "Why AM Business"),
+        ("team", "Team"),
+        ("services", "Services"),
+        ("about_home", "Home About"),
+        ("newsletter", "Newsletter"),
+    ]
+
+    section = models.CharField(max_length=50, choices=SECTION_CHOICES, unique=True, verbose_name="Section")
+
+    # ── Headings (all optional — blank keeps the built-in default) ──
+    subheading_en = models.CharField(max_length=200, blank=True, default="", verbose_name="Subheading (EN)")
+    subheading_fa = models.CharField(max_length=200, blank=True, default="", verbose_name="Subheading (FA)")
+    subheading_ar = models.CharField(max_length=200, blank=True, default="", verbose_name="Subheading (AR)")
+    title_en = models.CharField(max_length=200, blank=True, default="", verbose_name="Title (EN)")
+    title_fa = models.CharField(max_length=200, blank=True, default="", verbose_name="Title (FA)")
+    title_ar = models.CharField(max_length=200, blank=True, default="", verbose_name="Title (AR)")
+    subtitle_en = models.TextField(blank=True, default="", verbose_name="Description (EN)")
+    subtitle_fa = models.TextField(blank=True, default="", verbose_name="Description (FA)")
+    subtitle_ar = models.TextField(blank=True, default="", verbose_name="Description (AR)")
+
+    # ── Background & colours ──
+    background_color = models.CharField(max_length=20, blank=True, default="", verbose_name="Background Colour",
+                                        help_text="Pick from the palette or type a value such as #530e69")
+    background_image = models.ImageField(upload_to="sections/backgrounds/", blank=True, null=True,
+                                         verbose_name="Background Image",
+                                         help_text="Overrides the background colour")
+    overlay_color = models.CharField(max_length=20, blank=True, default="", verbose_name="Overlay Colour")
+    overlay_opacity = models.PositiveIntegerField(default=0, verbose_name="Overlay Opacity (%)",
+                                                  help_text="0 = no overlay, 90 = almost opaque")
+    text_color = models.CharField(max_length=20, blank=True, default="", verbose_name="Body Text Colour")
+    heading_color = models.CharField(max_length=20, blank=True, default="", verbose_name="Heading Colour")
+    card_background = models.CharField(max_length=20, blank=True, default="", verbose_name="Card Background")
+    card_text_color = models.CharField(max_length=20, blank=True, default="", verbose_name="Card Text Colour")
+
+    show_pattern = models.BooleanField(default=True, verbose_name="Show Decorative Pattern")
+    item_limit = models.PositiveIntegerField(
+        default=0, verbose_name="Items to Show",
+        help_text="How many cards/items of this section appear on the website. 0 = show every active item.")
+    is_active = models.BooleanField(default=True, verbose_name="Is Active")
+
+    class Meta:
+        verbose_name = "Section Appearance"
+        verbose_name_plural = "Sections & Backgrounds"
+        ordering = ["section"]
+
+    def __str__(self):
+        return self.get_section_display()
+
+    # ── Heading helpers ──
+    def get_title(self, lang='en'):
+        return pick_lang(self, "title", lang)
+
+    def get_subheading(self, lang='en'):
+        return pick_lang(self, "subheading", lang)
+
+    def get_subtitle(self, lang='en'):
+        return pick_lang(self, "subtitle", lang)
+
+    # ── Colour helpers (all sanitised) ──
+    @property
+    def bg_color(self):
+        return safe_css_color(self.background_color)
+
+    @property
+    def overlay(self):
+        return safe_css_color(self.overlay_color)
+
+    @property
+    def body_color(self):
+        return safe_css_color(self.text_color)
+
+    @property
+    def title_color(self):
+        return safe_css_color(self.heading_color)
+
+    @property
+    def card_bg(self):
+        return safe_css_color(self.card_background)
+
+    @property
+    def card_text(self):
+        return safe_css_color(self.card_text_color)
+
+    def style_attribute(self):
+        """CSS custom properties for the section wrapper (safe to inline).
+
+        Only sanitised colour values are emitted, so the result contains no
+        characters that HTML escaping would alter.
+        """
+        declarations = []
+        if self.title_color:
+            declarations.append(f"--am-heading:{self.title_color}")
+        if self.body_color:
+            declarations.append(f"--am-text:{self.body_color}")
+        if self.card_bg:
+            declarations.append(f"--am-card-bg:{self.card_bg}")
+        if self.card_text:
+            declarations.append(f"--am-card-text:{self.card_text}")
+        if self.overlay:
+            opacity = max(0, min(100, self.overlay_opacity or 0)) / 100
+            declarations.append(f"--am-overlay:{self.overlay}")
+            declarations.append(f"--am-overlay-opacity:{opacity}")
+        return ";".join(declarations)
+
+
+def get_sections(create_missing=False, active_only=False):
+    """Return ``{section_key: SectionStyle}`` for every editable section.
+
+    With ``active_only=True`` the rows switched off in the dashboard are left
+    out, so the website falls back to the theme defaults for those sections.
+    """
+    queryset = SectionStyle.objects.all()
+    if active_only:
+        queryset = queryset.filter(is_active=True)
+    existing = {style.section: style for style in queryset}
+    if create_missing:
+        for key in SECTION_KEYS:
+            if key not in existing:
+                existing[key] = SectionStyle.objects.create(section=key)
+    return existing

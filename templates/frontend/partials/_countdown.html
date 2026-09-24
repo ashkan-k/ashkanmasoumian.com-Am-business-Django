@@ -1,0 +1,74 @@
+{% load static i18n_custom %}
+{% comment %}
+Event-countdown block, shared by the home and about pages.
+
+Everything here is editable in the dashboard:
+  * "Event Countdown"          → texts, date, CTA, image + image side
+  * "Sections & Backgrounds"   → background colour/image, overlay, heading colours
+
+The image side is physical: «Left» always renders the image on the left of the
+text, in every language.  That is why the row forces an LTR flex direction and
+each column re-applies the page's own text direction inside.
+{% endcomment %}
+{% if countdown %}
+{% with s=sections.countdown %}
+<div class="section am-section am-countdown-section" style="padding:60px 0;background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#530e69{% endif %};--am-heading-default:#e2a83e;--am-text-default:rgba(255,255,255,0.78);{% sec_bg_style s %}">
+    {% if s.background_image %}
+    <div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>
+    {% elif s.show_pattern or not s %}
+    <div class="am-section-pattern" style="background-image:url('{% static 'frontend/images/patterns/pattern-footer.svg' %}');background-size:300px;background-repeat:repeat;"></div>
+    {% endif %}
+    {% if s.overlay %}<div class="am-section-overlay"></div>{% endif %}
+
+    <div class="container am-section-inner">
+        <div class="row align-items-center" style="direction:ltr;">
+            {% if countdown.image %}
+            <div class="col-lg-5 text-center mb-5 mb-lg-0"
+                 style="order:{% if countdown.image_position == 'left' %}0{% else %}2{% endif %};direction:{% if is_rtl %}rtl{% else %}ltr{% endif %};">
+                <img src="{{ countdown.image.url }}" alt="{% get_image_alt countdown %}" class="img-fluid"
+                     style="border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,0.35);">
+            </div>
+            {% endif %}
+
+            <div class="col-lg-{% if countdown.image %}7{% else %}12 text-center{% endif %}"
+                 style="order:1;direction:{% if is_rtl %}rtl{% else %}ltr{% endif %};">
+                <div class="row mb-4">
+                    <div class="col-12 {% if not countdown.image %}text-center{% endif %}">
+                        <h3 class="subheading am-section-subheading">{% trans_field countdown "subheading" %}</h3>
+                        <h2 class="heading am-section-title" style="font-size:42px;">{% trans_field countdown "title" %}</h2>
+                        {% sec_text s "subtitle" "" as cd_desc %}{% if cd_desc %}<p class="am-section-subtitle">{{ cd_desc }}</p>{% endif %}
+                    </div>
+                </div>
+                <div class="row text-center" id="countdown-timer" data-event-date="{{ countdown.event_date|date:'c' }}">
+                    <div class="col-3"><div class="am-section-card" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
+                        <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-days">0</span>
+                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% tr "Days" "روز" "أيام" %}</span>
+                    </div></div>
+                    <div class="col-3"><div class="am-section-card" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
+                        <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-hours">00</span>
+                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% tr "Hours" "ساعت" "ساعات" %}</span>
+                    </div></div>
+                    <div class="col-3"><div class="am-section-card" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
+                        <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-minutes">00</span>
+                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% tr "Minutes" "دقیقه" "دقائق" %}</span>
+                    </div></div>
+                    <div class="col-3"><div class="am-section-card" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px 8px;">
+                        <span class="d-block" style="font-size:36px;font-weight:700;color:#e2a83e;" id="cd-seconds">00</span>
+                        <span class="d-block" style="color:rgba(255,255,255,0.8);font-size:13px;text-transform:uppercase;letter-spacing:1px;">{% tr "Seconds" "ثانیه" "ثوانٍ" %}</span>
+                    </div></div>
+                </div>
+                <div id="countdown-ended" style="display:none;text-align:center;margin-top:20px;">
+                    <p style="color:#fff;font-size:20px;font-weight:500;">{% trans_field countdown "ended_message" %}</p>
+                </div>
+                {% trans_field countdown "cta_text" as cd_cta %}
+                {% if cd_cta %}
+                <div class="{% if not countdown.image %}text-center {% endif %}mt-4">
+                    <a href="{{ countdown.cta_url }}" class="btn btn-primary-outline white px-5">{{ cd_cta }}</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endwith %}
+{% endif %}

@@ -42,6 +42,7 @@ urlpatterns = [
     path("admin-panel/team/", views.team_view, name="admin_team"),
     path("admin-panel/event-countdown/", views.event_countdown_view, name="admin_event_countdown"),
     path("admin-panel/home-sections/", views.home_sections_view, name="admin_home_sections"),
+    path("admin-panel/sections/", views.sections_view, name="admin_sections"),
     path("admin-panel/messages/", views.messages_view, name="admin_messages"),
     path("admin-panel/messages/<int:pk>/", views.message_detail_view, name="admin_message_detail"),
     path("admin-panel/newsletter/", views.newsletter_view, name="admin_newsletter"),
@@ -52,5 +53,6 @@ urlpatterns = [
     path("about/", views_frontend.frontend_about, name="frontend_about"),
     path("services/", views_frontend.frontend_services, name="frontend_services"),
     path("contact/", views_frontend.frontend_contact, name="frontend_contact"),
+    path("page/<slug:slug>/", views_frontend.frontend_page, name="frontend_page"),
     path("newsletter/subscribe/", views_frontend.frontend_newsletter_subscribe, name="frontend_newsletter_subscribe"),
 ]

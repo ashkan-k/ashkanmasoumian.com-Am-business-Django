@@ -20,6 +20,154 @@
     {% if is_rtl %}
     <link rel="stylesheet" href="{% static 'frontend/css/rtl.css' %}">
     {% endif %}
+    <!-- Theme palette + section background helpers (kept in one place so the
+         dashboard colour fields and the CSS below always agree). -->
+    <style>
+        :root {
+            --am-gold: #e2a83e;
+            --am-gold-dark: #c4912e;
+            --am-gold-soft: rgba(226, 168, 62, 0.12);
+            --am-purple: #530e69;
+            --am-purple-dark: #3a0a4a;
+            --am-ink: #222222;
+        }
+
+        /* ── Keep the page inside the viewport ────────────────────────
+           A few decorative blocks are wider than the viewport.  In
+           right-to-left mode that pushes the scrollable area to the left
+           of the page origin, so a browser opens on an empty strip.
+           Full-bleed sections are all self-contained, so clipping the
+           horizontal overflow is safe here. */
+        html, body {
+            overflow-x: hidden;
+            max-width: 100%;
+        }
+
+        /* ── Grid columns the theme leaves out ────────────────────────
+           style.css ships a trimmed Bootstrap grid; these widths are used
+           by the templates (countdown timer cards, image-next-to-text
+           rows) so they are defined here with the same semantics. */
+        .col-3 { flex: 0 0 auto; width: 25%; }
+        .col-4 { flex: 0 0 auto; width: 33.33333%; }
+        .col-8 { flex: 0 0 auto; width: 66.66667%; }
+        @media (min-width: 768px) {
+            .col-md-10 { flex: 0 0 auto; width: 83.33333%; }
+        }
+        @media (min-width: 992px) {
+            .col-lg-5 { flex: 0 0 auto; width: 41.66667%; }
+            .col-lg-8 { flex: 0 0 auto; width: 66.66667%; }
+        }
+
+        /* ── Editable section backgrounds ─────────────────────────────
+           `--am-*` values are written inline by the "Sections &
+           Backgrounds" dashboard page; every fallback below keeps the
+           original theme look. */
+        .am-section {
+            position: relative;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center center;
+        }
+        .am-section > .am-section-inner {
+            position: relative;
+            z-index: 2;
+        }
+        .am-section > .am-section-bg,
+        .am-section > .am-section-pattern,
+        .am-section > .am-section-overlay {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            pointer-events: none;
+        }
+        .am-section > .am-section-bg {
+            z-index: 0;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
+        .am-section > .am-section-pattern {
+            z-index: 1;
+            opacity: 1;
+        }
+        .am-section > .am-section-overlay {
+            z-index: 1;
+            background-color: var(--am-overlay, transparent);
+            opacity: var(--am-overlay-opacity, 0);
+        }
+        .am-section .am-section-title {
+            color: var(--am-heading, var(--am-heading-default, inherit));
+        }
+        .am-section .am-section-subheading,
+        .am-section .am-section-subtitle,
+        .am-section .am-section-text {
+            color: var(--am-text, var(--am-text-default, inherit));
+        }
+        .am-section .am-section-card {
+            background-color: var(--am-card-bg, rgba(255, 255, 255, 0.1));
+            color: var(--am-card-text, inherit);
+        }
+        /* "Mark as popular" plans get a brand-gold outline */
+        .pricing.is-popular {
+            border: 2px solid var(--am-gold, #e2a83e) !important;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+        }
+        .pricing.is-popular h3 {
+            color: var(--am-gold, #e2a83e);
+        }
+
+        /* ── Service / feature icons: hover + brand colour ───────────── */
+        .feature .svg-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 68px;
+            height: 68px;
+            font-size: 38px;
+            line-height: 1;
+            border-radius: 16px;
+            background-color: var(--am-gold-soft);
+            color: var(--am-gold);
+            transition: background-color .35s ease, color .35s ease,
+                        box-shadow .35s ease, transform .35s ease;
+        }
+        /* On the dark "More Features" cards the icon sits on a subtle
+           translucent chip instead of the light-gold one. */
+        .feature.dark .svg-wrap {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--am-gold);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+        }
+        .feature .svg-wrap img {
+            transition: transform .35s ease, filter .35s ease;
+        }
+        .feature:hover .svg-wrap {
+            background-color: #ffffff;
+            color: var(--am-purple);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+            transform: translateY(-4px) scale(1.06);
+        }
+        .feature:hover .svg-wrap svg,
+        .feature:hover .svg-wrap svg path {
+            color: var(--am-purple);
+            fill: currentColor;
+        }
+        .feature:hover .svg-wrap img {
+            transform: scale(1.08);
+        }
+        /* Uploaded (raster) icons cannot inherit `currentColor`, so the
+           brand colour is applied with a filter on hover instead. */
+        .feature:hover .svg-wrap img.am-icon-raster {
+            filter: brightness(0) saturate(100%) invert(16%) sepia(38%)
+                    saturate(3241%) hue-rotate(273deg) brightness(92%) contrast(101%);
+        }
+        .feature.dark:hover .svg-wrap {
+            background-color: #ffffff;
+            color: var(--am-purple);
+        }
+    </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -176,10 +324,13 @@
 
     <!-- Newsletter -->
     {% block newsletter %}
-    <div class="section section-contact m-md-5 px-md-5">
-        <div class="container">
-            <h2>{% tr "Subscribe to Newsletter" "عضویت در خبرنامه" "الاشتراك في النشرة البريدية" %}</h2>
-            <p>{% tr "Stay updated with our latest news" "از آخرین اخبار ما باخبر شوید" "ابقَ على اطلاع بآخر أخبارنا" %}</p>
+    {% with s=sections.newsletter %}
+    <div class="section section-contact m-md-5 px-md-5 am-section am-newsletter-section" style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#efefef{% endif %};--am-heading-default:#222222;--am-text-default:#666666;{% sec_bg_style s %}">
+        {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
+        {% if s.overlay %}<div class="am-section-overlay"></div>{% endif %}
+        <div class="container am-section-inner">
+            <h2 class="am-section-title">{% sec_text s "title" "Subscribe to Newsletter" "عضویت در خبرنامه" "الاشتراك في النشرة البريدية" %}</h2>
+            <p class="am-section-subtitle">{% sec_text s "subtitle" "Stay updated with our latest news" "از آخرین اخبار ما باخبر شوید" "ابقَ على اطلاع بآخر أخبارنا" %}</p>
             <form action="{% url 'frontend_newsletter_subscribe' %}" method="post" class="form-contact">
                 {% csrf_token %}
                 <div class="row">
@@ -200,6 +351,7 @@
             </form>
         </div>
     </div>
+    {% endwith %}
     {% endblock newsletter %}
 
     <!-- Footer -->

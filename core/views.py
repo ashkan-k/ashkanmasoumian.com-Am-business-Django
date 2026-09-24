@@ -11,12 +11,24 @@ from django.utils import translation
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from .models import (
     SiteSettings, SocialLink, Navigation, HeroSection, Service,
     AboutSection, StatCounter, Feature, PricingPlan, Testimonial,
     TeamMember, ContactMessage, NewsletterSubscriber, EventCountdown,
-    Page, HomeSection, SUPPORTED_LANGUAGES, RTL_LANGUAGES
+    Page, HomeSection, SectionStyle, SUPPORTED_LANGUAGES, RTL_LANGUAGES,
+    SECTION_KEYS, ICON_LIBRARY, safe_css_color, get_sections,
 )
+
+
+#: Palette offered next to every colour input (brand colours first).
+COLOR_PALETTE = [
+    "#530e69", "#3a0a4a", "#6d1a8a", "#8b2fa8",
+    "#e2a83e", "#c4912e", "#f5d68a", "#fdf3dd",
+    "#222222", "#111827", "#475569", "#94a3b8",
+    "#ffffff", "#f8f9fa", "#efefef", "#e2e8f0",
+    "#0f766e", "#1d4ed8", "#b91c1c", "#15803d",
+]
 
 
 def get_lang(request):
@@ -537,6 +549,10 @@ def navigation_view(request):
 def hero_sections_view(request):
     lang = get_lang(request)
     items = HeroSection.objects.all()
+    page_choices = [{"value": value, "label": label} for value, label in HeroSection.PAGE_CHOICES]
+    taken_pages = [{"value": value, "label": label, "hero": items.filter(page=value).first()}
+                   for value, label in HeroSection.PAGE_CHOICES]
+
     if request.method == "POST":
         action = request.POST.get("action", "")
         if action == "bulk":
@@ -560,8 +576,28 @@ def hero_sections_view(request):
             obj.save()
             messages.success(request, say(request, "Hero section updated!", "بنر به‌روزرسانی شد!", "تم تحديث البانر!"))
         elif action == "add":
+            page = (request.POST.get("page") or "home").strip()
+            if not page:
+                page = "home"
+
+            # `page` is unique, so a second hero for the same page used to raise
+            # an IntegrityError.  Point the editor at the existing row instead.
+            existing = HeroSection.objects.filter(page=page).first()
+            if existing:
+                label = existing.get_page_display()
+                messages.error(request, say(
+                    request,
+                    f"A hero section for «{label}» already exists — edit that row instead "
+                    f"(or pick a different page).",
+                    f"برای صفحه «{label}» از قبل بنر وجود دارد — همان ردیف را ویرایش کنید "
+                    f"(یا صفحه دیگری را انتخاب کنید).",
+                    f"يوجد بانر لصفحة «{label}» بالفعل — حرّر ذلك الصف بدلًا من ذلك "
+                    f"(أو اختر صفحة أخرى).",
+                ))
+                return redirect("admin_hero_sections")
+
             hero = HeroSection(
-                page=request.POST.get("page", "home"),
+                page=page,
                 heading_en=request.POST.get("heading_en", ""),
                 heading_fa=request.POST.get("heading_fa", ""),
                 heading_ar=request.POST.get("heading_ar", ""),
@@ -576,7 +612,17 @@ def hero_sections_view(request):
             )
             if request.FILES.get("background_image"):
                 hero.background_image = request.FILES["background_image"]
-            hero.save()
+            try:
+                hero.save()
+            except IntegrityError:
+                # Last-resort guard (race between two editors/tabs).
+                messages.error(request, say(
+                    request,
+                    "That page already has a hero section. Edit the existing row instead.",
+                    "این صفحه از قبل بنر دارد. ردیف موجود را ویرایش کنید.",
+                    "هذه الصفحة لديها بانر بالفعل. حرّر الصف الموجود.",
+                ))
+                return redirect("admin_hero_sections")
             messages.success(request, say(request, "Hero section added!", "بنر اضافه شد!", "تمت إضافة البانر!"))
         elif action == "delete":
             pk = request.POST.get("pk")
@@ -585,6 +631,7 @@ def hero_sections_view(request):
         return redirect("admin_hero_sections")
     return render(request, "admin_panel/hero_sections.html", {
         "lang": lang, "items": items, "page_title": "Hero Sections",
+        "page_choices": page_choices, "taken_pages": taken_pages,
         "bulk": bulk_menu(request, "hero_sections"),
     })
 
@@ -742,7 +789,7 @@ def features_view(request):
         if action == "bulk":
             return run_bulk_action(request, "features")
         if action == "add":
-            Feature.objects.create(
+            obj = Feature.objects.create(
                 title_en=request.POST.get("title_en", ""),
                 title_fa=request.POST.get("title_fa", ""),
                 title_ar=request.POST.get("title_ar", ""),
@@ -750,9 +797,13 @@ def features_view(request):
                 description_fa=request.POST.get("description_fa", ""),
                 description_ar=request.POST.get("description_ar", ""),
                 icon=request.POST.get("icon", ""),
+                custom_svg=request.POST.get("custom_svg", ""),
                 is_active="is_active" in request.POST,
                 order=safe_int(request.POST.get("order", 0)),
             )
+            if request.FILES.get("custom_icon"):
+                obj.custom_icon = request.FILES["custom_icon"]
+                obj.save()
             messages.success(request, say(request, "Feature added!", "ویژگی اضافه شد!", "تمت إضافة الميزة!"))
         elif action == "delete":
             Feature.objects.filter(pk=request.POST.get("pk")).delete()
@@ -766,13 +817,20 @@ def features_view(request):
             obj.description_fa = request.POST.get("description_fa", obj.description_fa)
             obj.description_ar = request.POST.get("description_ar", obj.description_ar)
             obj.icon = request.POST.get("icon", obj.icon)
+            obj.custom_svg = request.POST.get("custom_svg", obj.custom_svg)
             obj.is_active = "is_active" in request.POST
             obj.order = safe_int(request.POST.get("order", 0))
+            if request.FILES.get("custom_icon"):
+                obj.custom_icon = request.FILES["custom_icon"]
+            elif "remove_custom_icon" in request.POST:
+                obj.custom_icon = None
             obj.save()
             messages.success(request, say(request, "Feature updated!", "ویژگی به‌روزرسانی شد!", "تم تحديث الميزة!"))
         return redirect("admin_features")
     return render(request, "admin_panel/features.html", {
         "lang": lang, "items": items, "page_title": "Features",
+        "icon_choices": Feature.ICON_CHOICES,
+        "icon_library": ICON_LIBRARY,
         "bulk": bulk_menu(request, "features"),
     })
 
@@ -973,12 +1031,22 @@ def event_countdown_view(request):
         obj.cta_text_fa = request.POST.get("cta_text_fa", obj.cta_text_fa)
         obj.cta_text_ar = request.POST.get("cta_text_ar", obj.cta_text_ar)
         obj.cta_url = request.POST.get("cta_url", obj.cta_url)
+        obj.image_position = request.POST.get("image_position", obj.image_position or "right")
+        obj.image_alt_en = request.POST.get("image_alt_en", obj.image_alt_en)
+        obj.image_alt_fa = request.POST.get("image_alt_fa", obj.image_alt_fa)
+        obj.image_alt_ar = request.POST.get("image_alt_ar", obj.image_alt_ar)
+        if request.FILES.get("image"):
+            obj.image = request.FILES["image"]
+        elif "remove_image" in request.POST:
+            obj.image = None
         obj.is_active = "is_active" in request.POST
         obj.save()
         messages.success(request, say(request, "Event countdown saved!", "شمارش معکوس ذخیره شد!", "تم حفظ العد التنازلي!"))
         return redirect("admin_event_countdown")
     return render(request, "admin_panel/event_countdown.html", {
-        "lang": lang, "obj": obj, "page_title": "Event Countdown"
+        "lang": lang, "obj": obj, "page_title": "Event Countdown",
+        "palette": COLOR_PALETTE,
+        "section_style": get_sections(create_missing=True).get("countdown"),
     })
 
 
@@ -1016,6 +1084,102 @@ def home_sections_view(request):
     return render(request, "admin_panel/home_sections.html", {
         "lang": lang, "items": items, "page_title": "Home Sections",
         "bulk": bulk_menu(request, "home_sections"),
+    })
+
+
+# ──────────────────────── SECTION APPEARANCE ────────────────────────
+#: Which controls each section offers in the dashboard, so the form never
+#: shows a colour field that the section cannot render.
+SECTION_FEATURES = {
+    "countdown": {"headings": True, "cards": False, "background": True, "icon": "ph-timer"},
+    "pricing": {"headings": True, "cards": True, "background": True, "icon": "ph-currency-dollar"},
+    "features": {"headings": True, "cards": True, "background": True, "icon": "ph-star"},
+    "testimonials": {"headings": True, "cards": True, "background": True, "icon": "ph-quotes"},
+    "why": {"headings": True, "cards": False, "background": True, "icon": "ph-question"},
+    "team": {"headings": True, "cards": False, "background": True, "icon": "ph-users"},
+    "services": {"headings": True, "cards": True, "background": True, "icon": "ph-wrench"},
+    "about_home": {"headings": True, "cards": False, "background": True, "icon": "ph-buildings"},
+    "newsletter": {"headings": True, "cards": False, "background": True, "icon": "ph-megaphone"},
+}
+
+
+@login_required(login_url="/accounts/login/")
+def sections_view(request):
+    """Edit the background/colours and headings of every homepage section."""
+    lang = get_lang(request)
+    get_sections(create_missing=True)  # make sure every section has a row
+
+    if request.method == "POST":
+        action = request.POST.get("action", "")
+        obj = get_object_or_404(SectionStyle, pk=request.POST.get("pk"))
+
+        if action == "edit":
+            obj.subheading_en = request.POST.get("subheading_en", "")
+            obj.subheading_fa = request.POST.get("subheading_fa", "")
+            obj.subheading_ar = request.POST.get("subheading_ar", "")
+            obj.title_en = request.POST.get("title_en", "")
+            obj.title_fa = request.POST.get("title_fa", "")
+            obj.title_ar = request.POST.get("title_ar", "")
+            obj.subtitle_en = request.POST.get("subtitle_en", "")
+            obj.subtitle_fa = request.POST.get("subtitle_fa", "")
+            obj.subtitle_ar = request.POST.get("subtitle_ar", "")
+
+            obj.background_color = safe_css_color(request.POST.get("background_color"))
+            obj.overlay_color = safe_css_color(request.POST.get("overlay_color"))
+            obj.overlay_opacity = max(0, min(100, safe_int(request.POST.get("overlay_opacity", 0))))
+            obj.text_color = safe_css_color(request.POST.get("text_color"))
+            obj.heading_color = safe_css_color(request.POST.get("heading_color"))
+            obj.card_background = safe_css_color(request.POST.get("card_background"))
+            obj.card_text_color = safe_css_color(request.POST.get("card_text_color"))
+            obj.show_pattern = "show_pattern" in request.POST
+            obj.item_limit = max(0, safe_int(request.POST.get("item_limit", 0)))
+            obj.is_active = "is_active" in request.POST
+
+            if request.FILES.get("background_image"):
+                obj.background_image = request.FILES["background_image"]
+            elif "remove_background_image" in request.POST:
+                obj.background_image = None
+
+            obj.save()
+            messages.success(request, say(
+                request,
+                "Section appearance saved!",
+                "ظاهر بخش ذخیره شد!",
+                "تم حفظ مظهر القسم!",
+            ))
+        elif action == "reset":
+            obj.subheading_en = obj.subheading_fa = obj.subheading_ar = ""
+            obj.title_en = obj.title_fa = obj.title_ar = ""
+            obj.subtitle_en = obj.subtitle_fa = obj.subtitle_ar = ""
+            obj.background_color = obj.overlay_color = ""
+            obj.text_color = obj.heading_color = ""
+            obj.card_background = obj.card_text_color = ""
+            obj.overlay_opacity = 0
+            obj.background_image = None
+            obj.save()
+            messages.success(request, say(
+                request,
+                "Section reset to the theme default.",
+                "بخش به حالت پیش‌فرض قالب بازگشت.",
+                "تمت إعادة القسم إلى الوضع الافتراضي.",
+            ))
+        return redirect("admin_sections")
+
+    items = list(get_sections(create_missing=True).values())
+    items.sort(key=lambda style: SECTION_KEYS.index(style.section)
+               if style.section in SECTION_KEYS else len(SECTION_KEYS))
+    for style in items:
+        opts = SECTION_FEATURES.get(style.section, {})
+        style.ui_cards = bool(opts.get("cards"))
+        style.ui_headings = bool(opts.get("headings", True))
+        style.ui_icon = opts.get("icon", "ph-square")
+
+    return render(request, "admin_panel/sections.html", {
+        "lang": lang,
+        "items": items,
+        "page_title": "Sections & Backgrounds",
+        "palette": COLOR_PALETTE,
+        "section_features": SECTION_FEATURES,
     })
 
 

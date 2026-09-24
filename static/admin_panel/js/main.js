@@ -261,7 +261,75 @@ document.addEventListener('DOMContentLoaded', function() {
         window.openModal = function(title, bodyHTML) {
             originalOpenModal(title, bodyHTML);
             // The change event delegation will handle file inputs in the modal
+            var body = document.getElementById('modalBody');
+            if (body) {
+                body.querySelectorAll('.color-field').forEach(syncColorField);
+            }
         };
     }
+
+    // ─── Colour fields (palette + free text) ───
+    // Works in page forms and in modal-injected forms, hence delegation.
+    function syncColorField(field) {
+        var text = field.querySelector('.color-text');
+        var native = field.querySelector('input[type="color"]');
+        if (!text) return;
+        var value = (text.value || '').trim();
+
+        if (native && /^#[0-9a-fA-F]{6}$/.test(value)) {
+            native.value = value;
+        }
+
+        field.querySelectorAll('.color-swatch').forEach(function(swatch) {
+            swatch.classList.toggle('active', swatch.dataset.color.toLowerCase() === value.toLowerCase());
+        });
+
+        field.classList.toggle('color-field-empty', value === '');
+
+        // Live preview strip, when the form provides one
+        var preview = field.closest('.form-group');
+        preview = preview ? preview.parentElement.querySelector('[data-color-preview]') : null;
+        if (preview) {
+            if (value) {
+                preview.style.backgroundColor = value;
+                preview.style.backgroundImage = '';
+            } else {
+                preview.style.backgroundColor = '';
+            }
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        var swatch = e.target.closest('.color-swatch');
+        if (!swatch) return;
+        e.preventDefault();
+        var field = swatch.closest('.color-field');
+        if (!field) return;
+        var text = field.querySelector('.color-text');
+        if (text) {
+            text.value = swatch.dataset.color || '';
+            syncColorField(field);
+        }
+    });
+
+    document.addEventListener('input', function(e) {
+        var field = e.target.closest('.color-field');
+        if (!field) return;
+        var native = field.querySelector('input[type="color"]');
+        var text = field.querySelector('.color-text');
+        if (e.target === native && text) {
+            text.value = native.value;
+        }
+        syncColorField(field);
+    });
+
+    document.addEventListener('change', function(e) {
+        var field = e.target.closest('.color-field');
+        if (field) syncColorField(field);
+    });
+
+    // Prime every colour field that is already on the page
+    document.querySelectorAll('.color-field').forEach(syncColorField);
+    window.syncColorField = syncColorField;
 
 });

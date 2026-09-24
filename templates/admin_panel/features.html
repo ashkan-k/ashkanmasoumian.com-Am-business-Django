@@ -1,6 +1,7 @@
 {% extends "admin_panel/base.html" %}
 {% load i18n_custom %}
 {% block content %}
+{% include "admin_panel/partials/_sections_hint.html" %}
 <div class="card">
     <div class="card-header">
         <h3>{% tr "Features" "ویژگی‌ها" "الميزات" %}</h3>
@@ -13,6 +14,7 @@
                 <tr>
                     {% include "admin_panel/partials/_bulk_head.html" %}
                     <th>#</th>
+                    <th>{% tr "Icon" "آیکون" "الأيقونة" %}</th>
                     <th>{% tr "Title (EN)" "عنوان (EN)" "العنوان (EN)" %}</th>
                     <th>{% tr "Title (FA)" "عنوان (FA)" "العنوان (FA)" %}</th>
                     <th>{% tr "Title (AR)" "عنوان (AR)" "العنوان (AR)" %}</th>
@@ -26,6 +28,17 @@
                 <tr>
                     {% include "admin_panel/partials/_bulk_cell.html" %}
                     <td>{{ item.pk }}</td>
+                    <td>
+                        {% if item.custom_icon %}
+                        <img src="{{ item.custom_icon.url }}" alt="{{ item.title_en }}" style="width:26px;height:26px;object-fit:contain;">
+                        {% elif item.has_custom_svg %}
+                        <span class="badge badge-accent">SVG</span>
+                        {% elif item.icon_class %}
+                        <span class="{{ item.icon_class }}" style="font-size:20px;color:var(--accent,#6366f1);" title="{{ item.get_icon_display }}"></span>
+                        {% else %}
+                        <span class="text-muted" title="{% tr 'No icon — nothing is drawn above the title' 'بدون آیکون — بالای عنوان چیزی نمایش داده نمی‌شود' 'بلا أيقونة — لا يُرسم شيء فوق العنوان' %}">—</span>
+                        {% endif %}
+                    </td>
                     <td><strong>{{ item.title_en }}</strong></td>
                     <td dir="rtl">{{ item.title_fa }}</td>
                     <td dir="rtl">{{ item.title_ar|default:"—" }}</td>
@@ -40,28 +53,85 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="8" class="empty-state"><p>{% tr "No features yet" "هنوز ویژگی اضافه نشده" "لا توجد ميزات بعد" %}</p></td></tr>
+                <tr><td colspan="9" class="empty-state"><p>{% tr "No features yet" "هنوز ویژگی اضافه نشده" "لا توجد ميزات بعد" %}</p></td></tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
-<div id="addForm" style="display:none"><form method="post">{% csrf_token %}<input type="hidden" name="action" value="add">
+
+{# ── Shared icon fields, rendered into the add & edit forms ── #}
+<div id="featureIconFields" style="display:none">
+    <div class="form-group">
+        <label class="form-label">{% tr "Icon" "آیکون" "الأيقونة" %}</label>
+        <select name="icon" class="form-control feature-icon-select">
+            <option value="">{% tr "— No icon —" "— بدون آیکون —" "— بلا أيقونة —" %}</option>
+            {% for value, label in icon_choices %}{% if value %}<option value="{{ value }}">{{ label }}</option>{% endif %}{% endfor %}
+        </select>
+        <small class="form-help">{% tr "Shown above the title and it changes colour on hover." "بالای عنوان نمایش داده می‌شود و با هاور رنگش تغییر می‌کند." "يظهر فوق العنوان ويتغير لونه عند المرور." %}</small>
+    </div>
+    <div class="form-group">
+        <label class="form-label">{% tr "Custom SVG Icon" "آیکون SVG سفارشی" "أيقونة SVG مخصصة" %}</label>
+        <textarea name="custom_svg" class="form-control" rows="2" dir="ltr" placeholder="&lt;svg viewBox=&quot;0 0 24 24&quot;&gt;…&lt;/svg&gt;"></textarea>
+        <small class="form-help">{% tr "Paste SVG code to use your own icon. It takes precedence over the icon above." "کد SVG خودتان را بچسبانید. نسبت به آیکون بالا اولویت دارد." "الصق كود SVG لاستخدام أيقونتك. له الأولوية على الأيقونة أعلاه." %}</small>
+    </div>
+    <div class="form-group">
+        <label class="form-label">{% tr "Custom Icon Image" "تصویر آیکون سفارشی" "صورة أيقونة مخصصة" %}</label>
+        <input type="file" name="custom_icon" class="form-control" accept="image/*">
+        <small class="form-help">{% tr "Upload a PNG/SVG icon. It takes precedence over everything above." "یک آیکون PNG/SVG آپلود کنید. نسبت به همه موارد بالا اولویت دارد." "ارفع أيقونة PNG/SVG. لها الأولوية على كل ما سبق." %}</small>
+    </div>
+</div>
+
+<div id="addForm" style="display:none"><form method="post" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="action" value="add">
 <div class="form-row"><div class="form-group"><label class="form-label">{% tr "Title (EN)" "عنوان (EN)" "العنوان (EN)" %}</label><input type="text" name="title_en" class="form-control" required></div><div class="form-group"><label class="form-label">{% tr "Title (FA)" "عنوان (FA)" "العنوان (FA)" %}</label><input type="text" name="title_fa" class="form-control" required dir="rtl"></div></div>
 <div class="form-group"><label class="form-label">{% tr "Title (AR)" "عنوان (AR)" "العنوان (AR)" %}</label><input type="text" name="title_ar" class="form-control" dir="rtl"></div>
 <div class="form-group"><label class="form-label">{% tr "Description (EN)" "توضیحات (EN)" "الوصف (EN)" %}</label><textarea name="description_en" class="form-control" rows="3" required></textarea></div>
 <div class="form-group"><label class="form-label">{% tr "Description (FA)" "توضیحات (FA)" "الوصف (FA)" %}</label><textarea name="description_fa" class="form-control" rows="3" required dir="rtl"></textarea></div>
 <div class="form-group"><label class="form-label">{% tr "Description (AR)" "توضیحات (AR)" "الوصف (AR)" %}</label><textarea name="description_ar" class="form-control" rows="3" dir="rtl"></textarea></div>
+<div id="addIconSlot"></div>
 <div class="form-row"><div class="form-group"><label class="form-label">{% tr "Order" "ترتیب" "الترتيب" %}</label><input type="number" name="order" class="form-control" value="0"></div><div class="form-group" style="display:flex;align-items:flex-end"><label class="form-check"><input type="checkbox" name="is_active" checked><span>{% tr "Active" "فعال" "مفعّل" %}</span></label></div></div>
 <div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button></div></form></div>
+
 {% for item in items %}
-<div id="edit-{{ item.pk }}" style="display:none"><form method="post">{% csrf_token %}<input type="hidden" name="action" value="edit"><input type="hidden" name="pk" value="{{ item.pk }}">
+<div id="edit-{{ item.pk }}" style="display:none"><form method="post" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="action" value="edit"><input type="hidden" name="pk" value="{{ item.pk }}">
 <div class="form-row"><div class="form-group"><label class="form-label">{% tr "Title (EN)" "عنوان (EN)" "العنوان (EN)" %}</label><input type="text" name="title_en" class="form-control" value="{{ item.title_en }}" required></div><div class="form-group"><label class="form-label">{% tr "Title (FA)" "عنوان (FA)" "العنوان (FA)" %}</label><input type="text" name="title_fa" class="form-control" value="{{ item.title_fa }}" required dir="rtl"></div></div>
 <div class="form-group"><label class="form-label">{% tr "Title (AR)" "عنوان (AR)" "العنوان (AR)" %}</label><input type="text" name="title_ar" class="form-control" value="{{ item.title_ar }}" dir="rtl"></div>
 <div class="form-group"><label class="form-label">{% tr "Description (EN)" "توضیحات (EN)" "الوصف (EN)" %}</label><textarea name="description_en" class="form-control" rows="3" required>{{ item.description_en }}</textarea></div>
 <div class="form-group"><label class="form-label">{% tr "Description (FA)" "توضیحات (FA)" "الوصف (FA)" %}</label><textarea name="description_fa" class="form-control" rows="3" required dir="rtl">{{ item.description_fa }}</textarea></div>
 <div class="form-group"><label class="form-label">{% tr "Description (AR)" "توضیحات (AR)" "الوصف (AR)" %}</label><textarea name="description_ar" class="form-control" rows="3" dir="rtl">{{ item.description_ar }}</textarea></div>
+<div class="form-group">
+    <label class="form-label">{% tr "Icon" "آیکون" "الأيقونة" %}</label>
+    <select name="icon" class="form-control">
+        <option value="">{% tr "— No icon —" "— بدون آیکون —" "— بلا أيقونة —" %}</option>
+        {% for value, label in icon_choices %}{% if value %}<option value="{{ value }}" {% if item.icon == value %}selected{% endif %}>{{ label }}</option>{% endif %}{% endfor %}
+    </select>
+    <small class="form-help">{% tr "Shown above the title and it changes colour on hover." "بالای عنوان نمایش داده می‌شود و با هاور رنگش تغییر می‌کند." "يظهر فوق العنوان ويتغير لونه عند المرور." %}</small>
+</div>
+<div class="form-group">
+    <label class="form-label">{% tr "Custom SVG Icon" "آیکون SVG سفارشی" "أيقونة SVG مخصصة" %}</label>
+    <textarea name="custom_svg" class="form-control" rows="2" dir="ltr">{{ item.custom_svg }}</textarea>
+    <small class="form-help">{% tr "Takes precedence over the icon above." "نسبت به آیکون بالا اولویت دارد." "له الأولوية على الأيقونة أعلاه." %}</small>
+</div>
+<div class="form-group">
+    <label class="form-label">{% tr "Custom Icon Image" "تصویر آیکون سفارشی" "صورة أيقونة مخصصة" %}</label>
+    {% if item.custom_icon %}<div style="margin-bottom:8px"><img src="{{ item.custom_icon.url }}" class="image-preview" style="width:40px;height:40px"></div>{% endif %}
+    <input type="file" name="custom_icon" class="form-control" accept="image/*">
+    {% if item.custom_icon %}
+    <label class="form-check" style="margin-top:8px;"><input type="checkbox" name="remove_custom_icon"><span>{% tr "Remove the current icon image" "حذف تصویر آیکون فعلی" "حذف صورة الأيقونة الحالية" %}</span></label>
+    {% endif %}
+</div>
 <div class="form-row"><div class="form-group"><label class="form-label">{% tr "Order" "ترتیب" "الترتيب" %}</label><input type="number" name="order" class="form-control" value="{{ item.order }}"></div><div class="form-group" style="display:flex;align-items:flex-end"><label class="form-check"><input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}><span>{% tr "Active" "فعال" "مفعّل" %}</span></label></div></div>
 <div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button></div></form></div>
 {% endfor %}
+
+<script>
+    // The icon fields are shared markup: clone them into the "Add" form so the
+    // add and edit dialogs always offer exactly the same controls.
+    (function () {
+        var source = document.getElementById('featureIconFields');
+        var slot = document.getElementById('addIconSlot');
+        if (source && slot) { slot.innerHTML = source.innerHTML; }
+        if (source) { source.remove(); }
+    })();
+</script>
 {% endblock %}
