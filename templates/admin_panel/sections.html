@@ -7,7 +7,10 @@
     <div style="padding:16px 20px;display:flex;align-items:flex-start;gap:12px;">
         <i class="ph ph-palette" style="font-size:24px;color:var(--accent,#6366f1);flex-shrink:0;margin-top:2px;"></i>
         <div>
-            <p style="margin:0 0 8px;font-weight:600;color:var(--text-primary,#333);">{% tr "Backgrounds & Headings of Every Section" "پس‌زمینه و عنوان همه بخش‌ها" "خلفيات وعناوين كل قسم" %}</p>
+            <p style="margin:0 0 8px;font-weight:600;color:var(--text-primary,#333);">{% tr "Headings & Backgrounds of Every Section" "عنوان‌ها و پس‌زمینه همه بخش‌ها" "عناوين وخلفيات كل قسم" %}</p>
+            <p style="margin:0 0 12px;color:var(--text-secondary,#666);line-height:1.7;">
+                {% tr "This is the only place where a section's Subheading, Title and Description are edited — including the Event Countdown and the two home blocks. Settings that belong to just one section (the countdown date, image and button, or a home block's picture) stay on that section's own page." "این تنها جایی است که زیرعنوان، عنوان و توضیح هر بخش ویرایش می‌شود — از جمله شمارش معکوس و دو بخش صفحه اصلی. تنظیماتی که فقط مخصوص یک بخش هستند (تاریخ، تصویر و دکمه شمارش معکوس، یا تصویر بخش‌های صفحه اصلی) در صفحه همان بخش می‌مانند." "هذا هو المكان الوحيد لتعديل العنوان الفرعي والعنوان والوصف لكل قسم — بما في ذلك العد التنازلي وقسمَي الصفحة الرئيسية. أما الإعدادات الخاصة بقسم واحد (تاريخ العد التنازلي وصورته وزرّه، أو صورة قسم الصفحة الرئيسية) فتبقى في صفحة ذلك القسم." %}
+            </p>
             <p style="margin:0 0 8px;color:var(--text-secondary,#666);line-height:1.7;">
                 {% tr "Choose a colour from the palette, pick one with the colour picker, or type a value such as <code>#530e69</code>, <code>rgba(83,14,105,0.9)</code> or <code>white</code>." "یک رنگ از پالت انتخاب کنید، یا با انتخابگر رنگ بردارید، یا مقداری مانند <code>#530e69</code> یا <code>rgba(83,14,105,0.9)</code> یا <code>white</code> تایپ کنید." "اختر لونًا من اللوحة، أو استخدم منتقي الألوان، أو اكتب قيمة مثل <code>#530e69</code> أو <code>rgba(83,14,105,0.9)</code> أو <code>white</code>." %}
             </p>
@@ -66,13 +69,7 @@
                     <td dir="rtl">{{ item.title_ar|default:"—" }}</td>
                     {% else %}
                     <td colspan="3">
-                        <span class="text-muted">
-                            {% if item.section == 'countdown' %}
-                            {% tr "Set on the Event Countdown page" "در صفحه شمارش معکوس تنظیم می‌شود" "يُضبط في صفحة العد التنازلي" %}
-                            {% else %}
-                            {% tr "Not shown for this section" "برای این بخش نمایش داده نمی‌شود" "لا يظهر لهذا القسم" %}
-                            {% endif %}
-                        </span>
+                        <span class="text-muted">{% tr "Not shown for this section" "برای این بخش نمایش داده نمی‌شود" "لا يظهر لهذا القسم" %}</span>
                     </td>
                     {% endif %}
                     <td>{% if item.is_active %}<span class="badge badge-success">{% tr "Active" "فعال" "مفعّل" %}</span>{% else %}<span class="badge badge-danger">{% tr "Inactive" "غیرفعال" "غير مفعّل" %}</span>{% endif %}</td>
@@ -137,9 +134,9 @@
         <div class="form-help" style="display:flex;gap:8px;align-items:flex-start;margin-bottom:14px;">
             <i class="ph ph-info" style="flex-shrink:0;margin-top:2px;"></i>
             <span>
-                {% tr "The title and subheading of this block are the Event Countdown fields — edit them on the" "عنوان و زیرعنوان این بخش همان فیلدهای «شمارش معکوس رویداد» است — از صفحه" "عنوان وعنوان فرعي هذا القسم هما حقلا «العد التنازلي للحدث» — عدّلهما في" %}
+                {% tr "The countdown date, the image beside it, the end message and the button are edited on the" "تاریخ شمارش معکوس، تصویر کنار آن، پیام اتمام و دکمه در صفحه" "تاريخ العد التنازلي والصورة بجانبه ورسالة الانتهاء والزر تُعدَّل في" %}
                 <a href="{% url 'admin_event_countdown' %}" style="font-weight:600;">{% tr "Event Countdown" "شمارش معکوس رویداد" "العد التنازلي للحدث" %}</a>
-                {% tr "page." "ویرایش کنید." "صفحة." %}
+                {% tr "page." "ویرایش می‌شوند." "صفحة." %}
             </span>
         </div>
         {% endif %}

@@ -41,7 +41,7 @@
                     <span class="subheading am-section-subheading">{% sec_text s "subheading" "About Us" "درباره ما" "من نحن" %}</span>
                     <h2 class="heading mb-4 am-section-title" style="font-size:48px;">{% sec_text s "title" "About AM Business" "درباره ای ام بیزینس" "عن إي إم بيزنس" %}</h2>
                     <p class="am-section-text" style="line-height:1.8;">
-                        {% sec_text s "subtitle" "" as about_sub %}{% if about_sub %}{{ about_sub }}{% elif home_about %}{% get_content home_about %}{% elif lang == 'ar' %}
+                        {% sec_text s "subtitle" "" as about_sub %}{% if about_sub %}{{ about_sub }}{% elif lang == 'ar' %}
                         إي إم بيزنس شركة متكاملة لنمو الأعمال والتحول مقرها مسقط، عُمان، وتخدم الشركات الطموحة والمؤسسين والمنظمات والمؤسسات في دول مجلس التعاون الخليجي.
                         <br><br>
                         نجمع بين البحث والاستراتيجية والإبداع والتسويق والقدرات الرقمية والذكاء الاصطناعي لمساعدة عملائنا على اتخاذ قرارات أفضل وبناء علامات أقوى وتعزيز موقعهم في السوق وتطوير قدرات أكثر ذكاءً وتحقيق نمو مستدام.
@@ -113,7 +113,7 @@
     {% endif %}
 
     <!-- Why AM Business (its own editable section) -->
-    {% if about or home_why %}
+    {% if sections.why or about %}
     {% with s=sections.why %}
     <div class="box-white pt-5 p-md-5 mx-md-5 am-section am-why-section" style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#fff{% endif %};--am-heading-default:#222222;--am-text-default:#555555;{% sec_bg_style s %}">
         {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
@@ -124,16 +124,12 @@
                     <div class="text-wrap">
                         <span class="subheading am-section-subheading">{% sec_text s "subheading" "Why AM Business" "چرا ما" "لماذا إي إم بيزنس" %}</span>
                         <h2 class="heading mb-4 am-section-title" style="font-size:40px;">
-                            {% sec_text s "title" "" as why_custom_title %}{% if why_custom_title %}{{ why_custom_title }}{% elif home_why %}{% get_title home_why %}{% elif about %}{% get_why_title about %}{% else %}{% tr "Why AM Business?" "چرا ای ام بیزینس؟" "لماذا إي إم بيزنس؟" %}{% endif %}
+                            {% sec_text s "title" "" as why_custom_title %}{% if why_custom_title %}{{ why_custom_title }}{% else %}{% tr "Why AM Business?" "چرا ای ام بیزینس؟" "لماذا إي إم بيزنس؟" %}{% endif %}
                         </h2>
                         <div class="am-section-text" style="line-height:2;">
                             {% sec_text s "subtitle" "" as why_custom_text %}
                             {% if why_custom_text %}
                             {{ why_custom_text|linebreaks }}
-                            {% elif home_why and home_why.content_en %}
-                            {% get_content home_why %}
-                            {% elif about and about.why_choose_us_content_en %}
-                            {% get_why_content about %}
                             {% else %}
                             <p><strong style="color:#222;">{% tr "Research Before Recommendation" "تحقیق قبل از توصیه" "البحث قبل التوصية" %}</strong><br>
                             {% tr "We understand the business, market, and challenge before recommending a solution." "ما کسب و کار، بازار و چالش را قبل از ارائه راهکار درک می‌کنیم." "نفهم النشاط والسوق والتحدي قبل أن نقترح حلًا." %}</p>

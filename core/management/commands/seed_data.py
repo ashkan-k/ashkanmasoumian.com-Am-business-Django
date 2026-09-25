@@ -5,7 +5,7 @@ from datetime import timedelta
 from core.models import (
     SiteSettings, SocialLink, Navigation, HeroSection, Service,
     AboutSection, StatCounter, Feature, PricingPlan, Testimonial,
-    TeamMember, EventCountdown, HomeSection
+    TeamMember, EventCountdown, HomeSection, get_sections
 )
 
 #: Fields that hold a translation. Used to backfill existing rows.
@@ -250,20 +250,11 @@ Outcome-Oriented Partnership: We focus on business value and meaningful outcomes
             backfilled += len(apply_defaults(about_obj, about_defaults))
             self.stdout.write("  About: kept")
 
-        # ── Home Sections ──
+        # ── Home block pictures (headings live on the Sections page) ──
         _obj, _created, filled = upsert(
             HomeSection,
             {"section_type": "home_about"},
             {
-                "title_en": "About AM Business",
-                "title_fa": "درباره ای ام بیزینس",
-                "title_ar": "عن إي إم بيزنس",
-                "subheading_en": "About Us",
-                "subheading_fa": "درباره ما",
-                "subheading_ar": "من نحن",
-                "content_en": about_en,
-                "content_fa": "ای ام بیزینس یک شرکت یکپارچه رشد و تحول کسب و کار مستقر در مسقط، عمان است.",
-                "content_ar": about_ar,
                 "cta_text_en": "Read More",
                 "cta_text_fa": "بیشتر بخوانید",
                 "cta_text_ar": "اقرأ المزيد",
@@ -273,6 +264,42 @@ Outcome-Oriented Partnership: We focus on business value and meaningful outcomes
         )
         backfilled += len(filled)
         self.stdout.write("  Home Sections: created")
+
+        # ── Section headings ──
+        # Subheading / Title / Description of every section live on the
+        # "Sections & Backgrounds" page, so that is where they are seeded.
+        styles = get_sections(create_missing=True)
+        heading_defaults = {
+            "countdown": {
+                "subheading_en": "Don't wait", "subheading_fa": "منتظر نمانید",
+                "subheading_ar": "لا تنتظر",
+                "title_en": "Event Countdown", "title_fa": "شمارش معکوس رویداد",
+                "title_ar": "العد التنازلي للحدث",
+            },
+            "about_home": {
+                "subheading_en": "About Us", "subheading_fa": "درباره ما",
+                "subheading_ar": "من نحن",
+                "title_en": "About AM Business", "title_fa": "درباره ای ام بیزینس",
+                "title_ar": "عن إي إم بيزنس",
+                "subtitle_en": about_en, "subtitle_ar": about_ar,
+                "subtitle_fa": "ای ام بیزینس یک شرکت یکپارچه رشد و تحول کسب و کار مستقر در مسقط، عمان است.",
+            },
+            "why": {
+                "subheading_en": "Why AM Business", "subheading_fa": "چرا ما",
+                "subheading_ar": "لماذا إي إم بيزنس",
+                "title_en": "Why AM Business",
+                "title_fa": "چرا ای ام بیزینس",
+                "title_ar": "لماذا إي إم بيزنس",
+                "subtitle_en": about_defaults["why_choose_us_content_en"],
+                "subtitle_fa": about_defaults["why_choose_us_content_fa"],
+                "subtitle_ar": about_defaults["why_choose_us_content_ar"],
+            },
+        }
+        for key, defaults in heading_defaults.items():
+            style = styles.get(key)
+            if style is not None:
+                backfilled += len(apply_defaults(style, defaults))
+        self.stdout.write("  Section headings: created")
 
         # ── Counters ──
         for i, (label_en, label_fa, label_ar, value) in enumerate([
@@ -394,11 +421,9 @@ Outcome-Oriented Partnership: We focus on business value and meaningful outcomes
         self.stdout.write("  Team: created")
 
         # ── Event Countdown (kept inactive) ──
+        # Its Subheading / Title / Description are seeded with the SectionStyle
+        # rows above; only the countdown-specific settings live here.
         event_defaults = {
-            "title_en": "Event Countdown", "title_fa": "شمارش معکوس رویداد",
-            "title_ar": "العد التنازلي للحدث",
-            "subheading_en": "Don't wait", "subheading_fa": "منتظر نمانید",
-            "subheading_ar": "لا تنتظر",
             "event_date": timezone.now() + timedelta(days=39, hours=27),
             "ended_message_en": "We are sorry, Event ended!",
             "ended_message_fa": "متأسفیم، رویداد تمام شده است!",

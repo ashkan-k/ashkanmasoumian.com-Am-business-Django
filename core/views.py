@@ -1113,12 +1113,6 @@ def event_countdown_view(request):
             obj = EventCountdown.objects.create(
                 event_date=parsed_date,
             )
-        obj.title_en = request.POST.get("title_en", obj.title_en)
-        obj.title_fa = request.POST.get("title_fa", obj.title_fa)
-        obj.title_ar = request.POST.get("title_ar", obj.title_ar)
-        obj.subheading_en = request.POST.get("subheading_en", obj.subheading_en)
-        obj.subheading_fa = request.POST.get("subheading_fa", obj.subheading_fa)
-        obj.subheading_ar = request.POST.get("subheading_ar", obj.subheading_ar)
         obj.event_date = parsed_date
         obj.ended_message_en = request.POST.get("ended_message_en", obj.ended_message_en)
         obj.ended_message_fa = request.POST.get("ended_message_fa", obj.ended_message_fa)
@@ -1158,15 +1152,8 @@ def home_sections_view(request):
         if action == "edit":
             pk = request.POST.get("pk")
             obj = get_object_or_404(HomeSection, pk=pk)
-            obj.title_en = request.POST.get("title_en", obj.title_en)
-            obj.title_fa = request.POST.get("title_fa", obj.title_fa)
-            obj.title_ar = request.POST.get("title_ar", obj.title_ar)
-            obj.subheading_en = request.POST.get("subheading_en", obj.subheading_en)
-            obj.subheading_fa = request.POST.get("subheading_fa", obj.subheading_fa)
-            obj.subheading_ar = request.POST.get("subheading_ar", obj.subheading_ar)
-            obj.content_en = request.POST.get("content_en", obj.content_en)
-            obj.content_fa = request.POST.get("content_fa", obj.content_fa)
-            obj.content_ar = request.POST.get("content_ar", obj.content_ar)
+            # The block's headings are edited on the Sections page, so only its
+            # own settings are written here.
             obj.cta_text_en = request.POST.get("cta_text_en", obj.cta_text_en)
             obj.cta_text_fa = request.POST.get("cta_text_fa", obj.cta_text_fa)
             obj.cta_text_ar = request.POST.get("cta_text_ar", obj.cta_text_ar)
@@ -1198,13 +1185,14 @@ ALL_SECTION_TEXT_FIELDS = SECTION_TEXT_FIELDS
 #: ``text_fields`` lists only the heading slots the frontend actually prints for
 #: that section — verified against templates/frontend/**.  A section without a
 #: slot here must not offer the input, otherwise editors type text that never
-#: appears on the site (and, for the countdown, duplicates the fields that are
-#: already on the Event Countdown page).
+#: appears on the site.
+#:
+#: This page is the single place for every section's Subheading / Title /
+#: Description; settings that only one section has (the countdown date, image
+#: and CTA, or a home block's picture) stay on that section's own page.
 SECTION_FEATURES = {
-    # Title and Subheading of the countdown are rendered from the EventCountdown
-    # record, so only the description line is edited on this page.
     "countdown": {"headings": True, "cards": False, "background": True, "icon": "ph-timer",
-                  "text_fields": ("subtitle",)},
+                  "text_fields": SECTION_TEXT_FIELDS},
     "pricing": {"headings": True, "cards": True, "background": True, "icon": "ph-currency-dollar",
                 "text_fields": SECTION_TEXT_FIELDS},
     "features": {"headings": True, "cards": True, "background": True, "icon": "ph-star",
@@ -1225,14 +1213,13 @@ SECTION_FEATURES = {
                    "text_fields": ("title", "subtitle")},
 }
 
-#: Which of the home-section text fields the homepage really renders.
-#: The home "About" block takes its title and subheading from the
-#: Sections & Backgrounds page, so those two inputs are not offered here.
+#: Which text fields a home block still owns.  Every heading lives on the
+#: Sections page now, so only the About block's button is left here.
 HOME_SECTION_TEXT_FIELDS = {
-    "home_about": ("content", "cta_text"),
-    "home_why": ("title", "content"),
+    "home_about": ("cta_text",),
+    "home_why": (),
 }
-DEFAULT_HOME_SECTION_TEXT_FIELDS = ("title", "subheading", "content", "cta_text")
+DEFAULT_HOME_SECTION_TEXT_FIELDS = ("cta_text",)
 
 
 @login_required(login_url="/accounts/login/")

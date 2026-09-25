@@ -688,12 +688,6 @@ class EventCountdown(TimestampedModel):
         ("right", "Right side"),
         ("left", "Left side"),
     ]
-    title_en = models.CharField(max_length=200, default="Event Countdown", verbose_name="Title (EN)")
-    title_fa = models.CharField(max_length=200, default="شمارش معکوس رویداد", verbose_name="Title (FA)")
-    title_ar = models.CharField(max_length=200, blank=True, default="العد التنازلي للحدث", verbose_name="Title (AR)")
-    subheading_en = models.CharField(max_length=200, default="Don't wait", verbose_name="Subheading (EN)")
-    subheading_fa = models.CharField(max_length=200, default="منتظر نمانید", verbose_name="Subheading (FA)")
-    subheading_ar = models.CharField(max_length=200, blank=True, default="لا تنتظر", verbose_name="Subheading (AR)")
     event_date = models.DateTimeField(verbose_name="Event Date")
     ended_message_en = models.CharField(max_length=300, default="We are sorry, Event ended!",
                                          verbose_name="Ended Message (EN)")
@@ -719,13 +713,7 @@ class EventCountdown(TimestampedModel):
         verbose_name_plural = "Event Countdowns"
 
     def __str__(self):
-        return f"{self.title_en} - {self.event_date}"
-
-    def get_title(self, lang='en'):
-        return pick_lang(self, "title", lang)
-
-    def get_subheading(self, lang='en'):
-        return pick_lang(self, "subheading", lang)
+        return f"Event Countdown - {self.event_date}"
 
     def get_ended_message(self, lang='en'):
         return pick_lang(self, "ended_message", lang)
@@ -734,7 +722,7 @@ class EventCountdown(TimestampedModel):
         return pick_lang(self, "cta_text", lang)
 
     def get_image_alt(self, lang='en'):
-        return pick_lang(self, "image_alt", lang) or self.get_title(lang)
+        return pick_lang(self, "image_alt", lang)
 
     def save(self, *args, **kwargs):
         if not self.pk and EventCountdown.objects.exists():
@@ -792,22 +780,19 @@ class Page(TimestampedModel):
 
 
 class HomeSection(TimestampedModel):
-    """Homepage custom sections (About us on home, Why Choose Us etc.)"""
+    """The picture (and, for the About block, the button) of a homepage block.
+
+    The headings and the body text of these blocks are edited on the
+    "Sections & Backgrounds" page together with every other section, so they
+    are not duplicated here.
+    """
     SECTION_TYPES = [
         ("home_about", "Home About Section"),
         ("home_why", "Home Why Choose Us"),
     ]
     section_type = models.CharField(max_length=50, choices=SECTION_TYPES, unique=True, verbose_name="Section Type")
-    title_en = models.CharField(max_length=200, verbose_name="Title (EN)")
-    title_fa = models.CharField(max_length=200, verbose_name="Title (FA)")
-    title_ar = models.CharField(max_length=200, blank=True, default="", verbose_name="Title (AR)")
-    subheading_en = models.CharField(max_length=200, blank=True, default="", verbose_name="Subheading (EN)")
-    subheading_fa = models.CharField(max_length=200, blank=True, default="", verbose_name="Subheading (FA)")
-    subheading_ar = models.CharField(max_length=200, blank=True, default="", verbose_name="Subheading (AR)")
-    content_en = models.TextField(verbose_name="Content (EN)")
-    content_fa = models.TextField(verbose_name="Content (FA)")
-    content_ar = models.TextField(blank=True, default="", verbose_name="Content (AR)")
-    image = models.ImageField(upload_to="home/", blank=True, null=True, verbose_name="Image")
+    image = models.ImageField(upload_to="home/", blank=True, null=True, verbose_name="Image",
+                              help_text="Shown beside the text of this block")
     cta_text_en = models.CharField(max_length=100, blank=True, default="Get Started", verbose_name="CTA Text (EN)")
     cta_text_fa = models.CharField(max_length=100, blank=True, default="شروع کنید", verbose_name="CTA Text (FA)")
     cta_text_ar = models.CharField(max_length=100, blank=True, default="ابدأ الآن", verbose_name="CTA Text (AR)")
@@ -820,15 +805,6 @@ class HomeSection(TimestampedModel):
 
     def __str__(self):
         return f"{self.get_section_type_display()}"
-
-    def get_title(self, lang='en'):
-        return pick_lang(self, "title", lang)
-
-    def get_subheading(self, lang='en'):
-        return pick_lang(self, "subheading", lang)
-
-    def get_content(self, lang='en'):
-        return pick_lang(self, "content", lang)
 
     def get_cta_text(self, lang='en'):
         return pick_lang(self, "cta_text", lang)

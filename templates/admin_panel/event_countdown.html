@@ -15,16 +15,14 @@
             <button type="button" class="tab-btn" data-tab="cd-end">{% tr "End Message" "پیام اتمام" "رسالة الانتهاء" %}</button>
         </div>
         <div class="tab-content active" id="cd-main" data-group="cd">
-            <div class="form-row">
-                <div class="form-group"><label class="form-label">{% tr "Title (EN)" "عنوان (EN)" "العنوان (EN)" %}</label><input type="text" name="title_en" class="form-control" value="{% if obj %}{{ obj.title_en }}{% endif %}"></div>
-                <div class="form-group"><label class="form-label">{% tr "Title (FA)" "عنوان (FA)" "العنوان (FA)" %}</label><input type="text" name="title_fa" class="form-control" value="{% if obj %}{{ obj.title_fa }}{% endif %}" dir="rtl"></div>
+            <div class="form-group" style="display:flex;gap:10px;align-items:flex-start;padding:12px 16px;background:var(--bg-input);border-radius:var(--radius-md);margin-bottom:18px;">
+                <i class="ph ph-text-t" style="flex-shrink:0;margin-top:2px;font-size:20px;color:var(--accent,#6366f1);"></i>
+                <span style="color:var(--text-secondary,#666);line-height:1.6;">
+                    {% tr "The Subheading, Title and Description of this block are edited on the" "زیرعنوان، عنوان و توضیح این بخش در صفحه" "العنوان الفرعي والعنوان والوصف لهذا القسم تُعدَّل في" %}
+                    <a href="{% url 'admin_sections' %}" style="font-weight:600;text-decoration:underline;color:var(--accent,#6366f1);">{% tr "Sections & Backgrounds" "بخش‌ها و پس‌زمینه‌ها" "الأقسام والخلفيات" %}</a>
+                    {% tr "page, together with every other section." "ویرایش می‌شود، همراه با همه بخش‌های دیگر." "صفحة، مع كل الأقسام الأخرى." %}
+                </span>
             </div>
-            <div class="form-group"><label class="form-label">{% tr "Title (AR)" "عنوان (AR)" "العنوان (AR)" %}</label><input type="text" name="title_ar" class="form-control" value="{% if obj %}{{ obj.title_ar }}{% endif %}" dir="rtl"></div>
-            <div class="form-row">
-                <div class="form-group"><label class="form-label">{% tr "Subheading (EN)" "زیرعنوان (EN)" "العنوان الفرعي (EN)" %}</label><input type="text" name="subheading_en" class="form-control" value="{% if obj %}{{ obj.subheading_en }}{% endif %}"></div>
-                <div class="form-group"><label class="form-label">{% tr "Subheading (FA)" "زیرعنوان (FA)" "العنوان الفرعي (FA)" %}</label><input type="text" name="subheading_fa" class="form-control" value="{% if obj %}{{ obj.subheading_fa }}{% endif %}" dir="rtl"></div>
-            </div>
-            <div class="form-group"><label class="form-label">{% tr "Subheading (AR)" "زیرعنوان (AR)" "العنوان الفرعي (AR)" %}</label><input type="text" name="subheading_ar" class="form-control" value="{% if obj %}{{ obj.subheading_ar }}{% endif %}" dir="rtl"></div>
             <div class="form-row">
                 <div class="form-group"><label class="form-label">{% tr "Event Date" "تاریخ رویداد" "تاريخ الحدث" %}</label><input type="datetime-local" name="event_date" class="form-control" value="{% if obj %}{{ obj.event_date|date:'Y-m-d\TH:i' }}{% endif %}" required></div>
                 <div class="form-group" style="display:flex;align-items:flex-end"><label class="form-check"><input type="checkbox" name="is_active" {% if obj and obj.is_active %}checked{% elif not obj %}checked{% endif %}><span>{% tr "Active" "فعال" "مفعّل" %}</span></label></div>

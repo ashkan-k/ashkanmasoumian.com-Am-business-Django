@@ -111,7 +111,8 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
 
 @admin.register(EventCountdown)
 class EventCountdownAdmin(admin.ModelAdmin):
-    list_display = ["title_en", "title_fa", "title_ar", "event_date", "is_active"]
+    # The block's Subheading / Title / Description live on SectionStyle now.
+    list_display = ["event_date", "image_position", "is_active"]
     list_filter = ["is_active"]
     list_editable = ["is_active"]
 
@@ -127,7 +128,7 @@ class PageAdmin(admin.ModelAdmin):
 
 @admin.register(HomeSection)
 class HomeSectionAdmin(admin.ModelAdmin):
-    list_display = ["section_type", "title_en", "title_fa", "title_ar", "is_active"]
+    # The block's headings are edited on the "Sections & Backgrounds" page.
+    list_display = ["section_type", "image", "is_active"]
     list_filter = ["section_type", "is_active"]
     list_editable = ["is_active"]
-    search_fields = ["title_en", "title_fa", "title_ar"]

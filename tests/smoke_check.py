@@ -61,10 +61,11 @@ ARABIC_FIELDS = {
     "admin_pricing": ["name_ar", "description_ar", "button_text_ar"],
     "admin_testimonials": ["quote_ar", "author_role_ar"],
     "admin_team": ["position_ar", "bio_ar"],
-    "admin_event_countdown": ["title_ar", "subheading_ar", "ended_message_ar", "cta_text_ar"],
-    "admin_home_sections": ["content_ar"],
-    # Title (AR) / Subheading (AR) are only on the rows that render them, which
-    # the per-section-type wiring check above verifies exactly.
+    # The countdown's Subheading / Title / Description live on the Sections page.
+    "admin_event_countdown": ["ended_message_ar", "cta_text_ar"],
+    "admin_home_sections": ["cta_text_ar"],
+    # The home blocks keep only their picture (and the About button); the
+    # per-section-type wiring check below verifies that exactly.
     "admin_sections": ["title_ar", "subheading_ar", "subtitle_ar"],
     "admin_pages": ["title_ar", "content_ar", "meta_title_ar", "meta_description_ar"],
 }
@@ -464,10 +465,10 @@ def run_checks(client):
 
     print("\n=== Home Sections page: same check ===")
     home_expectations = {
-        # Derived from the runtime audit: the home About block takes its title
-        # and subheading from Sections & Backgrounds, so they are not offered.
-        "home_about": {"content", "cta_text"},
-        "home_why": {"title", "content"},
+        # Every heading is on the Sections page now, so the About block only
+        # keeps its button and the Why block has no text field left here.
+        "home_about": {"cta_text"},
+        "home_why": set(),
     }
     home_html = client.get(reverse("admin_home_sections")).content.decode("utf-8")
     for item in HomeSection.objects.all():
@@ -475,14 +476,29 @@ def run_checks(client):
         form = home_html.split(marker, 1)[1].split("</form>", 1)[0] if marker in home_html else ""
         shown = {p for p in ("title", "subheading", "content", "cta_text")
                  if f'name="{p}_en"' in form}
-        expected = home_expectations.get(item.section_type,
-                                        {"title", "subheading", "content", "cta_text"})
+        expected = home_expectations.get(item.section_type, {"cta_text"})
         ok = shown == expected
         print(f"{'OK  ' if ok else 'FAIL'} {item.section_type:12} form={sorted(shown)} expected={sorted(expected)}")
         if not ok:
             failures.append(
                 f"home_sections {item.section_type}: form shows {sorted(shown)}, "
                 f"expected {sorted(expected)}")
+
+    # --- one place only: no other page may offer a section heading ---
+    print("\n=== Section headings exist on the Sections page only ===")
+    for url_name, forbidden in (
+        ("admin_event_countdown", ("title_en", "subheading_en", "title_ar", "subheading_ar")),
+        ("admin_home_sections", ("title_en", "subheading_en", "content_en",
+                                 "title_ar", "subheading_ar", "content_ar")),
+    ):
+        body = client.get(reverse(url_name)).content.decode("utf-8")
+        found = [f for f in forbidden if f'name="{f}"' in body]
+        ok = not found
+        print(f"{'OK  ' if ok else 'FAIL'} {url_name}: no duplicate heading inputs"
+              f"{'' if ok else f' (found {found})'}")
+        if not ok:
+            failures.append(
+                f"{url_name} still offers heading input(s) {found}; those belong on the Sections page")
 
     # --- the hero "Page" dropdown must only offer pages that exist ---
     print("\n=== Hero Sections: the Page dropdown only lists real pages ===")
@@ -732,7 +748,7 @@ def run_checks(client):
     section = HomeSection.objects.first()
     if section:
         edit_in_place("home_sections", "admin_home_sections", section,
-                      ["title_ar", "subheading_ar", "content_ar", "cta_text_ar"])
+                      ["cta_text_ar"])
 
     about = AboutSection.objects.first()
     if about:
@@ -748,7 +764,7 @@ def run_checks(client):
     countdown = EventCountdown.objects.first()
     if countdown:
         edit_in_place("event_countdown", "admin_event_countdown", countdown,
-                      ["title_ar", "subheading_ar", "ended_message_ar", "cta_text_ar"],
+                      ["ended_message_ar", "cta_text_ar"],
                       extra={"event_date": countdown.event_date.strftime("%Y-%m-%dT%H:%M")})
 
     print("\n=== Result ===")

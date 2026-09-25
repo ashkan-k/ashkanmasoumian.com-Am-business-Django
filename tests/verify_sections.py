@@ -189,9 +189,8 @@ def main():
     countdown = EventCountdown.objects.first()
     if countdown:
         response = client.post("/admin-panel/event-countdown/", {
-            "title_en": countdown.title_en, "title_fa": countdown.title_fa, "title_ar": countdown.title_ar,
-            "subheading_en": countdown.subheading_en, "subheading_fa": countdown.subheading_fa,
-            "subheading_ar": countdown.subheading_ar,
+            # The countdown's Subheading / Title / Description are edited on the
+            # "Sections & Backgrounds" page, so this form no longer carries them.
             "event_date": countdown.event_date.strftime("%Y-%m-%dT%H:%M"),
             "ended_message_en": countdown.ended_message_en, "ended_message_fa": countdown.ended_message_fa,
             "ended_message_ar": countdown.ended_message_ar,

@@ -1,15 +1,19 @@
 {% load i18n_custom %}
 {% comment %}
-Info banner pointing editors at the "Sections & Backgrounds" page, where the
-background colour/image and the section title of a homepage block are edited.
+Info banner pointing editors at the "Sections & Backgrounds" page.
+
+This page now only owns the picture of each home block (and the About block's
+button): every Subheading / Title / Description, plus the background colour and
+image, is edited in one place — the "Sections & Backgrounds" page — so the same
+text is never editable from two different screens.
 {% endcomment %}
 <div class="card" style="background:var(--bg-secondary,#f8f9fa);border:1px solid var(--border,#e2e8f0);margin-bottom:20px;">
     <div style="padding:14px 20px;display:flex;align-items:flex-start;gap:12px;">
         <i class="ph ph-palette" style="font-size:22px;color:var(--accent,#6366f1);flex-shrink:0;margin-top:2px;"></i>
         <p style="margin:0;color:var(--text-secondary,#666);line-height:1.6;">
-            {% tr "The background colour, background image and the section title of this block are edited on the" "رنگ پس‌زمینه، تصویر پس‌زمینه و عنوان این بخش در صفحه" "يتم تعديل لون الخلفية وصورة الخلفية وعنوان هذا القسم في" %}
+            {% tr "The subheading, title, description and background of this block are edited together with every other section on the" "زیرعنوان، عنوان، توضیح و پس‌زمینه این بخش همراه با بقیه بخش‌ها در صفحه" "يُعدَّل العنوان الفرعي والعنوان والوصف والخلفية لهذا القسم مع كل الأقسام الأخرى في" %}
             <a href="{% url 'admin_sections' %}" style="color:var(--accent,#6366f1);font-weight:600;text-decoration:underline;">{% tr "Sections & Backgrounds" "بخش‌ها و پس‌زمینه‌ها" "الأقسام والخلفيات" %}</a>
-            {% tr "page — pick a colour from the palette or type one." "تغییر می‌کند — یک رنگ از پالت انتخاب کنید یا خودتان وارد کنید." "— اختر لونًا من اللوحة أو اكتب لونًا بنفسك." %}
+            {% tr "page. Only the picture and the button below are set here." "تنظیم می‌شود. در این صفحه فقط تصویر و دکمه تنظیم می‌شوند." "صفحة. في هذه الصفحة تُضبط الصورة والزر فقط." %}
         </p>
     </div>
 </div>

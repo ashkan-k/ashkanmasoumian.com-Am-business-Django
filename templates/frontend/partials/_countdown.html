@@ -3,8 +3,9 @@
 Event-countdown block, shared by the home and about pages.
 
 Everything here is editable in the dashboard:
-  * "Event Countdown"          → texts, date, CTA, image + image side
-  * "Sections & Backgrounds"   → background colour/image, overlay, heading colours
+  * "Sections & Backgrounds"   → headings, background colour/image, overlay,
+                                 heading colours and the description line
+  * "Event Countdown"          → date, ended message, CTA and the image + side
 
 The image side is physical: «Left» always renders the image on the left of the
 text, in every language.  That is why the row forces an LTR flex direction and
@@ -34,8 +35,8 @@ each column re-applies the page's own text direction inside.
                  style="order:1;direction:{% if is_rtl %}rtl{% else %}ltr{% endif %};">
                 <div class="row mb-4">
                     <div class="col-12 {% if not countdown.image %}text-center{% endif %}">
-                        <h3 class="subheading am-section-subheading">{% trans_field countdown "subheading" %}</h3>
-                        <h2 class="heading am-section-title" style="font-size:42px;">{% trans_field countdown "title" %}</h2>
+                        <h3 class="subheading am-section-subheading">{% sec_text s "subheading" "Don't wait" "منتظر نمانید" "لا تنتظر" %}</h3>
+                        <h2 class="heading am-section-title" style="font-size:42px;">{% sec_text s "title" "Event Countdown" "شمارش معکوس رویداد" "العد التنازلي للحدث" %}</h2>
                         {% sec_text s "subtitle" "" as cd_desc %}{% if cd_desc %}<p class="am-section-subtitle">{{ cd_desc }}</p>{% endif %}
                     </div>
                 </div>
