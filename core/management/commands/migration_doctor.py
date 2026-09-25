@@ -13,6 +13,7 @@ commands to run.
 
     python manage.py migration_doctor
 """
+import glob
 import os
 import subprocess
 
@@ -54,17 +55,57 @@ class Command(BaseCommand):
                 "the command never writes anything."
             ),
         )
+        parser.add_argument(
+            "--clean-local", action="store_true",
+            help=(
+                "Delete the migration files that exist only on this machine (they are not "
+                "in git) and are what create the extra branch behind 'Conflicting "
+                "migrations detected'. Prints every file it removes."
+            ),
+        )
 
     def handle(self, *args, **options):
         app = options["app"]
 
         self._print_applied(app)
         local_only = self._print_local_only(app)
+
+        if options["clean_local"] and local_only:
+            self._remove_local_only(app, local_only)
+            local_only = []
+
         leaves = self._print_leaves()
         columns = self._print_columns()
         inconsistent = self._print_history_check(app)
         self._print_recommendation(app, local_only, leaves, columns, inconsistent,
                                    fix=options["fix_history"])
+
+    def _remove_local_only(self, app, names):
+        """Delete untracked migration files (and their bytecode caches)."""
+        migrations_dir = os.path.join(app, "migrations")
+        pycache = os.path.join(migrations_dir, "__pycache__")
+        removed = []
+        for name in names:
+            path = os.path.join(migrations_dir, name)
+            try:
+                os.remove(path)
+                removed.append(path)
+            except OSError as exc:  # noqa: BLE001
+                self.stdout.write(self.style.ERROR(f"   could not remove {path}: {exc}"))
+                continue
+            # A stale __pycache__ entry must not keep the module importable.
+            stem = os.path.splitext(name)[0]
+            for cached in glob.glob(os.path.join(pycache, f"{stem}.*.pyc")):
+                try:
+                    os.remove(cached)
+                    removed.append(cached)
+                except OSError:
+                    pass
+
+        self.stdout.write(self.style.SUCCESS(
+            f"\n   --clean-local: removed {len(removed)} file(s)"))
+        for path in removed:
+            self.stdout.write(f"      {path}")
 
     # ── sections ──
     def _print_applied(self, app):
@@ -175,6 +216,7 @@ class Command(BaseCommand):
                 "These files exist only on this machine and are what created the extra branch. "
                 "Back up the database, then remove them:\n"
                 + "".join(f"      rm {app}/migrations/{name}\n" for name in local_only)
+                + "   (or just re-run this command with --clean-local to delete them)"
             )
         if len(leaves) > 1:
             steps.append(
