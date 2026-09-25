@@ -1750,13 +1750,13 @@ a {
     left: 0; }
 
 .heading-2 {
-  font-size: 90px;
+  font-size: 75px;
   font-weight: 700;
   line-height: 1; }
   @media (max-width: 991.98px) {
     .heading-2 {
-      font-size: 60px; } }
-  @media (max-width: 991.98px) {
+      font-size: 56px; } }
+  @media (max-width: 575.98px) {
     .heading-2 {
       font-size: 40px; } }
 
