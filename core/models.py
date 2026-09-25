@@ -267,20 +267,32 @@ class Navigation(TimestampedModel):
 
 
 class HeroSection(TimestampedModel):
-    """Hero/banner section for pages"""
-    PAGE_CHOICES = [
+    """Hero/banner section for a page.
+
+    ``page`` is the key the frontend looks a hero up by
+    (see ``core.views_frontend``):
+
+    * one of :attr:`ROUTED_PAGES` — the four pages with a hard-coded route
+    * a CMS page's **slug** — ``frontend_page`` looks up ``page=<slug>``, so a
+      hero added for ``portfolio`` appears on ``/page/portfolio/``
+    * :attr:`FALLBACK_PAGE` (``custom``) — used by any CMS page that has no
+      hero of its own
+
+    The dashboard builds its "Page" dropdown from exactly those values, so a
+    hero can never be created for a page that does not exist.
+    """
+    #: Pages that have their own route in core.views_frontend.
+    ROUTED_PAGES = [
         ("home", "Home"),
         ("about", "About"),
         ("services", "Services"),
         ("contact", "Contact"),
-        ("portfolio", "Portfolio"),
-        ("projects", "Projects"),
-        ("blog", "Blog"),
-        ("pricing", "Pricing"),
-        ("team", "Team"),
-        ("gallery", "Gallery"),
-        ("custom", "Other / Custom Page"),
     ]
+    #: Catch-all hero for CMS pages that have no hero of their own.
+    FALLBACK_PAGE = ("custom", "Other / Custom Page")
+
+    PAGE_CHOICES = ROUTED_PAGES + [FALLBACK_PAGE]
+
     page = models.CharField(max_length=50, choices=PAGE_CHOICES, unique=True, verbose_name="Page")
     heading_en = models.CharField(max_length=300, verbose_name="Heading (EN)")
     heading_fa = models.CharField(max_length=300, verbose_name="Heading (FA)")
@@ -301,6 +313,23 @@ class HeroSection(TimestampedModel):
 
     def __str__(self):
         return f"{self.page} Hero"
+
+    def get_page_label(self):
+        """Human label for ``page``, resolving a CMS slug to the page title."""
+        labels = dict(self.PAGE_CHOICES)
+        if self.page in labels:
+            return labels[self.page]
+        page = Page.objects.filter(slug=self.page).first()
+        if page:
+            return f"{page.title_en} (/page/{page.slug}/)"
+        return self.page
+
+    @property
+    def page_exists(self):
+        """False when this hero points at a page that no longer exists."""
+        if self.page in dict(self.PAGE_CHOICES):
+            return True
+        return Page.objects.filter(slug=self.page).exists()
 
     def get_heading(self, lang='en'):
         return pick_lang(self, "heading", lang)

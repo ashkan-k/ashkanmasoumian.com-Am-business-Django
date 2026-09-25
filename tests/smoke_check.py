@@ -12,6 +12,7 @@ It creates a throwaway staff user and removes it again, and cleans up every
 row it creates.
 """
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -482,6 +483,77 @@ def run_checks(client):
             failures.append(
                 f"home_sections {item.section_type}: form shows {sorted(shown)}, "
                 f"expected {sorted(expected)}")
+
+    # --- the hero "Page" dropdown must only offer pages that exist ---
+    print("\n=== Hero Sections: the Page dropdown only lists real pages ===")
+    from core.views import hero_page_options
+
+    expected_values = {o["value"] for o in hero_page_options()}
+    hero_html = client.get(reverse("admin_hero_sections")).content.decode("utf-8")
+    add_form = hero_html.split('id="addForm"', 1)[1].split("</form>", 1)[0]
+    offered = set(re.findall(r'<option value="([^"]+)"', add_form))
+    ok = offered == expected_values
+    print(f"{'OK  ' if ok else 'FAIL'} offered={sorted(offered)}")
+    print(f"      expected={sorted(expected_values)}")
+    if not ok:
+        failures.append(
+            f"hero page dropdown offers {sorted(offered)}, expected {sorted(expected_values)}")
+
+    # every offered value must resolve to a real page
+    routes = {value for value, _ in HeroSection.ROUTED_PAGES}
+    fallback = HeroSection.FALLBACK_PAGE[0]
+    slugs = set(Page.objects.values_list("slug", flat=True))
+    for value in sorted(offered):
+        real = value in routes or value == fallback or value in slugs
+        if not real:
+            failures.append(f"hero page dropdown offers {value!r}, which is not a real page")
+            print(f"FAIL {value!r} is not a route, a CMS slug, or the catch-all")
+
+    # the obsolete guesses must be gone from both the model and the dropdown
+    for gone in ("portfolio", "projects", "blog", "pricing", "team", "gallery"):
+        if gone in offered:
+            failures.append(f"hero page dropdown still offers the removed guess {gone!r}")
+        if gone in dict(HeroSection.PAGE_CHOICES):
+            failures.append(f"HeroSection.PAGE_CHOICES still contains {gone!r}")
+    print(f"{'OK  ' if not any('guess' in f for f in failures) else 'FAIL'} removed guesses are gone")
+
+    # a hero for a page that does not exist is refused
+    before_count = HeroSection.objects.count()
+    res = client.post(reverse("admin_hero_sections"), {
+        "action": "add", "page": "definitely-not-a-page", "heading_en": "Nope",
+        "heading_fa": "خیر", "cta_url": "#", "is_active": "on",
+    }, follow=True)
+    ok = res.status_code == 200 and HeroSection.objects.count() == before_count
+    print(f"{'OK  ' if ok else 'FAIL'} a hero for a missing page is refused")
+    if not ok:
+        failures.append("a hero for a nonexistent page was accepted")
+
+    # …while a hero for a real CMS page is accepted and rendered there
+    cms_page = Page.objects.create(
+        title_en="Smoke Portfolio", title_fa="ص", title_ar="ص", slug="smoke-portfolio",
+        content_en="body", content_fa="م", content_ar="م", is_active=True,
+    )
+    try:
+        # a CMS page must show up in the dropdown as soon as it exists
+        live_options = {o["value"] for o in hero_page_options()}
+        listed = "smoke-portfolio" in live_options
+        print(f"{'OK  ' if listed else 'FAIL'} a CMS page appears in the dropdown automatically")
+        if not listed:
+            failures.append("a new CMS page is not offered in the hero Page dropdown")
+
+        res = client.post(reverse("admin_hero_sections"), {
+            "action": "add", "page": "smoke-portfolio", "heading_en": "SMOKEHEROEN",
+            "heading_fa": "SMOKEHEROFA", "cta_url": "#", "is_active": "on",
+        }, follow=True)
+        created = HeroSection.objects.filter(page="smoke-portfolio").exists()
+        page_html = client.get(reverse("frontend_page", args=["smoke-portfolio"])).content.decode("utf-8")
+        rendered = res.status_code == 200 and created and "SMOKEHEROEN" in page_html
+        print(f"{'OK  ' if rendered else 'FAIL'} a CMS-page hero is created and rendered on /page/<slug>/")
+        if not rendered:
+            failures.append("a hero added for a CMS page did not render on that page")
+    finally:
+        HeroSection.objects.filter(page="smoke-portfolio").delete()
+        cms_page.delete()
 
     # --- guards ---
     res = client.post(reverse("admin_features"), {"action": "bulk", "bulk_action": "activate", "pks": []}, follow=True)

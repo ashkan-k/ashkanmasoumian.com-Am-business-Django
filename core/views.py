@@ -598,13 +598,34 @@ def navigation_view(request):
 
 
 # ──────────────────────── HERO SECTIONS ────────────────────────
+def hero_page_options():
+    """Every page that can own a hero, in the order the Add form lists them.
+
+    A hero is looked up by ``page``: the four routed pages by their fixed key,
+    a CMS page by its slug, and ``custom`` as the catch-all.  Only pages that
+    actually exist are offered, so the dropdown can never suggest a hero for a
+    page that does not exist (which would simply never be displayed).
+    """
+    options = [
+        {"value": value, "label": label, "kind": "route", "inactive": False}
+        for value, label in HeroSection.ROUTED_PAGES
+    ]
+    for page in Page.objects.order_by("title_en"):
+        options.append({
+            "value": page.slug,
+            "label": f"{page.title_en} (/page/{page.slug}/)",
+            "kind": "cms",
+            "inactive": not page.is_active,
+        })
+    value, label = HeroSection.FALLBACK_PAGE
+    options.append({"value": value, "label": label, "kind": "fallback", "inactive": False})
+    return options
+
+
 @login_required(login_url="/accounts/login/")
 def hero_sections_view(request):
     lang = get_lang(request)
     items = HeroSection.objects.all()
-    page_choices = [{"value": value, "label": label} for value, label in HeroSection.PAGE_CHOICES]
-    taken_pages = [{"value": value, "label": label, "hero": items.filter(page=value).first()}
-                   for value, label in HeroSection.PAGE_CHOICES]
 
     if request.method == "POST":
         action = request.POST.get("action", "")
@@ -629,15 +650,25 @@ def hero_sections_view(request):
             obj.save()
             messages.success(request, say(request, "Hero section updated!", "بنر به‌روزرسانی شد!", "تم تحديث البانر!"))
         elif action == "add":
-            page = (request.POST.get("page") or "home").strip()
-            if not page:
-                page = "home"
+            page = (request.POST.get("page") or "").strip()
+            allowed = {option["value"] for option in hero_page_options()}
+            if page not in allowed:
+                # A hero for a page that does not exist would never be shown, so
+                # refuse it instead of storing a row nobody can ever see.
+                messages.error(request, say(
+                    request,
+                    "That page does not exist, so its hero would never be displayed. "
+                    "Create the page under «Pages» first, or pick «Other / Custom Page».",
+                    "این صفحه وجود ندارد، پس بنر آن هرگز نمایش داده نمی‌شود. ابتدا صفحه را در بخش «صفحات» بسازید، یا «سایر / صفحه سفارشی» را انتخاب کنید.",
+                    "هذه الصفحة غير موجودة، لذا لن يظهر بانرها أبدًا. أنشئ الصفحة أولًا في «الصفحات» أو اختر «أخرى / صفحة مخصصة».",
+                ))
+                return redirect("admin_hero_sections")
 
             # `page` is unique, so a second hero for the same page used to raise
             # an IntegrityError.  Point the editor at the existing row instead.
             existing = HeroSection.objects.filter(page=page).first()
             if existing:
-                label = existing.get_page_display()
+                label = existing.get_page_label()
                 messages.error(request, say(
                     request,
                     f"A hero section for «{label}» already exists — edit that row instead "
@@ -682,9 +713,21 @@ def hero_sections_view(request):
             HeroSection.objects.filter(pk=pk).delete()
             messages.success(request, say(request, "Hero section deleted!", "بنر حذف شد!", "تم حذف البانر!"))
         return redirect("admin_hero_sections")
+
+    # Mark the options that already have a hero (the template disables them) and
+    # flag rows whose page has since been deleted, so they can be cleaned up.
+    heroes = {hero.page: hero for hero in items}
+    taken_pages = []
+    for option in hero_page_options():
+        option = dict(option)
+        option["hero"] = heroes.get(option["value"])
+        taken_pages.append(option)
+    for item in items:
+        item.ui_missing_page = not item.page_exists
+
     return render(request, "admin_panel/hero_sections.html", {
         "lang": lang, "items": items, "page_title": "Hero Sections",
-        "page_choices": page_choices, "taken_pages": taken_pages,
+        "taken_pages": taken_pages,
         "bulk": bulk_menu(request, "hero_sections"),
     })
 

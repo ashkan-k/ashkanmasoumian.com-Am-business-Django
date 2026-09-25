@@ -58,7 +58,12 @@
                 {% for item in items %}
                 <tr>
                     {% include "admin_panel/partials/_bulk_cell.html" %}
-                    <td><span class="badge badge-accent">{{ item.get_page_display }}</span></td>
+                    <td>
+                        <span class="badge badge-accent">{{ item.get_page_label }}</span>
+                        {% if item.ui_missing_page %}
+                        <br><span class="badge badge-warning">{% tr "page missing" "صفحه وجود ندارد" "الصفحة غير موجودة" %}</span>
+                        {% endif %}
+                    </td>
                     <td><strong>{{ item.heading_en }}</strong></td>
                     <td dir="rtl">{{ item.heading_fa }}</td>
                     <td dir="rtl">{{ item.heading_ar|default:"—" }}</td>
@@ -86,11 +91,11 @@
             <select name="page" class="form-control" required>
                 {% for option in taken_pages %}
                 <option value="{{ option.value }}" {% if option.hero %}disabled{% endif %}>
-                    {{ option.label }}{% if option.hero %} — {% tr "already has a hero (edit that row)" "از قبل بنر دارد (همان ردیف را ویرایش کنید)" "لديه بانر بالفعل (حرّر ذلك الصف)" %}{% endif %}
+                    {{ option.label }}{% if option.inactive %} — {% tr "page is inactive" "صفحه غیرفعال است" "الصفحة غير مفعّلة" %}{% endif %}{% if option.hero %} — {% tr "already has a hero (edit that row)" "از قبل بنر دارد (همان ردیف را ویرایش کنید)" "لديه بانر بالفعل (حرّر ذلك الصف)" %}{% endif %}
                 </option>
                 {% endfor %}
             </select>
-            <small class="form-help">{% tr "Need a hero for a page that is not listed? Create the page under «Pages» and pick «Other / Custom Page» here." "برای صفحه‌ای که در فهرست نیست بنر می‌خواهید؟ صفحه را در بخش «صفحات» بسازید و اینجا «سایر / صفحه سفارشی» را انتخاب کنید." "تحتاج بانرًا لصفحة غير مدرجة؟ أنشئ الصفحة في «الصفحات» واختر «أخرى / صفحة مخصصة» هنا." %}</small>
+            <small class="form-help">{% tr "The list only shows pages that exist: the four fixed pages, every page from «Pages», and the catch-all. The catch-all hero is shown on any CMS page that has no hero of its own." "این فهرست فقط صفحه‌های موجود را نشان می‌دهد: چهار صفحه ثابت، همه صفحه‌های بخش «صفحات»، و گزینه عمومی. بنر عمومی در هر صفحه CMS که بنر اختصاصی ندارد نمایش داده می‌شود." "تعرض القائمة الصفحات الموجودة فقط: الصفحات الأربع الثابتة، وكل صفحة من «الصفحات»، والخيار العام. يظهر البانر العام في أي صفحة CMS ليس لها بانر خاص." %}</small>
         </div>
         <div class="form-row">
             <div class="form-group"><label class="form-label">{% tr "Heading (EN)" "عنوان (EN)" "العنوان (EN)" %}</label><input type="text" name="heading_en" class="form-control" required></div>
@@ -120,7 +125,7 @@
         {% csrf_token %}
         <input type="hidden" name="action" value="edit">
         <input type="hidden" name="pk" value="{{ item.pk }}">
-        <div class="form-group"><label class="form-label">{% tr "Page" "صفحه" "الصفحة" %}</label><input type="text" class="form-control" value="{{ item.get_page_display }}" disabled></div>
+        <div class="form-group"><label class="form-label">{% tr "Page" "صفحه" "الصفحة" %}</label><input type="text" class="form-control" value="{{ item.get_page_label }}" disabled></div>
         <div class="form-row">
             <div class="form-group"><label class="form-label">{% tr "Heading (EN)" "عنوان (EN)" "العنوان (EN)" %}</label><input type="text" name="heading_en" class="form-control" value="{{ item.heading_en }}" required></div>
             <div class="form-group"><label class="form-label">{% tr "Heading (FA)" "عنوان (FA)" "العنوان (FA)" %}</label><input type="text" name="heading_fa" class="form-control" value="{{ item.heading_fa }}" required dir="rtl"></div>

@@ -99,14 +99,35 @@ def main():
     check("hero: duplicate page rejected gracefully", response.status_code == 200 and after == before,
           f"(status={response.status_code}, {before}→{after})")
 
-    # A brand-new page (portfolio) must be accepted.
+    # A hero for a CMS page is added by that page's slug. The page has to exist
+    # first — the dashboard only offers real pages, and refuses a hero for a page
+    # that does not exist because it would never be displayed.
     HeroSection.objects.filter(page="portfolio").delete()
+    hero_page, _created = Page.objects.get_or_create(
+        slug="portfolio",
+        defaults={
+            "title_en": "Portfolio", "title_fa": "نمونه‌کارها", "title_ar": "أعمالنا",
+            "content_en": "Selected work.", "content_fa": "کارهای منتخب.",
+            "content_ar": "أعمال مختارة.", "is_active": True,
+        },
+    )
     response = client.post("/admin-panel/hero/", {
         "action": "add", "page": "portfolio", "heading_en": "Portfolio", "heading_fa": "نمونه‌کارها",
         "cta_url": "#", "is_active": "on",
     }, follow=True)
-    check("hero: portfolio hero created",
+    check("hero: hero for an existing CMS page created",
           response.status_code == 200 and HeroSection.objects.filter(page="portfolio").exists())
+
+    # …and a hero for a page that does not exist must be refused.
+    before = HeroSection.objects.count()
+    response = client.post("/admin-panel/hero/", {
+        "action": "add", "page": "no-such-page", "heading_en": "Nope", "heading_fa": "خیر",
+        "cta_url": "#", "is_active": "on",
+    }, follow=True)
+    check("hero: hero for a missing page refused",
+          response.status_code == 200 and HeroSection.objects.count() == before)
+    HeroSection.objects.filter(page="portfolio").delete()
+    hero_page.delete()
 
     # ── 2. Testimonial without quote text must save ──
     response = client.post("/admin-panel/testimonials/", {
