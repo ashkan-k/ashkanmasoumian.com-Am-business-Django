@@ -28,7 +28,7 @@ from django.contrib.auth.models import User
 from core.models import (
     SiteSettings, Navigation, HeroSection, Service, Feature, StatCounter,
     PricingPlan, Testimonial, TeamMember, ContactMessage, NewsletterSubscriber,
-    Page, SocialLink, HomeSection, AboutSection, EventCountdown,
+    Page, SocialLink, HomeSection, AboutSection, EventCountdown, SectionStyle,
 )
 
 ADMIN_PAGES = [
@@ -36,9 +36,16 @@ ADMIN_PAGES = [
     "admin_navigation", "admin_hero_sections", "admin_services", "admin_about",
     "admin_stat_counters", "admin_features", "admin_pricing",
     "admin_testimonials", "admin_team", "admin_event_countdown",
-    "admin_home_sections", "admin_messages", "admin_newsletter", "admin_pages",
+    "admin_home_sections", "admin_sections", "admin_messages",
+    "admin_newsletter", "admin_pages",
 ]
 FRONTEND_PAGES = ["frontend_home", "frontend_about", "frontend_services", "frontend_contact"]
+
+# Admin pages that are not list pages, so they carry no bulk toolbar.
+NO_BULK_PAGES = {
+    "admin_dashboard", "admin_site_settings", "admin_about",
+    "admin_event_countdown",
+}
 
 # Arabic inputs each admin page must expose (checked while lang == 'ar')
 ARABIC_FIELDS = {
@@ -55,6 +62,7 @@ ARABIC_FIELDS = {
     "admin_team": ["position_ar", "bio_ar"],
     "admin_event_countdown": ["title_ar", "subheading_ar", "ended_message_ar", "cta_text_ar"],
     "admin_home_sections": ["title_ar", "subheading_ar", "content_ar", "cta_text_ar"],
+    "admin_sections": ["title_ar", "subheading_ar", "subtitle_ar"],
     "admin_pages": ["title_ar", "content_ar", "meta_title_ar", "meta_description_ar"],
 }
 
@@ -110,10 +118,7 @@ def run_checks(client):
                     for field in ARABIC_FIELDS.get(name, []):
                         if f'name="{field}"' not in html:
                             failures.append(f"[ar] {name}: missing Arabic input {field}")
-                if name in ADMIN_PAGES and name not in (
-                    "admin_dashboard", "admin_site_settings", "admin_about",
-                    "admin_event_countdown",
-                ):
+                if name not in NO_BULK_PAGES:
                     if "bulk-form" not in html:
                         failures.append(f"[{lang}] {name}: no bulk form rendered")
                     if "select-all" not in html:
@@ -136,6 +141,22 @@ def run_checks(client):
                 failures.append(f"[{lang}] {name}: <html lang> is wrong")
             if lang == "ar" and "العربية" not in html:
                 failures.append(f"[ar] {name}: language switcher has no Arabic option")
+
+    # CMS page rendered through frontend_page (added with the SectionStyle work)
+    print("\n=== CMS page frontend route ===")
+    cms = Page.objects.create(
+        title_en="__smoke_cms", title_fa="__ص", title_ar="__صع",
+        slug="__smoke-cms", content_en="body", content_fa="متن", content_ar="نص",
+        is_active=True, show_in_menu=False,
+    )
+    for lang in ("en", "fa", "ar"):
+        client.cookies["django_language"] = lang
+        res = check(f"[{lang}] frontend_page", client.get(reverse("frontend_page", args=[cms.slug])))
+        if res.status_code == 200:
+            html = res.content.decode("utf-8")
+            if lang in ("fa", "ar") and 'dir="rtl"' not in html:
+                failures.append(f"[{lang}] frontend_page: missing dir=rtl")
+    cms.delete()
 
     # Transliterated database content must actually reach the page per language.
     print("\n=== Stored translations reach the frontend ===")
@@ -223,6 +244,7 @@ def run_checks(client):
         "messages": (ContactMessage, "mark_read", "is_read", True),
         "newsletter": (NewsletterSubscriber, "deactivate", "is_active", False),
         "pages": (Page, "show_in_menu", "show_in_menu", True),
+        "sections": (SectionStyle, "deactivate", "is_active", False),
     }
 
     client.cookies["django_language"] = "en"
@@ -261,8 +283,85 @@ def run_checks(client):
         if not good:
             failures.append(f"bulk {action} on {key} failed (status {res.status_code}, {field}={after})")
 
+        # Put the original value back so the dev database keeps its appearance
+        # (the section rows in particular must stay active on the live site).
+        setattr(obj, field, before)
+        obj.save(update_fields=[field])
+
     Page.objects.filter(title_en__in=temp_names).delete()
     NewsletterSubscriber.objects.filter(email__in=temp_emails).delete()
+
+    # --- sections page: the three reset levels must clear the right fields ---
+    print("\n=== Sections bulk resets ===")
+    probe = SectionStyle.objects.create(
+        section="__smoke_section",
+        title_en="T", title_fa="ت", title_ar="تع",
+        subheading_en="S", subheading_fa="س", subheading_ar="سع",
+        subtitle_en="D", subtitle_fa="د", subtitle_ar="دع",
+        background_color="#530e69", overlay_color="#530e69", overlay_opacity=92,
+        text_color="#ffffff", heading_color="#e2a83e",
+        card_background="#111111", card_text_color="#eeeeee",
+        show_pattern=True, is_active=True,
+    )
+    sections_url = reverse("admin_sections")
+
+    def post_bulk(action):
+        return client.post(sections_url, {
+            "action": "bulk", "bulk_action": action, "pks": [probe.pk],
+        })
+
+    def set_all_fields():
+        SectionStyle.objects.filter(pk=probe.pk).update(
+            title_en="T", subheading_en="S", subtitle_en="D",
+            background_color="#530e69", overlay_color="#530e69", overlay_opacity=92,
+            text_color="#ffffff", heading_color="#e2a83e",
+            card_background="#111111", card_text_color="#eeeeee",
+        )
+
+    # reset_appearance -> colours gone, headings kept
+    res = post_bulk("reset_appearance")
+    probe.refresh_from_db()
+    ok = (res.status_code == 302 and probe.background_color == "" and probe.overlay_color == ""
+          and probe.overlay_opacity == 0 and probe.title_en == "T" and probe.subtitle_ar == "دع")
+    print(f"{'OK  ' if ok else 'FAIL'} reset_appearance keeps headings, clears colours")
+    if not ok:
+        failures.append("sections reset_appearance did not behave as expected")
+
+    # reset_headings -> headings gone, colours kept
+    set_all_fields()
+    res = post_bulk("reset_headings")
+    probe.refresh_from_db()
+    ok = (res.status_code == 302 and probe.title_en == "" and probe.subheading_fa == ""
+          and probe.subtitle_ar == "" and probe.background_color == "#530e69")
+    print(f"{'OK  ' if ok else 'FAIL'} reset_headings clears headings, keeps colours")
+    if not ok:
+        failures.append("sections reset_headings did not behave as expected")
+
+    # reset_all -> everything back to the theme default
+    set_all_fields()
+    res = post_bulk("reset_all")
+    probe.refresh_from_db()
+    ok = (res.status_code == 302 and probe.title_en == "" and probe.subtitle_en == ""
+          and probe.background_color == "" and probe.card_text_color == ""
+          and probe.overlay_opacity == 0 and not probe.background_image)
+    print(f"{'OK  ' if ok else 'FAIL'} reset_all clears headings and appearance")
+    if not ok:
+        failures.append("sections reset_all did not behave as expected")
+
+    # show_pattern / hide_pattern
+    set_all_fields()
+    post_bulk("hide_pattern")
+    probe.refresh_from_db()
+    hidden = probe.show_pattern is False
+    post_bulk("show_pattern")
+    probe.refresh_from_db()
+    shown = probe.show_pattern is True
+    print(f"{'OK  ' if hidden and shown else 'FAIL'} show/hide pattern toggles")
+    if not (hidden and shown):
+        failures.append("sections show_pattern/hide_pattern did not behave as expected")
+
+    probe.delete()
+    print(f"  remaining active section rows: {SectionStyle.objects.filter(is_active=True).count()}")
 
     # --- guards ---
     res = client.post(reverse("admin_features"), {"action": "bulk", "bulk_action": "activate", "pks": []}, follow=True)

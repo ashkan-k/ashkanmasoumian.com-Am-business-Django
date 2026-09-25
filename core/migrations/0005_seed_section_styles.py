@@ -3,6 +3,12 @@
 # The countdown and pricing sections ship with the purple brand background
 # they always had, so the dashboard shows the real current colours and the
 # rendered site is unchanged until an editor picks something else.
+#
+# NOTE: `item_limit` must NOT be set here.  That column is created by
+# 0006_section_item_limit, which runs after this migration, and referring to a
+# field that does not exist yet in the historical model state raises
+# FieldError: Invalid field name(s) for model SectionStyle: 'item_limit'.
+# The homepage caps (services 8, team 4) are applied by 0006 instead.
 
 from django.db import migrations
 
@@ -19,16 +25,17 @@ SEEDS = {
         "overlay_color": "#530e69",
         "overlay_opacity": 92,
         "show_pattern": True,
-        # 0 = every active pricing plan is rendered (the old hard-coded
-        # limit of three hid plans that existed in the dashboard).
-        "item_limit": 0,
+        # item_limit stays 0 (the 0006 default) = every active pricing plan is
+        # rendered.  The old hard-coded limit of three hid plans that existed
+        # in the dashboard.
     },
-    # These two kept their previous cap so the homepage layout does not
-    # change; editors can raise or clear the limit from the dashboard.
-    "services": {"show_pattern": False, "item_limit": 8},
-    "team": {"show_pattern": False, "item_limit": 4},
-    "features": {"show_pattern": False, "item_limit": 0},
-    "testimonials": {"show_pattern": False, "item_limit": 0},
+    # These two keep their previous caps, applied by 0006_section_item_limit so
+    # the homepage layout does not change; editors can raise or clear the limit
+    # from the dashboard.
+    "services": {"show_pattern": False},
+    "team": {"show_pattern": False},
+    "features": {"show_pattern": False},
+    "testimonials": {"show_pattern": False},
     "why": {"show_pattern": False},
     "about_home": {"show_pattern": False},
     "newsletter": {"show_pattern": False},

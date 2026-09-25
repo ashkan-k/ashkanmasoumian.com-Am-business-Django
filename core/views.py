@@ -123,6 +123,12 @@ BULK_LABELS = {
     "show_in_menu": ("Show in navigation", "نمایش در منوی سایت", "إظهار في القائمة"),
     "hide_from_menu": ("Hide from navigation", "پنهان کردن از منو", "إخفاء من القائمة"),
     "export_csv": ("Export to CSV", "خروجی CSV", "تصدير إلى CSV"),
+    # section appearance page
+    "show_pattern": ("Show decorative pattern", "نمایش الگوی تزئینی", "إظهار النقش الزخرفي"),
+    "hide_pattern": ("Hide decorative pattern", "پنهان کردن الگوی تزئینی", "إخفاء النقش الزخرفي"),
+    "reset_appearance": ("Reset colours and image", "بازنشانی رنگ‌ها و تصویر", "إعادة تعيين الألوان والصورة"),
+    "reset_headings": ("Clear headings", "پاک کردن عنوان‌ها", "مسح العناوين"),
+    "reset_all": ("Reset to theme default", "بازگشت به پیش‌فرض قالب", "إعادة إلى الوضع الافتراضي"),
 }
 
 # key → styling / behaviour metadata for the dropdown
@@ -137,8 +143,13 @@ BULK_META = {
     "unmark_popular": {"icon": "ph-star-half", "group": "status", "confirm": False},
     "show_in_menu": {"icon": "ph-list-plus", "group": "status", "confirm": False},
     "hide_from_menu": {"icon": "ph-list", "group": "status", "confirm": False},
+    "show_pattern": {"icon": "ph-squares-four", "group": "status", "confirm": False},
+    "hide_pattern": {"icon": "ph-square", "group": "status", "confirm": False},
     "duplicate": {"icon": "ph-copy", "group": "content", "confirm": False},
     "export_csv": {"icon": "ph-download-simple", "group": "content", "confirm": False},
+    "reset_headings": {"icon": "ph-text-aa", "group": "content", "confirm": True},
+    "reset_appearance": {"icon": "ph-paint-brush", "group": "content", "confirm": True},
+    "reset_all": {"icon": "ph-arrow-counter-clockwise", "group": "content", "confirm": True},
     "delete": {"icon": "ph-trash", "group": "danger", "confirm": True},
 }
 
@@ -189,6 +200,30 @@ def _bulk_export(model_fields, filename, header_en):
     return handler
 
 
+#: SectionStyle fields cleared by the bulk "reset" actions on
+#: admin-panel/sections/.  Kept next to the handlers so the two reset levels
+#: (appearance only vs. everything) always cover the same field lists the
+#: per-row form writes.
+SECTION_HEADING_FIELDS = [
+    "subheading_en", "subheading_fa", "subheading_ar",
+    "title_en", "title_fa", "title_ar",
+    "subtitle_en", "subtitle_fa", "subtitle_ar",
+]
+SECTION_APPEARANCE_FIELDS = [
+    "background_color", "overlay_color", "text_color",
+    "heading_color", "card_background", "card_text_color",
+]
+
+
+def _bulk_clear(fields, **values):
+    """Build a handler that blanks ``fields`` and applies extra values."""
+    def handler(queryset):
+        updates = {field: "" for field in fields}
+        updates.update(values)
+        return queryset.update(**updates)
+    return handler
+
+
 # key → handler(queryset) → row count, or a Response for downloads
 BULK_HANDLERS = {
     "activate": _bulk_set(is_active=True),
@@ -201,6 +236,14 @@ BULK_HANDLERS = {
     "unmark_popular": _bulk_set(is_popular=False),
     "show_in_menu": _bulk_set(show_in_menu=True),
     "hide_from_menu": _bulk_set(show_in_menu=False),
+    "show_pattern": _bulk_set(show_pattern=True),
+    "hide_pattern": _bulk_set(show_pattern=False),
+    "reset_appearance": _bulk_clear(
+        SECTION_APPEARANCE_FIELDS, overlay_opacity=0, background_image=None),
+    "reset_headings": _bulk_clear(SECTION_HEADING_FIELDS),
+    "reset_all": _bulk_clear(
+        SECTION_HEADING_FIELDS + SECTION_APPEARANCE_FIELDS,
+        overlay_opacity=0, background_image=None),
     "duplicate": _bulk_duplicate,
     "export_csv": _bulk_export(
         ["name", "email", "subject", "message", "is_read", "is_replied", "created_at"],
@@ -257,6 +300,16 @@ BULK_PAGES = {
     "home_sections": {
         "model": HomeSection, "redirect": "admin_home_sections", "noun": ("home section", "بخش", "قسم"),
         "actions": ["activate", "deactivate", "delete"],
+    },
+    "sections": {
+        "model": SectionStyle, "redirect": "admin_sections", "noun": ("section", "بخش", "قسم"),
+        # No `delete`: the nine section rows are a fixed set that
+        # get_sections(create_missing=True) recreates, so "reset" is the
+        # meaningful destructive action here.
+        "actions": [
+            "activate", "deactivate", "show_pattern", "hide_pattern",
+            "reset_appearance", "reset_headings", "reset_all",
+        ],
     },
     "messages": {
         "model": ContactMessage, "redirect": "admin_messages", "noun": ("message", "پیام", "رسالة"),
@@ -1111,6 +1164,12 @@ def sections_view(request):
 
     if request.method == "POST":
         action = request.POST.get("action", "")
+
+        # The bulk toolbar posts `action=bulk` with `pks` and no `pk`, so this
+        # must be handled before the per-row lookup below.
+        if action == "bulk":
+            return run_bulk_action(request, "sections")
+
         obj = get_object_or_404(SectionStyle, pk=request.POST.get("pk"))
 
         if action == "edit":
@@ -1180,6 +1239,7 @@ def sections_view(request):
         "page_title": "Sections & Backgrounds",
         "palette": COLOR_PALETTE,
         "section_features": SECTION_FEATURES,
+        "bulk": bulk_menu(request, "sections"),
     })
 
 

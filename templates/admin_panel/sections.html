@@ -25,10 +25,12 @@
     <div class="card-header">
         <h3>{% tr "Sections & Backgrounds" "بخش‌ها و پس‌زمینه‌ها" "الأقسام والخلفيات" %}</h3>
     </div>
+    {% include "admin_panel/partials/_bulk_bar.html" %}
     <div class="table-wrapper">
         <table>
             <thead>
                 <tr>
+                    {% include "admin_panel/partials/_bulk_head.html" %}
                     <th>{% tr "Section" "بخش" "القسم" %}</th>
                     <th>{% tr "Background" "پس‌زمینه" "الخلفية" %}</th>
                     <th>{% tr "Title (EN)" "عنوان (EN)" "العنوان (EN)" %}</th>
@@ -40,6 +42,7 @@
             <tbody>
                 {% for item in items %}
                 <tr>
+                    {% include "admin_panel/partials/_bulk_cell.html" %}
                     <td>
                         <strong>{{ item.get_section_display }}</strong>
                         <br><small class="text-muted">{{ item.section }}</small>
@@ -77,7 +80,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="6" class="empty-state"><p>{% tr "No sections yet" "هنوز بخشی وجود ندارد" "لا توجد أقسام بعد" %}</p></td></tr>
+                <tr><td colspan="7" class="empty-state"><p>{% tr "No sections yet" "هنوز بخشی وجود ندارد" "لا توجد أقسام بعد" %}</p></td></tr>
                 {% endfor %}
             </tbody>
         </table>
