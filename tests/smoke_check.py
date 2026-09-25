@@ -61,7 +61,9 @@ ARABIC_FIELDS = {
     "admin_testimonials": ["quote_ar", "author_role_ar"],
     "admin_team": ["position_ar", "bio_ar"],
     "admin_event_countdown": ["title_ar", "subheading_ar", "ended_message_ar", "cta_text_ar"],
-    "admin_home_sections": ["title_ar", "subheading_ar", "content_ar", "cta_text_ar"],
+    "admin_home_sections": ["content_ar"],
+    # Title (AR) / Subheading (AR) are only on the rows that render them, which
+    # the per-section-type wiring check above verifies exactly.
     "admin_sections": ["title_ar", "subheading_ar", "subtitle_ar"],
     "admin_pages": ["title_ar", "content_ar", "meta_title_ar", "meta_description_ar"],
 }
@@ -77,6 +79,29 @@ def check(label, response, expect=200):
         failures.append(f"{label}: HTTP {response.status_code} (expected {expect})")
     print(f"{'OK ' if ok else 'FAIL'} {label} -> {response.status_code}")
     return response
+
+
+def rendered_section_prefixes():
+    """Which `{% sec_text s "prefix" %}` slots each section key renders.
+
+    Scans the frontend templates so the expectation follows the markup: if a
+    template starts (or stops) rendering a heading slot for a section, the
+    dashboard form has to match it.
+    """
+    import pathlib
+    import re
+
+    root = pathlib.Path(__file__).resolve().parent.parent / "templates" / "frontend"
+    per_section = {}
+    for path in root.rglob("*.html"):
+        text = path.read_text(encoding="utf-8")
+        for block in re.finditer(
+            r"\{%\s*with s=sections\.(\w+)\s*%\}(.*?)\{%\s*endwith\s*%\}", text, re.S
+        ):
+            key = block.group(1)
+            prefixes = set(re.findall(r'sec_text\s+\S+\s+"(\w+)"', block.group(2)))
+            per_section.setdefault(key, set()).update(prefixes)
+    return per_section
 
 
 def main():
@@ -174,6 +199,59 @@ def run_checks(client):
         print(f"{'OK  ' if found else 'FAIL'} service title_{lang} = {expected!r} on /services/")
         if not found:
             failures.append(f"frontend /services/ [{lang}]: title_{lang} not rendered")
+
+    # ── the footer's social icons and the contact-page details ──
+    print("\n=== Footer renders the Social Links page ===")
+    client.cookies["django_language"] = "en"
+    home_html = client.get(reverse("frontend_home")).content.decode("utf-8")
+    active_links = list(SocialLink.objects.filter(is_active=True))
+    if not active_links:
+        print("SKIP no active SocialLink rows")
+    for link in active_links:
+        url_ok = escape(link.url) in home_html
+        icon_ok = link.icon_css_class in home_html
+        # get_platform_display() is a method; templates call it automatically
+        title_ok = escape(link.get_platform_display()) in home_html
+        ok = url_ok and icon_ok and title_ok
+        print(f"{'OK  ' if ok else 'FAIL'} social {link.platform:10} href={url_ok} icon={icon_ok} title={title_ok}")
+        if not ok:
+            failures.append(f"footer does not render the {link.platform} social link")
+
+    # a custom icon class must win over the platform default
+    probe_link = SocialLink.objects.create(
+        platform="other", url="https://zz-social-probe.example/",
+        icon_class="icon-globe", is_active=True, order=99,
+    )
+    html = client.get(reverse("frontend_home")).content.decode("utf-8")
+    ok = "zz-social-probe.example" in html and "icon-globe" in html
+    print(f"{'OK  ' if ok else 'FAIL'} a custom icon_class is honoured")
+    if not ok:
+        failures.append("the footer ignores SocialLink.icon_class")
+    probe_link.delete()
+
+    # and the Site Settings footer fields are the fallback when the list is empty
+    SocialLink.objects.update(is_active=False)
+    try:
+        html = client.get(reverse("frontend_home")).content.decode("utf-8")
+        ok = "wa.me" in html and "linkedin.com/company" in html
+        print(f"{'OK  ' if ok else 'FAIL'} empty list falls back to the Footer settings")
+        if not ok:
+            failures.append("footer has no fallback when no SocialLink is active")
+    finally:
+        SocialLink.objects.update(is_active=True)
+
+    print("\n=== Contact page shows the Site Settings contact details ===")
+    for lang in ("en", "fa", "ar"):
+        client.cookies["django_language"] = lang
+        html = client.get(reverse("frontend_contact")).content.decode("utf-8")
+        address = getattr(s, f"address_{lang}") or s.address_en
+        tel_ok = bool(s.phone) and f"tel:{s.phone.replace(' ', '')}" in html
+        mail_ok = bool(s.email) and f"mailto:{s.email}" in html
+        addr_ok = bool(address) and escape(address) in html
+        ok = tel_ok and mail_ok and addr_ok
+        print(f"{'OK  ' if ok else 'FAIL'} [{lang}] tel={tel_ok} mailto={mail_ok} address={addr_ok}")
+        if not ok:
+            failures.append(f"[{lang}] contact page is missing the contact details")
 
     print("\n=== Language switch cookie ===")
     for lang in ("en", "fa", "ar"):
@@ -362,6 +440,48 @@ def run_checks(client):
 
     probe.delete()
     print(f"  remaining active section rows: {SectionStyle.objects.filter(is_active=True).count()}")
+
+    # --- the dashboard must only offer heading inputs the site renders ---
+    print("\n=== Sections page: every heading input must reach the website ===")
+    rendered_prefixes = rendered_section_prefixes()
+    admin_html = client.get(reverse("admin_sections")).content.decode("utf-8")
+    for style in SectionStyle.objects.order_by("section"):
+        marker = f'id="sec-{style.pk}"'
+        if marker not in admin_html:
+            failures.append(f"sections: no edit form for {style.section}")
+            continue
+        form = admin_html.split(marker, 1)[1].split("</form>", 1)[0]
+        shown = {p for p in ("subheading", "title", "subtitle")
+                 if f'name="{p}_en"' in form}
+        live = rendered_prefixes.get(style.section, set())
+        ok = shown == live
+        print(f"{'OK  ' if ok else 'FAIL'} {style.section:12} form={sorted(shown)} site={sorted(live)}")
+        if not ok:
+            failures.append(
+                f"sections {style.section}: the form shows {sorted(shown)} "
+                f"but the frontend renders {sorted(live)}")
+
+    print("\n=== Home Sections page: same check ===")
+    home_expectations = {
+        # Derived from the runtime audit: the home About block takes its title
+        # and subheading from Sections & Backgrounds, so they are not offered.
+        "home_about": {"content", "cta_text"},
+        "home_why": {"title", "content"},
+    }
+    home_html = client.get(reverse("admin_home_sections")).content.decode("utf-8")
+    for item in HomeSection.objects.all():
+        marker = f'id="edit-{item.pk}"'
+        form = home_html.split(marker, 1)[1].split("</form>", 1)[0] if marker in home_html else ""
+        shown = {p for p in ("title", "subheading", "content", "cta_text")
+                 if f'name="{p}_en"' in form}
+        expected = home_expectations.get(item.section_type,
+                                        {"title", "subheading", "content", "cta_text"})
+        ok = shown == expected
+        print(f"{'OK  ' if ok else 'FAIL'} {item.section_type:12} form={sorted(shown)} expected={sorted(expected)}")
+        if not ok:
+            failures.append(
+                f"home_sections {item.section_type}: form shows {sorted(shown)}, "
+                f"expected {sorted(expected)}")
 
     # --- guards ---
     res = client.post(reverse("admin_features"), {"action": "bulk", "bulk_action": "activate", "pks": []}, follow=True)

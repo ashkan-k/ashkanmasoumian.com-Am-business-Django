@@ -208,8 +208,39 @@ class SocialLink(TimestampedModel):
         verbose_name_plural = "Social Links"
         ordering = ["order"]
 
+    #: Icon font class per platform, used by the footer when the editor has not
+    #: supplied a custom `icon_class` or an uploaded `icon_image`.
+    PLATFORM_ICON_CLASSES = {
+        "facebook": "icon-facebook",
+        "twitter": "icon-x-twitter",
+        "linkedin": "icon-linkedin",
+        "instagram": "icon-instagram",
+        "dribbble": "icon-dribbble",
+        "youtube": "icon-youtube",
+        "telegram": "icon-telegram",
+        "whatsapp": "icon-whatsapp",
+        "github": "icon-github",
+        "phone": "icon-phone",
+        "location": "icon-pin_drop",
+        "email": "icon-envelope",
+        "other": "icon-link",
+    }
+
+    #: Platforms that should stay in the same tab (no target="_blank").
+    SAME_TAB_PLATFORMS = ("phone", "email")
+
     def __str__(self):
         return f"{self.platform}: {self.url}"
+
+    @property
+    def icon_css_class(self):
+        """The class the footer puts on the icon span."""
+        return self.icon_class or self.PLATFORM_ICON_CLASSES.get(self.platform, "icon-link")
+
+    @property
+    def opens_new_tab(self):
+        """False for tel:/mailto: style links."""
+        return self.platform not in self.SAME_TAB_PLATFORMS
 
 
 class Navigation(TimestampedModel):

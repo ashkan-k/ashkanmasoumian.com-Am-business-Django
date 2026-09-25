@@ -25,9 +25,13 @@
                 <tr>
                     {% include "admin_panel/partials/_bulk_cell.html" %}
                     <td><span class="badge badge-accent">{{ item.get_section_type_display }}</span></td>
+                    {% if "title" in item.ui_text_fields %}
                     <td><strong>{{ item.title_en }}</strong></td>
                     <td dir="rtl">{{ item.title_fa }}</td>
                     <td dir="rtl">{{ item.title_ar|default:"—" }}</td>
+                    {% else %}
+                    <td colspan="3"><span class="text-muted">{% tr "Set on the Sections & Backgrounds page" "در صفحه «بخش‌ها و پس‌زمینه‌ها» تنظیم می‌شود" "يُضبط في صفحة الأقسام والخلفيات" %}</span></td>
+                    {% endif %}
                     <td>{% if item.is_active %}<span class="badge badge-success">{% tr "Active" "فعال" "مفعّل" %}</span>{% else %}<span class="badge badge-danger">{% tr "Inactive" "غیرفعال" "غير مفعّل" %}</span>{% endif %}</td>
                     <td><button class="btn btn-outline btn-sm" onclick="openModal('{% tr 'Edit' 'ویرایش' 'تعديل' %}', document.getElementById('edit-{{ item.pk }}').innerHTML)"><i class="ph ph-pencil-simple"></i> {% tr "Edit" "ویرایش" "تعديل" %}</button></td>
                 </tr>
@@ -41,17 +45,23 @@
 {% for item in items %}
 <div id="edit-{{ item.pk }}" style="display:none"><form method="post" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="action" value="edit"><input type="hidden" name="pk" value="{{ item.pk }}">
 <div class="form-group"><label class="form-label">{% tr "Section Type" "نوع بخش" "نوع القسم" %}</label><input type="text" class="form-control" value="{{ item.get_section_type_display }}" disabled></div>
+{% if "title" in item.ui_text_fields %}
 <div class="form-row"><div class="form-group"><label class="form-label">{% tr "Title (EN)" "عنوان (EN)" "العنوان (EN)" %}</label><input type="text" name="title_en" class="form-control" value="{{ item.title_en }}" required></div><div class="form-group"><label class="form-label">{% tr "Title (FA)" "عنوان (FA)" "العنوان (FA)" %}</label><input type="text" name="title_fa" class="form-control" value="{{ item.title_fa }}" required dir="rtl"></div></div>
 <div class="form-group"><label class="form-label">{% tr "Title (AR)" "عنوان (AR)" "العنوان (AR)" %}</label><input type="text" name="title_ar" class="form-control" value="{{ item.title_ar }}" dir="rtl"></div>
+{% endif %}
+{% if "subheading" in item.ui_text_fields %}
 <div class="form-row"><div class="form-group"><label class="form-label">{% tr "Subheading (EN)" "زیرعنوان (EN)" "العنوان الفرعي (EN)" %}</label><input type="text" name="subheading_en" class="form-control" value="{{ item.subheading_en }}"></div><div class="form-group"><label class="form-label">{% tr "Subheading (FA)" "زیرعنوان (FA)" "العنوان الفرعي (FA)" %}</label><input type="text" name="subheading_fa" class="form-control" value="{{ item.subheading_fa }}" dir="rtl"></div></div>
 <div class="form-group"><label class="form-label">{% tr "Subheading (AR)" "زیرعنوان (AR)" "العنوان الفرعي (AR)" %}</label><input type="text" name="subheading_ar" class="form-control" value="{{ item.subheading_ar }}" dir="rtl"></div>
+{% endif %}
 <div class="form-group"><label class="form-label">{% tr "Content (EN)" "محتوا (EN)" "المحتوى (EN)" %}</label><textarea name="content_en" class="form-control" rows="3">{{ item.content_en }}</textarea></div>
 <div class="form-group"><label class="form-label">{% tr "Content (FA)" "محتوا (FA)" "المحتوى (FA)" %}</label><textarea name="content_fa" class="form-control" rows="3" dir="rtl">{{ item.content_fa }}</textarea></div>
 <div class="form-group"><label class="form-label">{% tr "Content (AR)" "محتوا (AR)" "المحتوى (AR)" %}</label><textarea name="content_ar" class="form-control" rows="3" dir="rtl">{{ item.content_ar }}</textarea></div>
 <div class="form-group"><label class="form-label">{% tr "Image" "تصویر" "الصورة" %}</label>{% if item.image %}<div style="margin-bottom:4px"><img src="{{ item.image.url }}" class="image-preview"></div>{% endif %}<input type="file" name="image" class="form-control" accept="image/*"></div>
+{% if "cta_text" in item.ui_text_fields %}
 <div class="form-row"><div class="form-group"><label class="form-label">{% tr "CTA (EN)" "متن دکمه (EN)" "نص الزر (EN)" %}</label><input type="text" name="cta_text_en" class="form-control" value="{{ item.cta_text_en }}"></div><div class="form-group"><label class="form-label">{% tr "CTA (FA)" "متن دکمه (FA)" "نص الزر (FA)" %}</label><input type="text" name="cta_text_fa" class="form-control" value="{{ item.cta_text_fa }}" dir="rtl"></div></div>
 <div class="form-group"><label class="form-label">{% tr "CTA (AR)" "متن دکمه (AR)" "نص الزر (AR)" %}</label><input type="text" name="cta_text_ar" class="form-control" value="{{ item.cta_text_ar }}" dir="rtl"></div>
 <div class="form-group"><label class="form-label">{% tr "CTA URL" "لینک دکمه" "رابط الزر" %}</label><input type="text" name="cta_url" class="form-control" value="{{ item.cta_url }}"></div>
+{% endif %}
 <div class="form-group"><label class="form-check"><input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}><span>{% tr "Active" "فعال" "مفعّل" %}</span></label></div>
 <div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button></div></form></div>
 {% endfor %}

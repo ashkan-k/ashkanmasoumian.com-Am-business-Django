@@ -200,17 +200,6 @@ def sec_bg_style(context, style):
 
 
 @register.simple_tag(takes_context=True)
-def sec_has(context, style):
-    """True when the section has any heading configured (for fallback logic)."""
-    if not style:
-        return False
-    for prefix in ("title", "subheading", "subtitle"):
-        if pick_lang(style, prefix, context.get("lang")):
-            return True
-    return False
-
-
-@register.simple_tag(takes_context=True)
 def get_cta_text(context, obj):
     """CTA text for the active language (hero, countdown, about, …)."""
     lang = context.get("lang")

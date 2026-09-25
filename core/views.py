@@ -1134,6 +1134,10 @@ def home_sections_view(request):
             obj.save()
             messages.success(request, say(request, "Home section updated!", "بخش صفحه اصلی به‌روزرسانی شد!", "تم تحديث قسم الصفحة الرئيسية!"))
         return redirect("admin_home_sections")
+    for item in items:
+        # Hide the inputs the homepage never renders (see HOME_SECTION_TEXT_FIELDS).
+        item.ui_text_fields = HOME_SECTION_TEXT_FIELDS.get(
+            item.section_type, DEFAULT_HOME_SECTION_TEXT_FIELDS)
     return render(request, "admin_panel/home_sections.html", {
         "lang": lang, "items": items, "page_title": "Home Sections",
         "bulk": bulk_menu(request, "home_sections"),
@@ -1141,19 +1145,51 @@ def home_sections_view(request):
 
 
 # ──────────────────────── SECTION APPEARANCE ────────────────────────
+#: Heading slots a section can expose, in the order they appear in the form.
+SECTION_TEXT_FIELDS = ("subheading", "title", "subtitle")
+ALL_SECTION_TEXT_FIELDS = SECTION_TEXT_FIELDS
+
 #: Which controls each section offers in the dashboard, so the form never
-#: shows a colour field that the section cannot render.
+#: shows a colour field or a heading input that the section cannot render.
+#:
+#: ``text_fields`` lists only the heading slots the frontend actually prints for
+#: that section — verified against templates/frontend/**.  A section without a
+#: slot here must not offer the input, otherwise editors type text that never
+#: appears on the site (and, for the countdown, duplicates the fields that are
+#: already on the Event Countdown page).
 SECTION_FEATURES = {
-    "countdown": {"headings": True, "cards": False, "background": True, "icon": "ph-timer"},
-    "pricing": {"headings": True, "cards": True, "background": True, "icon": "ph-currency-dollar"},
-    "features": {"headings": True, "cards": True, "background": True, "icon": "ph-star"},
-    "testimonials": {"headings": True, "cards": True, "background": True, "icon": "ph-quotes"},
-    "why": {"headings": True, "cards": False, "background": True, "icon": "ph-question"},
-    "team": {"headings": True, "cards": False, "background": True, "icon": "ph-users"},
-    "services": {"headings": True, "cards": True, "background": True, "icon": "ph-wrench"},
-    "about_home": {"headings": True, "cards": False, "background": True, "icon": "ph-buildings"},
-    "newsletter": {"headings": True, "cards": False, "background": True, "icon": "ph-megaphone"},
+    # Title and Subheading of the countdown are rendered from the EventCountdown
+    # record, so only the description line is edited on this page.
+    "countdown": {"headings": True, "cards": False, "background": True, "icon": "ph-timer",
+                  "text_fields": ("subtitle",)},
+    "pricing": {"headings": True, "cards": True, "background": True, "icon": "ph-currency-dollar",
+                "text_fields": SECTION_TEXT_FIELDS},
+    "features": {"headings": True, "cards": True, "background": True, "icon": "ph-star",
+                 "text_fields": SECTION_TEXT_FIELDS},
+    "testimonials": {"headings": True, "cards": True, "background": True, "icon": "ph-quotes",
+                     "text_fields": SECTION_TEXT_FIELDS},
+    "why": {"headings": True, "cards": False, "background": True, "icon": "ph-question",
+            "text_fields": SECTION_TEXT_FIELDS},
+    "team": {"headings": True, "cards": False, "background": True, "icon": "ph-users",
+             "text_fields": SECTION_TEXT_FIELDS},
+    "services": {"headings": True, "cards": True, "background": True, "icon": "ph-wrench",
+                 "text_fields": SECTION_TEXT_FIELDS},
+    "about_home": {"headings": True, "cards": False, "background": True, "icon": "ph-buildings",
+                   "text_fields": SECTION_TEXT_FIELDS},
+    # The newsletter block prints an <h2> and one paragraph — there is no
+    # subheading element, so that input is not offered.
+    "newsletter": {"headings": True, "cards": False, "background": True, "icon": "ph-megaphone",
+                   "text_fields": ("title", "subtitle")},
 }
+
+#: Which of the home-section text fields the homepage really renders.
+#: The home "About" block takes its title and subheading from the
+#: Sections & Backgrounds page, so those two inputs are not offered here.
+HOME_SECTION_TEXT_FIELDS = {
+    "home_about": ("content", "cta_text"),
+    "home_why": ("title", "content"),
+}
+DEFAULT_HOME_SECTION_TEXT_FIELDS = ("title", "subheading", "content", "cta_text")
 
 
 @login_required(login_url="/accounts/login/")
@@ -1173,15 +1209,17 @@ def sections_view(request):
         obj = get_object_or_404(SectionStyle, pk=request.POST.get("pk"))
 
         if action == "edit":
-            obj.subheading_en = request.POST.get("subheading_en", "")
-            obj.subheading_fa = request.POST.get("subheading_fa", "")
-            obj.subheading_ar = request.POST.get("subheading_ar", "")
-            obj.title_en = request.POST.get("title_en", "")
-            obj.title_fa = request.POST.get("title_fa", "")
-            obj.title_ar = request.POST.get("title_ar", "")
-            obj.subtitle_en = request.POST.get("subtitle_en", "")
-            obj.subtitle_fa = request.POST.get("subtitle_fa", "")
-            obj.subtitle_ar = request.POST.get("subtitle_ar", "")
+            # Only write the heading slots this section actually renders; the
+            # others have no input in the form, so their stored value is left
+            # alone rather than being blanked on every save.
+            allowed = SECTION_FEATURES.get(obj.section, {}).get(
+                "text_fields", SECTION_TEXT_FIELDS)
+            for prefix in SECTION_TEXT_FIELDS:
+                if prefix not in allowed:
+                    continue
+                for lang_code in ("en", "fa", "ar"):
+                    field = f"{prefix}_{lang_code}"
+                    setattr(obj, field, request.POST.get(field, getattr(obj, field)))
 
             obj.background_color = safe_css_color(request.POST.get("background_color"))
             obj.overlay_color = safe_css_color(request.POST.get("overlay_color"))
@@ -1232,6 +1270,8 @@ def sections_view(request):
         style.ui_cards = bool(opts.get("cards"))
         style.ui_headings = bool(opts.get("headings", True))
         style.ui_icon = opts.get("icon", "ph-square")
+        # Only these heading slots reach the website; the form hides the rest.
+        style.ui_text_fields = opts.get("text_fields", SECTION_TEXT_FIELDS)
 
     return render(request, "admin_panel/sections.html", {
         "lang": lang,

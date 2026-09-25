@@ -377,6 +377,25 @@
             <div class="row mb-4">
                 <div class="col-lg-8 mx-auto">
                     <ul class="social list-unstyled" style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+                        {% comment %}
+                        Links managed on the "Social Links" page. When that list is
+                        empty we fall back to the individual Footer fields below, so
+                        an untouched install looks exactly as it did before.
+                        {% endcomment %}
+                        {% for link in social_links %}
+                        <li>
+                            <a href="{{ link.url|default:'#' }}"
+                               {% if link.opens_new_tab %}target="_blank" rel="noopener"{% endif %}
+                               title="{{ link.get_platform_display }}">
+                                {% if link.icon_image %}
+                                <img src="{{ link.icon_image.url }}" alt="{{ link.get_platform_display }}"
+                                     style="width:20px;height:20px;object-fit:contain;">
+                                {% else %}
+                                <span class="{{ link.icon_css_class }}"></span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        {% empty %}
                         {% if site_settings.footer_phone or site_settings.footer_phone == '' %}
                         <li><a href="tel:{{ site_settings.footer_phone|default:'+968 94 749 749' }}" title="{% tr 'Call us' 'تماس با ما' 'اتصل بنا' %}"><span class="icon-phone"></span></a></li>
                         {% endif %}
@@ -395,6 +414,7 @@
                         {% if site_settings.footer_email or site_settings.footer_email == '' %}
                         <li><a href="mailto:{{ site_settings.footer_email|default:'info@ambusinessintl.com' }}" title="{% tr 'Email' 'ایمیل' 'البريد الإلكتروني' %}"><span class="icon-envelope"></span></a></li>
                         {% endif %}
+                        {% endfor %}
                     </ul>
                 </div>
             </div>
