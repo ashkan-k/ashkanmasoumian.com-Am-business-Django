@@ -271,8 +271,8 @@ Outcome-Oriented Partnership: We focus on business value and meaningful outcomes
         styles = get_sections(create_missing=True)
         heading_defaults = {
             "countdown": {
-                "subheading_en": "Don't wait", "subheading_fa": "منتظر نمانید",
-                "subheading_ar": "لا تنتظر",
+                # No subheading: the block leads with its title. An editor can
+                # add an eyebrow line from the dashboard if they want one.
                 "title_en": "Event Countdown", "title_fa": "شمارش معکوس رویداد",
                 "title_ar": "العد التنازلي للحدث",
             },
@@ -285,8 +285,8 @@ Outcome-Oriented Partnership: We focus on business value and meaningful outcomes
                 "subtitle_fa": "ای ام بیزینس یک شرکت یکپارچه رشد و تحول کسب و کار مستقر در مسقط، عمان است.",
             },
             "why": {
-                "subheading_en": "Why AM Business", "subheading_fa": "چرا ما",
-                "subheading_ar": "لماذا إي إم بيزنس",
+                # No subheading here either — the client asked for the small
+                # eyebrow line above this block to be gone by default.
                 "title_en": "Why AM Business",
                 "title_fa": "چرا ای ام بیزینس",
                 "title_ar": "لماذا إي إم بيزنس",

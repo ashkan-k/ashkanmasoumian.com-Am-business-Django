@@ -751,6 +751,7 @@ def services_view(request):
                 description_ar=request.POST.get("description_ar", ""),
                 icon=request.POST.get("icon", "gear"),
                 custom_svg=request.POST.get("custom_svg", ""),
+                url=request.POST.get("url", "").strip(),
                 is_active="is_active" in request.POST,
                 order=safe_int(request.POST.get("order", 0)),
             )
@@ -775,6 +776,7 @@ def services_view(request):
             obj.description_ar = request.POST.get("description_ar", obj.description_ar)
             obj.icon = request.POST.get("icon", obj.icon)
             obj.custom_svg = request.POST.get("custom_svg", obj.custom_svg)
+            obj.url = request.POST.get("url", obj.url).strip()
             obj.is_active = "is_active" in request.POST
             obj.order = safe_int(request.POST.get("order", 0))
             if request.FILES.get("image"):

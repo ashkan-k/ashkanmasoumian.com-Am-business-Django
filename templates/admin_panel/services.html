@@ -111,6 +111,11 @@
             </div>
         </div>
         <div class="form-group">
+            <label class="form-label">{% tr "Link URL (optional)" "لینک (اختیاری)" "رابط (اختياري)" %}</label>
+            <input type="text" name="url" class="form-control" placeholder="/page/portfolio/">
+            <small>{% tr "Fill this in and the whole card becomes clickable." "اگر پر شود، کل کارت قابل کلیک می‌شود." "عند تعبئته تصبح البطاقة كاملة قابلة للنقر." %}</small>
+        </div>
+        <div class="form-group">
             <label class="form-label">{% tr "Image" "تصویر" "الصورة" %}</label>
             <input type="file" name="image" class="form-control" accept="image/*">
         </div>
@@ -182,6 +187,11 @@
                 <label class="form-label">{% tr "Order" "ترتیب" "الترتيب" %}</label>
                 <input type="number" name="order" class="form-control" value="{{ item.order }}">
             </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">{% tr "Link URL (optional)" "لینک (اختیاری)" "رابط (اختياري)" %}</label>
+            <input type="text" name="url" class="form-control" value="{{ item.url }}" placeholder="/page/portfolio/">
+            <small>{% tr "Fill this in and the whole card becomes clickable." "اگر پر شود، کل کارت قابل کلیک می‌شود." "عند تعبئته تصبح البطاقة كاملة قابلة للنقر." %}</small>
         </div>
         <div class="form-group">
             <label class="form-label">{% tr "Image" "تصویر" "الصورة" %}</label>

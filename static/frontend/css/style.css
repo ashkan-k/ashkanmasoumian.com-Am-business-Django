@@ -1750,8 +1750,8 @@ a {
     left: 0; }
 
 .heading-2 {
-  font-size: 75px;
-  font-weight: 700;
+  font-size: 85px;
+  font-weight: 655;
   line-height: 1; }
   @media (max-width: 991.98px) {
     .heading-2 {
@@ -1802,8 +1802,8 @@ a {
   color: white;
   position: relative;
   z-index: 1;
-  font-size: 12px;
-  padding: 17px 28px;
+  font-size: 14px;
+  padding: 12px 28px;
   text-transform: uppercase;
   letter-spacing: .2rem;
   font-weight: bold; }
@@ -1831,7 +1831,7 @@ a {
     bottom: 2px;
     left: 2px;
     right: 2px;
-    background-color: black;
+    background-color: #290734;
     z-index: -1;
     opacity: 1;
     -webkit-transition: all 0.3s ease-in-out;
@@ -1939,7 +1939,7 @@ a {
     -webkit-transition: .3s all ease;
     -o-transition: .3s all ease;
     transition: .3s all ease;
-    border-radius: 7px;
+    border-radius: 20px;
     content: "";
     position: absolute;
     left: 0;

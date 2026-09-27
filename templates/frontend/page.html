@@ -45,7 +45,9 @@
         </div></div>
         <div class="row features-wrap">
             {% for service in services %}
-            <div class="col-md-6 col-lg-4 col-xl-3"><div class="feature"><div>
+            <div class="col-md-6 col-lg-4 col-xl-3">
+            {% if service.url %}<a class="feature-link" href="{{ service.url }}"{% if service.url|slice:":4" == "http" %} target="_blank" rel="noopener"{% endif %}>{% endif %}
+            <div class="feature"><div>
                 <div class="svg-wrap">
                     {% if service.custom_icon %}
                     <img src="{{ service.custom_icon.url }}" alt="{{ service.title_en }}" class="am-icon-raster" style="width:44px;height:44px;object-fit:contain;">
@@ -58,7 +60,9 @@
                     {% endif %}
                 </div>
                 <h3>{% get_title service %}</h3><p>{% get_description service %}</p>
-            </div></div></div>
+            </div></div>
+            {% if service.url %}</a>{% endif %}
+            </div>
             {% endfor %}
         </div>
     </div>

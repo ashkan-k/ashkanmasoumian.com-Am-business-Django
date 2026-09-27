@@ -7,10 +7,10 @@
     <div class="container">
         <div class="row align-items-center v-h-full">
             <div class="col-lg-10 col-xxl-6">
-                <h1 class="heading-2 text-white mb-4" data-aos="fade-up" style="color:#e2a83e !important;">
+                <h1 class="heading-2 text-white" data-aos="fade-up" style="color:#e2a83e !important; margin-bottom:0.5rem;">
                     {% if hero %}{% get_heading hero %}{% else %}AM BUSINESS{% endif %}
                 </h1>
-                <p class="subheading text-white mb-5" data-aos="fade-up" data-aos-delay="100" style="font-size:22px; color:#fff !important; text-transform:none; letter-spacing:0;">
+                <p class="subheading text-white" data-aos="fade-up" data-aos-delay="100" style="font-size:53px; font-weight:100; color:#fff !important; text-transform:none; letter-spacing:0; margin-bottom:1rem;">
                     {% if hero %}{% get_subheading hero %}{% else %}{% tr "From Vision To Success" "از بینش تا موفقیت" "من الرؤية إلى النجاح" %}{% endif %}
                 </p>
                 {% if hero %}
@@ -82,7 +82,10 @@
         <div class="row">
             <div class="col-lg-6 mb-5 am-section" style="--am-heading-default:#222222;--am-text-default:#e2a83e;">
                 {% with s=sections.services %}
-                <span class="subheading am-section-subheading">{% sec_text s "subheading" "Services" "خدمات" "الخدمات" %}</span>
+                {# The eyebrow line above the title stays hidden until the editor
+                   fills in "Subheading" on the Sections & Backgrounds page. #}
+                {% sec_text s "subheading" "" as services_eyebrow %}
+                {% if services_eyebrow %}<span class="subheading am-section-subheading">{{ services_eyebrow }}</span>{% endif %}
                 <h2 class="heading am-section-title">{% sec_text s "title" "Our Services" "خدمات ما" "خدماتنا" %}</h2>
                 {% sec_text s "subtitle" "" as services_sub %}{% if services_sub %}<p class="am-section-subtitle" style="--am-text-default:#555555;">{{ services_sub }}</p>{% endif %}
                 {% endwith %}
@@ -91,6 +94,7 @@
         <div class="row features-wrap">
             {% for service in services %}
             <div class="col-md-6 col-lg-4 col-xl-{{ service_columns|default:3 }}">
+                {% if service.url %}<a class="feature-link" href="{{ service.url }}"{% if service.url|slice:":4" == "http" %} target="_blank" rel="noopener"{% endif %}>{% endif %}
                 <div class="feature"><div>
                     <div class="svg-wrap">
                         {% if service.custom_icon %}
@@ -106,6 +110,7 @@
                     <h3>{% get_title service %}</h3>
                     <p>{% get_description service %}</p>
                 </div></div>
+                {% if service.url %}</a>{% endif %}
             </div>
             {% endfor %}
         </div>
@@ -122,7 +127,10 @@
             <div class="row">
                 <div class="col-lg-6 align-self-center mb-5 mb-lg-0">
                     <div class="text-wrap">
-                        <span class="subheading am-section-subheading">{% sec_text s "subheading" "Why AM Business" "چرا ما" "لماذا إي إم بيزنس" %}</span>
+                        {# The eyebrow stays hidden until "Subheading" is filled in
+                           on the Sections & Backgrounds page. #}
+                        {% sec_text s "subheading" "" as why_eyebrow %}
+                        {% if why_eyebrow %}<span class="subheading am-section-subheading">{{ why_eyebrow }}</span>{% endif %}
                         <h2 class="heading mb-4 am-section-title" style="font-size:40px;">
                             {% sec_text s "title" "" as why_custom_title %}{% if why_custom_title %}{{ why_custom_title }}{% else %}{% tr "Why AM Business?" "چرا ای ام بیزینس؟" "لماذا إي إم بيزنس؟" %}{% endif %}
                         </h2>
@@ -176,8 +184,11 @@
     <div class="container am-section-inner">
         <div class="row mb-5">
             <div class="col-12 text-center">
-                <h3 class="subheading am-section-subheading">{% sec_text s "subheading" "Prices for everyone" "قیمت‌گذاری برای همه" "أسعار تناسب الجميع" %}</h3>
-                <h2 class="heading am-section-title">{% sec_text s "title" "Pricing" "قیمت‌گذاری" "الأسعار" %}</h2>
+                {# The eyebrow stays hidden until "Subheading" is filled in on the
+                   Sections & Backgrounds page. #}
+                {% sec_text s "subheading" "" as pricing_eyebrow %}
+                {% if pricing_eyebrow %}<h3 class="subheading am-section-subheading">{{ pricing_eyebrow }}</h3>{% endif %}
+                <h2 class="heading am-section-title">{% sec_text s "title" "Packages" "بسته‌ها" "الحزم" %}</h2>
                 {% sec_text s "subtitle" "" as pricing_sub %}{% if pricing_sub %}<p class="am-section-subtitle">{{ pricing_sub }}</p>{% endif %}
             </div>
         </div>

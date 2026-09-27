@@ -2,6 +2,20 @@
 {% load i18n_custom %}
 {% load jalali_filters %}
 {% block content %}
+{% comment %}
+The newsletter block's wording is a section like any other, so point editors at
+the page that owns it instead of leaving them hunting for it here.
+{% endcomment %}
+<div class="card" style="background:var(--bg-secondary,#f8f9fa);border:1px solid var(--border,#e2e8f0);margin-bottom:20px;">
+    <div style="padding:14px 20px;display:flex;align-items:flex-start;gap:12px;">
+        <i class="ph ph-megaphone" style="font-size:22px;color:var(--accent,#6366f1);flex-shrink:0;margin-top:2px;"></i>
+        <p style="margin:0;color:var(--text-secondary,#666);line-height:1.6;">
+            {% tr "This page lists the subscribers. The wording of the newsletter block — its title and description — is edited on the" "این صفحه فهرست مشترکین است. متن نوار خبرنامه (عنوان و توضیح آن) در صفحه" "تعرض هذه الصفحة المشتركين. أما نص النشرة — عنوانها ووصفها — فيُعدَّل في" %}
+            <a href="{% url 'admin_sections' %}" style="color:var(--accent,#6366f1);font-weight:600;text-decoration:underline;">{% tr "Sections & Backgrounds" "بخش‌ها و پس‌زمینه‌ها" "الأقسام والخلفيات" %}</a>
+            {% tr "page, on the «Newsletter» row." "ویرایش می‌شود، در ردیف «خبرنامه»." "صفحة، في صف «النشرة البريدية»." %}
+        </p>
+    </div>
+</div>
 <div class="card">
     <div class="card-header">
         <h3>{% tr "Newsletter Subscribers" "مشترکین خبرنامه" "مشتركو النشرة البريدية" %} <span class="badge badge-accent">{{ items|length }}</span></h3>

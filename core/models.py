@@ -369,6 +369,9 @@ class Service(TimestampedModel):
     custom_icon = models.ImageField(upload_to="services/icons/", blank=True, null=True, verbose_name="Custom Icon Image",
                                     help_text="Upload a custom icon image (overrides icon selection)")
     image = models.ImageField(upload_to="services/", blank=True, null=True, verbose_name="Image")
+    url = models.CharField(max_length=500, blank=True, default="", verbose_name="Link URL",
+                           help_text="Optional — makes the whole card a link, for example "
+                                     "/page/portfolio/ or https://example.com")
     is_active = models.BooleanField(default=True, verbose_name="Is Active")
     order = models.PositiveIntegerField(default=0, verbose_name="Order")
     slug = models.SlugField(max_length=200, unique=True, blank=True, verbose_name="Slug")
