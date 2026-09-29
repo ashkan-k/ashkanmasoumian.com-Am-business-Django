@@ -559,16 +559,27 @@ class Feature(TimestampedModel):
 
 
 class PricingPlan(TimestampedModel):
-    """Pricing plans"""
+    """Pricing / package cards.
+
+    The visible "price" line is free text (``price_text_*``) so editors can
+    write amounts, ranges, "Contact us", option lists, etc.  The legacy
+    ``price`` / ``currency`` / ``cents`` fields are kept only as a fallback
+    for older rows that have not been migrated yet.
+    """
     name_en = models.CharField(max_length=200, verbose_name="Name (EN)")
     name_fa = models.CharField(max_length=200, verbose_name="Name (FA)")
     name_ar = models.CharField(max_length=200, blank=True, default="", verbose_name="Name (AR)")
     description_en = models.TextField(verbose_name="Description (EN)")
     description_fa = models.TextField(verbose_name="Description (FA)")
     description_ar = models.TextField(blank=True, default="", verbose_name="Description (AR)")
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Price")
-    currency = models.CharField(max_length=10, default="$", verbose_name="Currency")
-    cents = models.CharField(max_length=5, default=".99", verbose_name="Cents")
+    price_text_en = models.CharField(max_length=300, blank=True, default="", verbose_name="Price / Options (EN)",
+                                     help_text="Free text shown on the card — e.g. \"$975\", \"From $500\", or an options line.")
+    price_text_fa = models.CharField(max_length=300, blank=True, default="", verbose_name="Price / Options (FA)")
+    price_text_ar = models.CharField(max_length=300, blank=True, default="", verbose_name="Price / Options (AR)")
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, default=None,
+                                verbose_name="Price (legacy)")
+    currency = models.CharField(max_length=10, blank=True, default="", verbose_name="Currency (legacy)")
+    cents = models.CharField(max_length=5, blank=True, default="", verbose_name="Cents (legacy)")
     is_popular = models.BooleanField(default=False, verbose_name="Is Popular (Highlighted)")
     button_text_en = models.CharField(max_length=100, default="Buy", verbose_name="Button Text (EN)")
     button_text_fa = models.CharField(max_length=100, default="خرید", verbose_name="Button Text (FA)")
@@ -583,7 +594,10 @@ class PricingPlan(TimestampedModel):
         ordering = ["order"]
 
     def __str__(self):
-        return f"{self.name_en} - {self.currency}{self.price}"
+        label = (self.price_text_en or "").strip()
+        if not label and self.price is not None:
+            label = f"{self.currency}{self.price}{self.cents}"
+        return f"{self.name_en} - {label}" if label else self.name_en
 
     def get_name(self, lang='en'):
         return pick_lang(self, "name", lang)
@@ -593,6 +607,15 @@ class PricingPlan(TimestampedModel):
 
     def get_button_text(self, lang='en'):
         return pick_lang(self, "button_text", lang)
+
+    def get_price_text(self, lang='en'):
+        """Visible price/options line for the active language."""
+        value = pick_lang(self, "price_text", lang)
+        if value:
+            return value
+        if self.price is not None:
+            return f"{self.currency or ''}{self.price:g}{self.cents or ''}"
+        return ""
 
 
 class Testimonial(TimestampedModel):

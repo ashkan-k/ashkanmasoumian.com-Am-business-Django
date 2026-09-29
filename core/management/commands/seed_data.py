@@ -263,6 +263,12 @@ Outcome-Oriented Partnership: We focus on business value and meaningful outcomes
             },
         )
         backfilled += len(filled)
+        _obj, _created, filled = upsert(
+            HomeSection,
+            {"section_type": "home_why"},
+            {"is_active": True},
+        )
+        backfilled += len(filled)
         self.stdout.write("  Home Sections: created")
 
         # ── Section headings ──
@@ -365,6 +371,7 @@ Outcome-Oriented Partnership: We focus on business value and meaningful outcomes
                 {
                     "name_fa": n_fa, "name_ar": n_ar,
                     "description_en": d_en, "description_fa": d_fa, "description_ar": d_ar,
+                    "price_text_en": f"${price}.99", "price_text_fa": f"${price}.99", "price_text_ar": f"${price}.99",
                     "price": price, "currency": "$", "cents": ".99",
                     "button_text_en": "Get Started", "button_text_fa": "شروع کنید",
                     "button_text_ar": "ابدأ الآن",

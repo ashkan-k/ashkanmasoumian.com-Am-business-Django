@@ -93,7 +93,10 @@ def frontend_home(request):
         "service_columns": grid_columns(len(services)),
         "about": AboutSection.objects.filter(is_active=True).first(),
         "home_about": HomeSection.objects.filter(section_type="home_about", is_active=True).first(),
-        "home_why": HomeSection.objects.filter(section_type="home_why", is_active=True).first(),
+        "home_why": (
+            HomeSection.objects.filter(section_type="home_why", is_active=True).first()
+            or HomeSection.objects.filter(section_type="home_why").first()
+        ),
         "pricing_plans": plans,
         # One column per plan, so four plans in the dashboard show as four cards.
         "plan_columns": 12 // max(1, min(len(plans), 4)) if plans else 4,

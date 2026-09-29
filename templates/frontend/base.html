@@ -16,9 +16,9 @@
     <link rel="stylesheet" href="{% static 'frontend/fonts/icomoon/style.css' %}">
     <link rel="stylesheet" href="{% static 'frontend/css/tiny-slider.css' %}">
     <link rel="stylesheet" href="{% static 'frontend/css/aos.css' %}">
-    <link rel="stylesheet" href="{% static 'frontend/css/style.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'frontend/css/style.css' %}?v=4">
     {% if is_rtl %}
-    <link rel="stylesheet" href="{% static 'frontend/css/rtl.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'frontend/css/rtl.css' %}?v=4">
     {% endif %}
     <!-- Theme palette + section background helpers (kept in one place so the
          dashboard colour fields and the CSS below always agree). -->
@@ -179,6 +179,243 @@
             background-color: #ffffff;
             color: var(--am-purple);
         }
+
+        /* ── Hero typography ─────────────────────────────────────────── */
+        .am-hero-title {
+            font-size: 85px;
+            font-weight: 655;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        .am-hero-tagline {
+            font-size: 53px;
+            font-weight: 100;
+            color: #fff !important;
+            text-transform: none;
+            letter-spacing: 0;
+            margin-bottom: 1rem;
+        }
+        .am-hero-btn {
+            font-size: 14px !important;
+            padding: 12px 28px !important;
+        }
+        @media (max-width: 991.98px) {
+            .am-hero-title { font-size: 56px; }
+            .am-hero-tagline { font-size: 32px; }
+        }
+        @media (max-width: 575.98px) {
+            .am-hero-title { font-size: 40px; }
+            .am-hero-tagline { font-size: 24px; }
+        }
+
+        /* About Read More — solid brand fill */
+        .am-about-btn.btn-primary-gradient:after {
+            background-color: #290734;
+        }
+
+        /* Why block: undo the theme's 200px text-wrap shrink so width
+           matches the About section above, and lay out six points in two
+           columns. */
+        .am-why-section .am-why-copy,
+        .am-why-section .text-wrap {
+            margin-right: 0 !important;
+            margin-left: 0 !important;
+            max-width: none;
+        }
+        .am-why-item {
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 0;
+            color: var(--am-text, var(--am-text-default, #555));
+        }
+        .am-why-item strong {
+            color: var(--am-heading, var(--am-heading-default, #222));
+            display: inline;
+        }
+        .am-why-custom {
+            font-size: 15px;
+            line-height: 1.85;
+        }
+        .am-why-image {
+            width: 100%;
+            object-fit: cover;
+        }
+
+        /* Team: breathe away from the section above + card layout */
+        .section-6 .am-team-section {
+            margin-top: 3rem;
+            padding-bottom: 4rem;
+        }
+        .am-team-card {
+            text-align: left;
+        }
+        [dir="rtl"] .am-team-card { text-align: right; }
+        .am-team-photo {
+            margin-bottom: 1.25rem;
+            border-radius: 12px;
+            overflow: hidden;
+            max-height: 280px;
+        }
+        .am-team-photo img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Footer — three-column layout */
+        .am-footer {
+            position: relative;
+            background-color: #f7f4ef;
+            padding: 4.5rem 0 2rem;
+            font-size: 15px;
+            color: #4a4a4a;
+        }
+        .am-footer-pattern {
+            position: absolute;
+            inset: 0;
+            background-image: url("{% static 'frontend/images/patterns/pattern-footer.png' %}");
+            background-size: 380px;
+            background-repeat: repeat;
+            opacity: 0.07;
+            pointer-events: none;
+        }
+        .am-footer-inner {
+            position: relative;
+            z-index: 1;
+        }
+        .am-footer-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1.4fr 1.5fr;
+            gap: 2rem;
+            align-items: start;
+        }
+        @media (max-width: 991.98px) {
+            .am-footer-grid {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+                text-align: center;
+            }
+        }
+        .am-footer-brand {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        @media (max-width: 991.98px) {
+            .am-footer-brand { align-items: center; }
+        }
+        .am-footer-brand img {
+            max-height: 64px;
+            width: auto;
+        }
+        .am-footer-brand-name {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #c4912e;
+            margin: 0;
+        }
+        .am-footer-col-title {
+            display: none;
+        }
+        .am-footer-links {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.65rem 1.5rem;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        @media (max-width: 991.98px) {
+            .am-footer-links { display: inline-grid; text-align: left; }
+            [dir="rtl"] .am-footer-links { text-align: right; }
+        }
+        .am-footer-links a {
+            color: #4a4a4a;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .am-footer-links a:hover { color: #c4912e; }
+        .am-footer-contact {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem 1.25rem;
+        }
+        @media (max-width: 575.98px) {
+            .am-footer-contact { grid-template-columns: 1fr; }
+        }
+        .am-footer-contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #4a4a4a;
+            text-decoration: none;
+            min-width: 0;
+        }
+        .am-footer-contact-item:hover { color: #c4912e; }
+        .am-footer-contact-icon {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #c4912e;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .am-footer-contact-icon img {
+            width: 18px;
+            height: 18px;
+            object-fit: contain;
+        }
+        .am-footer-contact-text {
+            font-size: 14px;
+            line-height: 1.35;
+            word-break: break-word;
+        }
+        .am-footer-divider {
+            border: 0;
+            border-top: 1px solid rgba(196, 145, 46, 0.35);
+            margin: 2.5rem 0 1.25rem;
+        }
+        .am-footer-copy {
+            color: #6b6b6b;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 0;
+        }
+        .am-footer-copy small {
+            display: block;
+            margin-top: 0.25rem;
+            color: #8a8a8a;
+            font-size: 12px;
+        }
+        @media (max-width: 991.98px) {
+            .am-footer-copy { text-align: center; }
+        }
+
+        .am-footer-sep {
+            display: none;
+        }
+        @media (min-width: 992px) {
+            .am-footer-grid > * {
+                position: relative;
+            }
+            .am-footer-grid > *:not(:last-child)::after {
+                content: "";
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                {% if is_rtl %}left{% else %}right{% endif %}: -1rem;
+                width: 1px;
+                background: rgba(196, 145, 46, 0.35);
+            }
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -337,9 +574,9 @@
     <!-- Newsletter -->
     {% block newsletter %}
     {% with s=sections.newsletter %}
-    <div class="section section-contact m-md-5 px-md-5 am-section am-newsletter-section" style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#efefef{% endif %};--am-heading-default:#222222;--am-text-default:#666666;{% sec_bg_style s %}">
+    <div class="section section-contact m-md-5 px-md-5 am-section am-newsletter-section" style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#efefef{% endif %};{% if s.background_image %}background-image:url('{{ s.background_image.url }}');background-size:cover;background-position:center;{% endif %}--am-heading-default:#222222;--am-text-default:#666666;{% sec_bg_style s %}">
         {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
-        {% if s.overlay %}<div class="am-section-overlay"></div>{% endif %}
+        {% if s.overlay and s.overlay_opacity %}<div class="am-section-overlay"></div>{% endif %}
         <div class="container am-section-inner">
             <h2 class="am-section-title">{% sec_text s "title" "Subscribe to Newsletter" "عضویت در خبرنامه" "الاشتراك في النشرة البريدية" %}</h2>
             <p class="am-section-subtitle">{% sec_text s "subtitle" "Stay updated with our latest news" "از آخرین اخبار ما باخبر شوید" "ابقَ على اطلاع بآخر أخبارنا" %}</p>
@@ -367,77 +604,76 @@
     {% endblock newsletter %}
 
     <!-- Footer -->
-    <div class="section footer" style="position:relative; background-color:#fff;">
-        <div class="footer-pattern-bg" style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:url('{% static 'frontend/images/patterns/pattern-footer.png' %}');background-size:400px;background-repeat:repeat;opacity:0.05;pointer-events:none;"></div>
-        <div class="container text-center" style="position:relative;z-index:1;">
-            <div class="row mb-4">
-                <div class="col-lg-8 mx-auto">
-                    <h4 style="font-weight:700;margin-bottom:15px;">{% site_field "site_name" as footer_site_name %}{{ footer_site_name|default:"AM Business" }}</h4>
-                    {# Fallback copy per language, used when no meta description is stored #}
-                    {% if lang == 'ar' %}
-                    {% site_field "meta_description" as footer_desc %}
-                    <p style="color:#666;margin-bottom:20px;">{{ footer_desc|default:"شركة متكاملة لنمو الأعمال والتحول مقرها مسقط، عُمان." }}</p>
-                    {% elif lang == 'fa' %}
-                    {% site_field "meta_description" as footer_desc %}
-                    <p style="color:#666;margin-bottom:20px;">{{ footer_desc|default:"شرکت یکپارچه رشد و تحول کسب و کار در مسقط، عمان." }}</p>
-                    {% else %}
-                    <p style="color:#666;margin-bottom:20px;">{% site_field "meta_description" as footer_desc %}{{ footer_desc|default:"Integrated business growth and transformation company based in Muscat, Oman." }}</p>
+    <div class="am-footer">
+        <div class="am-footer-pattern" aria-hidden="true"></div>
+        <div class="container am-footer-inner">
+            <div class="am-footer-grid">
+                <div class="am-footer-brand">
+                    {% if site_settings and site_settings.logo %}
+                    <img src="{{ site_settings.logo.url }}" alt="{% site_name %}">
+                    {% endif %}
+                    <p class="am-footer-brand-name">{% site_name %}</p>
+                </div>
+
+                <div>
+                    <ul class="am-footer-links">
+                        {% for item in nav_items %}
+                        <li><a href="{% if item.url != '#' %}{{ item.url }}{% else %}#{% endif %}">{% get_nav_title item %}</a></li>
+                        {% empty %}
+                        <li><a href="{% url 'frontend_about' %}">{% tr "About" "درباره ما" "من نحن" %}</a></li>
+                        <li><a href="{% url 'frontend_contact' %}">{% tr "Contact" "تماس" "اتصل بنا" %}</a></li>
+                        <li><a href="{% url 'frontend_services' %}">{% tr "Services" "خدمات" "الخدمات" %}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="am-footer-contact">
+                    {% if site_settings %}
+                    {% if site_settings.footer_phone %}
+                    <a class="am-footer-contact-item" href="tel:{{ site_settings.footer_phone|cut:' ' }}">
+                        <span class="am-footer-contact-icon"><span class="icon-phone"></span></span>
+                        <span class="am-footer-contact-text">{{ site_settings.footer_phone }}</span>
+                    </a>
+                    {% endif %}
+                    {% if site_settings.footer_email %}
+                    <a class="am-footer-contact-item" href="mailto:{{ site_settings.footer_email }}">
+                        <span class="am-footer-contact-icon"><span class="icon-envelope"></span></span>
+                        <span class="am-footer-contact-text">{{ site_settings.footer_email }}</span>
+                    </a>
+                    {% endif %}
+                    {% if site_settings.footer_instagram %}
+                    <a class="am-footer-contact-item" href="https://instagram.com/{{ site_settings.footer_instagram }}" target="_blank" rel="noopener">
+                        <span class="am-footer-contact-icon"><span class="icon-instagram"></span></span>
+                        <span class="am-footer-contact-text">@{{ site_settings.footer_instagram }}</span>
+                    </a>
+                    {% endif %}
+                    {% if site_settings.footer_location %}
+                    <a class="am-footer-contact-item" href="https://maps.google.com/?q={{ site_settings.footer_location|urlencode }}" target="_blank" rel="noopener">
+                        <span class="am-footer-contact-icon"><span class="icon-pin_drop"></span></span>
+                        <span class="am-footer-contact-text">{{ site_settings.footer_location }}</span>
+                    </a>
+                    {% endif %}
+                    {% if site_settings.footer_linkedin %}
+                    <a class="am-footer-contact-item" href="https://linkedin.com/company/{{ site_settings.footer_linkedin }}" target="_blank" rel="noopener">
+                        <span class="am-footer-contact-icon"><span class="icon-linkedin"></span></span>
+                        <span class="am-footer-contact-text">{{ site_settings.footer_linkedin }}</span>
+                    </a>
+                    {% endif %}
+                    {% if site_settings.footer_whatsapp %}
+                    <a class="am-footer-contact-item" href="https://wa.me/{{ site_settings.footer_whatsapp|cut:' '|cut:'+' }}" target="_blank" rel="noopener">
+                        <span class="am-footer-contact-icon"><span class="icon-whatsapp"></span></span>
+                        <span class="am-footer-contact-text">{{ site_settings.footer_whatsapp }}</span>
+                    </a>
+                    {% endif %}
                     {% endif %}
                 </div>
             </div>
 
-            <div class="row mb-4">
-                <div class="col-lg-8 mx-auto">
-                    <ul class="social list-unstyled" style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
-                        {% comment %}
-                        Links managed on the "Social Links" page. When that list is
-                        empty we fall back to the individual Footer fields below, so
-                        an untouched install looks exactly as it did before.
-                        {% endcomment %}
-                        {% for link in social_links %}
-                        <li>
-                            <a href="{{ link.url|default:'#' }}"
-                               {% if link.opens_new_tab %}target="_blank" rel="noopener"{% endif %}
-                               title="{{ link.get_platform_display }}">
-                                {% if link.icon_image %}
-                                <img src="{{ link.icon_image.url }}" alt="{{ link.get_platform_display }}"
-                                     style="width:20px;height:20px;object-fit:contain;">
-                                {% else %}
-                                <span class="{{ link.icon_css_class }}"></span>
-                                {% endif %}
-                            </a>
-                        </li>
-                        {% empty %}
-                        {% if site_settings.footer_phone or site_settings.footer_phone == '' %}
-                        <li><a href="tel:{{ site_settings.footer_phone|default:'+968 94 749 749' }}" title="{% tr 'Call us' 'تماس با ما' 'اتصل بنا' %}"><span class="icon-phone"></span></a></li>
-                        {% endif %}
-                        {% if site_settings.footer_location or site_settings.footer_location == '' %}
-                        <li><a href="https://maps.google.com/?q={{ site_settings.footer_location|default:'Murtafaat Al Matar, Al Seeb, Muscat Governorate' }}" target="_blank" title="{% tr 'Location' 'موقعیت' 'الموقع' %}"><span class="icon-pin_drop"></span></a></li>
-                        {% endif %}
-                        {% if site_settings.footer_linkedin or site_settings.footer_linkedin == '' %}
-                        <li><a href="https://linkedin.com/company/{{ site_settings.footer_linkedin|default:'ambusinessintl' }}" target="_blank" title="LinkedIn"><span class="icon-linkedin"></span></a></li>
-                        {% endif %}
-                        {% if site_settings.footer_whatsapp or site_settings.footer_whatsapp == '' %}
-                        <li><a href="https://wa.me/{{ site_settings.footer_whatsapp|default:'+96894749749'|cut:' '|cut:'+' }}" target="_blank" title="WhatsApp"><span class="icon-whatsapp"></span></a></li>
-                        {% endif %}
-                        {% if site_settings.footer_instagram or site_settings.footer_instagram == '' %}
-                        <li><a href="https://instagram.com/{{ site_settings.footer_instagram|default:'ambusinessintl' }}" target="_blank" title="Instagram"><span class="icon-instagram"></span></a></li>
-                        {% endif %}
-                        {% if site_settings.footer_email or site_settings.footer_email == '' %}
-                        <li><a href="mailto:{{ site_settings.footer_email|default:'info@ambusinessintl.com' }}" title="{% tr 'Email' 'ایمیل' 'البريد الإلكتروني' %}"><span class="icon-envelope"></span></a></li>
-                        {% endif %}
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-12">
-                    <p style="color:#999;margin:0;font-size:14px;">
-                        &copy; {% now "Y" %} {% site_field "copyright_text" as footer_copyright %}{{ footer_copyright|default:"By Am Business Creative Division" }}
-                    </p>
-                </div>
-            </div>
+            <hr class="am-footer-divider">
+            <p class="am-footer-copy">
+                &copy; {% now "Y" %} {% site_field "copyright_text" as footer_copyright %}{{ footer_copyright|default:"AM Business" }}
+                <small>{% tr "We love our users!" "ما کاربرانمان را دوست داریم!" "نحن نحب مستخدمينا!" %}</small>
+            </p>
         </div>
     </div>
 

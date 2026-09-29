@@ -43,8 +43,7 @@
     </div>
 </div>
 
-{# Contact details from Site Settings → Contact. The block is skipped entirely
-   when none of the three is filled in, so the page keeps its old shape. #}
+{% comment %}Contact details from Site Settings. Skipped when none are filled.{% endcomment %}
 {% site_field "address" as contact_address %}
 {% if site_settings.phone or site_settings.email or contact_address %}
 <div class="section pt-0 m-md-5 px-md-5" style="margin-top:0;">

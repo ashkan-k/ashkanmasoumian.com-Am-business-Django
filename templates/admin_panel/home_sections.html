@@ -41,6 +41,9 @@
     <label class="form-label">{% tr "Image" "تصویر" "الصورة" %}</label>
     {% if item.image %}<div style="margin-bottom:4px"><img src="{{ item.image.url }}" class="image-preview"></div>{% endif %}
     <input type="file" name="image" class="form-control" accept="image/*">
+    {% if item.image %}
+    <label class="form-check" style="margin-top:8px;"><input type="checkbox" name="remove_image"><span>{% tr "Remove the current image" "حذف تصویر فعلی" "حذف الصورة الحالية" %}</span></label>
+    {% endif %}
     <small class="form-help">{% tr "Shown beside the text of this block. Leave it empty to keep the template picture." "کنار متن این بخش نمایش داده می‌شود. اگر خالی بماند، تصویر پیش‌فرض قالب استفاده می‌شود." "يظهر بجانب نص هذا القسم. اتركه فارغًا ليبقى صورة القالب." %}</small>
 </div>
 {% if "cta_text" in item.ui_text_fields %}

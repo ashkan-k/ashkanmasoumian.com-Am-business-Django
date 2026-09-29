@@ -7,19 +7,19 @@
     <div class="container">
         <div class="row align-items-center v-h-full">
             <div class="col-lg-10 col-xxl-6">
-                <h1 class="heading-2 text-white" data-aos="fade-up" style="color:#e2a83e !important; margin-bottom:0.5rem;">
+                <h1 class="heading-2 text-white am-hero-title" data-aos="fade-up" style="color:#e2a83e !important;">
                     {% if hero %}{% get_heading hero %}{% else %}AM BUSINESS{% endif %}
                 </h1>
-                <p class="subheading text-white" data-aos="fade-up" data-aos-delay="100" style="font-size:53px; font-weight:100; color:#fff !important; text-transform:none; letter-spacing:0; margin-bottom:1rem;">
+                <p class="subheading text-white am-hero-tagline" data-aos="fade-up" data-aos-delay="100">
                     {% if hero %}{% get_subheading hero %}{% else %}{% tr "From Vision To Success" "از بینش تا موفقیت" "من الرؤية إلى النجاح" %}{% endif %}
                 </p>
                 {% if hero %}
                 {% get_cta_text hero as cta %}
                 {% if cta %}
-                <p data-aos="fade-up" data-aos-delay="200"><a href="{{ hero.cta_url }}" class="btn btn-primary-gradient">{{ cta }}</a></p>
+                <p data-aos="fade-up" data-aos-delay="200"><a href="{{ hero.cta_url }}" class="btn btn-primary-gradient am-hero-btn">{{ cta }}</a></p>
                 {% endif %}
                 {% else %}
-                <p data-aos="fade-up" data-aos-delay="200"><a href="/contact/" class="btn btn-primary-gradient">{% tr "GET IN TOUCH" "تماس بگیرید" "تواصل معنا" %}</a></p>
+                <p data-aos="fade-up" data-aos-delay="200"><a href="/contact/" class="btn btn-primary-gradient am-hero-btn">{% tr "GET IN TOUCH" "تماس بگیرید" "تواصل معنا" %}</a></p>
                 {% endif %}
             </div>
         </div>
@@ -31,9 +31,9 @@
 
 <!-- About AM Business -->
 {% with s=sections.about_home %}
-<div class="section am-section am-about-section" style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#fff{% endif %};--am-heading-default:#222222;--am-text-default:#555555;{% sec_bg_style s %}">
+<div class="section am-section am-about-section" style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#fff{% endif %};{% if s.background_image %}background-image:url('{{ s.background_image.url }}');background-size:cover;background-position:center;{% endif %}--am-heading-default:#222222;--am-text-default:#555555;{% sec_bg_style s %}">
     {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
-    {% if s.overlay %}<div class="am-section-overlay"></div>{% endif %}
+    {% if s.overlay and s.overlay_opacity %}<div class="am-section-overlay"></div>{% endif %}
     <div class="container am-section-inner">
         <div class="row align-items-center">
             <div class="col-lg-6 mb-5 mb-lg-0">
@@ -57,7 +57,7 @@
                     </p>
                     <p class="mt-5">
                         {% get_cta_text home_about as about_cta %}
-                        <a href="{% if home_about and home_about.cta_url and home_about.cta_url != '#' %}{{ home_about.cta_url }}{% else %}/about/{% endif %}" class="btn btn-primary-gradient">
+                        <a href="{% if home_about and home_about.cta_url and home_about.cta_url != '#' %}{{ home_about.cta_url }}{% else %}/about/{% endif %}" class="btn btn-primary-gradient am-about-btn">
                             {% if about_cta %}{{ about_cta }}{% else %}{% tr "Read More" "بیشتر بخوانید" "اقرأ المزيد" %}{% endif %}
                         </a>
                     </p>
@@ -76,19 +76,19 @@
 {% endwith %}
 
 <!-- Services -->
-<div class="section section-3">
+{% with s=sections.services %}
+<div class="section section-3 am-section am-services-section"
+     style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#efefef{% endif %};{% if s.background_image %}background-image:url('{{ s.background_image.url }}');background-size:cover;background-position:center;{% endif %}--am-heading-default:#222222;--am-text-default:#e2a83e;{% sec_bg_style s %}">
+    {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
+    {% if s.overlay and s.overlay_opacity %}<div class="am-section-overlay"></div>{% endif %}
     {% if services %}
-    <div class="container">
+    <div class="container am-section-inner">
         <div class="row">
-            <div class="col-lg-6 mb-5 am-section" style="--am-heading-default:#222222;--am-text-default:#e2a83e;">
-                {% with s=sections.services %}
-                {# The eyebrow line above the title stays hidden until the editor
-                   fills in "Subheading" on the Sections & Backgrounds page. #}
+            <div class="col-lg-6 mb-5">
                 {% sec_text s "subheading" "" as services_eyebrow %}
                 {% if services_eyebrow %}<span class="subheading am-section-subheading">{{ services_eyebrow }}</span>{% endif %}
                 <h2 class="heading am-section-title">{% sec_text s "title" "Our Services" "خدمات ما" "خدماتنا" %}</h2>
-                {% sec_text s "subtitle" "" as services_sub %}{% if services_sub %}<p class="am-section-subtitle" style="--am-text-default:#555555;">{{ services_sub }}</p>{% endif %}
-                {% endwith %}
+                {% sec_text s "subtitle" "" as services_sub %}{% if services_sub %}<p class="am-section-subtitle" style="--am-text-default:#555555;color:var(--am-text, var(--am-text-default, #555));">{{ services_sub }}</p>{% endif %}
             </div>
         </div>
         <div class="row features-wrap">
@@ -117,51 +117,56 @@
     </div>
     {% endif %}
 
-    <!-- Why AM Business (its own editable section) -->
+    <!-- Why AM Business (nested in section-3 so the white box overlap styles apply) -->
     {% if sections.why or about %}
     {% with s=sections.why %}
-    <div class="box-white pt-5 p-md-5 mx-md-5 am-section am-why-section" style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#fff{% endif %};--am-heading-default:#222222;--am-text-default:#555555;{% sec_bg_style s %}">
+    <div class="box-white pt-5 p-md-5 mx-md-5 am-section am-why-section"
+         style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#fff{% endif %};{% if s.background_image %}background-image:url('{{ s.background_image.url }}');background-size:cover;background-position:center;{% endif %}--am-heading-default:#222222;--am-text-default:#555555;{% sec_bg_style s %}">
         {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
-        {% if s.overlay %}<div class="am-section-overlay"></div>{% endif %}
+        {% if s.overlay and s.overlay_opacity %}<div class="am-section-overlay"></div>{% endif %}
         <div class="container am-section-inner">
-            <div class="row">
+            <div class="row align-items-center">
                 <div class="col-lg-6 align-self-center mb-5 mb-lg-0">
-                    <div class="text-wrap">
-                        {# The eyebrow stays hidden until "Subheading" is filled in
-                           on the Sections & Backgrounds page. #}
+                    <div class="am-why-copy">
                         {% sec_text s "subheading" "" as why_eyebrow %}
                         {% if why_eyebrow %}<span class="subheading am-section-subheading">{{ why_eyebrow }}</span>{% endif %}
                         <h2 class="heading mb-4 am-section-title" style="font-size:40px;">
                             {% sec_text s "title" "" as why_custom_title %}{% if why_custom_title %}{{ why_custom_title }}{% else %}{% tr "Why AM Business?" "چرا ای ام بیزینس؟" "لماذا إي إم بيزنس؟" %}{% endif %}
                         </h2>
-                        <div class="am-section-text" style="line-height:2;">
+                        <div class="am-section-text am-why-points">
                             {% sec_text s "subtitle" "" as why_custom_text %}
                             {% if why_custom_text %}
-                            {{ why_custom_text|linebreaks }}
+                            {% with points=why_custom_text|why_points %}
+                            {% if points|length > 1 %}
+                            <div class="row g-4">
+                                {% for point in points %}
+                                <div class="col-md-6"><p class="am-why-item">{{ point }}</p></div>
+                                {% endfor %}
+                            </div>
                             {% else %}
-                            <p><strong style="color:#222;">{% tr "Research Before Recommendation" "تحقیق قبل از توصیه" "البحث قبل التوصية" %}</strong><br>
-                            {% tr "We understand the business, market, and challenge before recommending a solution." "ما کسب و کار، بازار و چالش را قبل از ارائه راهکار درک می‌کنیم." "نفهم النشاط والسوق والتحدي قبل أن نقترح حلًا." %}</p>
-                            <p><strong style="color:#222;">{% tr "Strategy Before Execution" "استراتژی قبل از اجرا" "الاستراتيجية قبل التنفيذ" %}</strong><br>
-                            {% tr "Execution follows a clear direction and business logic." "اجرا از مسیر منطقی و منطق کسب و کار پیروی می‌کند." "التنفيذ يتبع اتجاهًا واضحًا ومنطقًا تجاريًا." %}</p>
-                            <p><strong style="color:#222;">{% tr "Integrated Capabilities" "قابلیت‌های یکپارچه" "قدرات متكاملة" %}</strong><br>
-                            {% tr "Strategy, creative, marketing, digital, and AI capabilities work together as one coordinated solution." "استراتژی، خلاقیت، بازاریابی، دیجیتال و هوش مصنوعی به صورت یکپارچه کار می‌کنند." "الاستراتيجية والإبداع والتسويق والرقمي والذكاء الاصطناعي تعمل كحل واحد منسّق." %}</p>
-                            <p><strong style="color:#222;">{% tr "Business-First Creativity" "خلاقیت اول کسب و کار" "إبداع يخدم الأعمال أولًا" %}</strong><br>
-                            {% tr "Creative work is designed to serve a business purpose." "طراحی خلاقانه برای خدمت به هدف کسب و کار است." "العمل الإبداعي مصمم لخدمة هدف تجاري." %}</p>
-                            <p><strong style="color:#222;">{% tr "Practical Digital & AI" "دیجیتال و هوش مصنوعی کاربردی" "الرقمي والذكاء الاصطناعي العملي" %}</strong><br>
-                            {% tr "Technology and AI are applied where they can improve efficiency, decision-making, customer experience, or scalability." "فناوری و هوش مصنوعی در جایی استفاده می‌شوند که بهره‌وری را بهبود دهند." "تُستخدم التقنية والذكاء الاصطناعي حيث تحسّن الكفاءة أو اتخاذ القرار أو تجربة العميل أو قابلية التوسع." %}</p>
-                            <p><strong style="color:#222;">{% tr "Outcome-Oriented Partnership" "مشارکت نتیجه‌محور" "شراكة موجّهة بالنتائج" %}</strong><br>
-                            {% tr "We focus on business value and meaningful outcomes with a long-term perspective." "ما بر ارزش کسب و کار و نتایج معنادار تمرکز داریم." "نركّز على قيمة الأعمال والنتائج الملموسة بمنظور طويل الأمد." %}</p>
+                            <div class="am-why-custom">{{ why_custom_text|linebreaks }}</div>
+                            {% endif %}
+                            {% endwith %}
+                            {% else %}
+                            <div class="row g-4">
+                                <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Research Before Recommendation" "تحقیق قبل از توصیه" "البحث قبل التوصية" %}:</strong> {% tr "We understand the business, market, and challenge before recommending a solution." "ما کسب و کار، بازار و چالش را قبل از ارائه راهکار درک می‌کنیم." "نفهم النشاط والسوق والتحدي قبل أن نقترح حلًا." %}</p></div>
+                                <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Strategy Before Execution" "استراتژی قبل از اجرا" "الاستراتيجية قبل التنفيذ" %}:</strong> {% tr "Execution follows a clear direction and business logic." "اجرا از مسیر منطقی و منطق کسب و کار پیروی می‌کند." "التنفيذ يتبع اتجاهًا واضحًا ومنطقًا تجاريًا." %}</p></div>
+                                <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Integrated Capabilities" "قابلیت‌های یکپارچه" "قدرات متكاملة" %}:</strong> {% tr "Strategy, creative, marketing, digital, and AI capabilities work together as one coordinated solution." "استراتژی، خلاقیت، بازاریابی، دیجیتال و هوش مصنوعی به صورت یکپارچه کار می‌کنند." "الاستراتيجية والإبداع والتسويق والرقمي والذكاء الاصطناعي تعمل كحل واحد منسّق." %}</p></div>
+                                <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Business-First Creativity" "خلاقیت اول کسب و کار" "إبداع يخدم الأعمال أولًا" %}:</strong> {% tr "Creative work is designed to serve a business purpose." "طراحی خلاقانه برای خدمت به هدف کسب و کار است." "العمل الإبداعي مصمم لخدمة هدف تجاري." %}</p></div>
+                                <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Practical Digital & AI" "دیجیتال و هوش مصنوعی کاربردی" "الرقمي والذكاء الاصطناعي العملي" %}:</strong> {% tr "Technology and AI are applied where they can improve efficiency, decision-making, customer experience, or scalability." "فناوری و هوش مصنوعی در جایی استفاده می‌شوند که بهره‌وری را بهبود دهند." "تُستخدم التقنية والذكاء الاصطناعي حيث تحسّن الكفاءة أو اتخاذ القرار أو تجربة العميل أو قابلية التوسع." %}</p></div>
+                                <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Outcome-Oriented Partnership" "مشارکت نتیجه‌محور" "شراكة موجّهة بالنتائج" %}:</strong> {% tr "We focus on business value and meaningful outcomes with a long-term perspective." "ما بر ارزش کسب و کار و نتایج معنادار تمرکز داریم." "نركّز على قيمة الأعمال والنتائج الملموسة بمنظور طويل الأمد." %}</p></div>
+                            </div>
                             {% endif %}
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-6">
                     {% if home_why and home_why.image %}
-                    <img src="{{ home_why.image.url }}" alt="Why AM Business" class="img-fluid img-overlap" style="border-radius:8px;">
+                    <img src="{{ home_why.image.url }}?v={{ home_why.updated_at|date:'U' }}" alt="Why AM Business" class="img-fluid am-why-image" style="border-radius:8px;">
                     {% elif about and about.why_choose_us_image %}
-                    <img src="{{ about.why_choose_us_image.url }}" alt="Why AM Business" class="img-fluid img-overlap" style="border-radius:8px;">
+                    <img src="{{ about.why_choose_us_image.url }}?v={{ about.updated_at|date:'U' }}" alt="Why AM Business" class="img-fluid am-why-image" style="border-radius:8px;">
                     {% else %}
-                    <img src="{% static 'frontend/images/why-am-business.jpg' %}" alt="Why AM Business" class="img-fluid img-overlap" style="border-radius:8px;">
+                    <img src="{% static 'frontend/images/why-am-business.jpg' %}" alt="Why AM Business" class="img-fluid am-why-image" style="border-radius:8px;">
                     {% endif %}
                 </div>
             </div>
@@ -170,22 +175,22 @@
     {% endwith %}
     {% endif %}
 </div>
+{% endwith %}
 
 <!-- Pricing (every active plan in the dashboard is rendered) -->
 {% if pricing_plans %}
 {% with s=sections.pricing %}
-<div class="section section-pricing am-section am-pricing-section" style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#530e69{% endif %};--am-heading-default:#e2a83e;--am-text-default:rgba(255,255,255,0.8);{% sec_bg_style s %}">
+<div class="section section-pricing am-section am-pricing-section"
+     style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#530e69{% endif %};{% if s.background_image %}background-image:url('{{ s.background_image.url }}');background-size:cover;background-position:center;{% endif %}--am-heading-default:#e2a83e;--am-text-default:rgba(255,255,255,0.8);{% sec_bg_style s %}">
     {% if s.background_image %}
     <div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>
     {% elif s.show_pattern or not s %}
     <div class="am-section-pattern" style="background-image:url('{% static 'frontend/images/patterns/pattern-footer.svg' %}');background-size:300px;background-repeat:repeat;"></div>
     {% endif %}
-    {% if s.overlay %}<div class="am-section-overlay"></div>{% endif %}
+    {% if s.overlay and s.overlay_opacity %}<div class="am-section-overlay"></div>{% endif %}
     <div class="container am-section-inner">
         <div class="row mb-5">
             <div class="col-12 text-center">
-                {# The eyebrow stays hidden until "Subheading" is filled in on the
-                   Sections & Backgrounds page. #}
                 {% sec_text s "subheading" "" as pricing_eyebrow %}
                 {% if pricing_eyebrow %}<h3 class="subheading am-section-subheading">{{ pricing_eyebrow }}</h3>{% endif %}
                 <h2 class="heading am-section-title">{% sec_text s "title" "Packages" "بسته‌ها" "الحزم" %}</h2>
@@ -201,11 +206,10 @@
                             <h3 class="mb-4">{% get_name plan %}</h3>
                             <p class="mb-4">{% get_description plan %}</p>
                             <div class="line"></div>
-                            <div class="price mb-4">
-                                <span class="currency">{{ plan.currency }}</span>
-                                <span class="price">{{ plan.price|floatformat:0 }}</span>
-                                <span class="cents">{{ plan.cents }}</span>
-                            </div>
+                            {% get_price_text plan as plan_price %}
+                            {% if plan_price %}
+                            <div class="price-text mb-4" style="font-size:22px;font-weight:600;line-height:1.45;white-space:pre-line;">{{ plan_price }}</div>
+                            {% endif %}
                             <p><a href="{{ plan.button_url }}" class="btn btn-primary-outline white px-5">{% get_button_text plan %}</a></p>
                         </div>
                     </div>
@@ -289,22 +293,24 @@
 
     {% if team_members %}
     {% with s=sections.team %}
-    <div class="container am-section am-team-section" style="{% if s.bg_color %}background-color:{{ s.bg_color }};{% endif %}--am-heading-default:#ffffff;--am-text-default:rgba(255,255,255,0.85);{% sec_bg_style s %}">
+    <div class="container am-section am-team-section"
+         style="padding-top:5rem;{% if s.bg_color %}background-color:{{ s.bg_color }};{% endif %}{% if s.background_image %}background-image:url('{{ s.background_image.url }}');background-size:cover;background-position:center;{% endif %}--am-heading-default:#ffffff;--am-text-default:rgba(255,255,255,0.85);{% sec_bg_style s %}">
         {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
-        {% if s.overlay %}<div class="am-section-overlay"></div>{% endif %}
-        <div class="row mb-5 am-section-inner"><div class="col-lg-7">
-            <h3 class="subheading am-section-subheading">{% sec_text s "subheading" "Team" "تیم" "الفريق" %}</h3>
+        {% if s.overlay and s.overlay_opacity %}<div class="am-section-overlay"></div>{% endif %}
+        <div class="row mb-5 am-section-inner"><div class="col-lg-8">
+            {% sec_text s "subheading" "" as team_eyebrow %}
+            {% if team_eyebrow %}<h3 class="subheading am-section-subheading">{{ team_eyebrow }}</h3>{% endif %}
             <h2 class="heading am-section-title">{% sec_text s "title" "Meet our team" "تیم ما را بشناسید" "تعرّف على فريقنا" %}</h2>
             {% sec_text s "subtitle" "" as team_sub %}{% if team_sub %}<p class="am-section-subtitle">{{ team_sub }}</p>{% endif %}
         </div></div>
-        <div class="row justify-content-center am-section-inner"><div class="col-lg-9"><div class="row justify-content-between">
+        <div class="row justify-content-center am-section-inner"><div class="col-lg-10"><div class="row justify-content-center am-team-grid">
             {% for member in team_members %}
-            <div class="col-lg-{{ team_columns }} mb-5 mb-lg-0">
-                <div class="team">
-                    {% if member.image %}<img src="{{ member.image.url }}" alt="{{ member.name }}" class="img-fluid">{% endif %}
+            <div class="col-md-6 col-lg-{{ team_columns }} mb-5">
+                <div class="team am-team-card">
+                    {% if member.image %}<div class="am-team-photo"><img src="{{ member.image.url }}" alt="{{ member.name }}" class="img-fluid"></div>{% endif %}
                     <h3>{{ member.name }}</h3>
                     <p class="position">{% get_position member %}</p>
-                    <p class="mb-4">{% get_bio member %}</p>
+                    <p class="mb-0">{% get_bio member %}</p>
                 </div>
             </div>
             {% endfor %}
@@ -313,51 +319,5 @@
     {% endwith %}
     {% endif %}
 </div>
-{% endif %}
-{% endblock %}
-
-{% block extra_js %}
-{% if countdown %}
-<script>
-(function() {
-    var timerEl = document.getElementById('countdown-timer');
-    if (!timerEl) return;
-    var eventDateStr = timerEl.dataset.eventDate;
-    if (!eventDateStr) return;
-    var eventDate = new Date(eventDateStr);
-
-    var daysEl = document.getElementById('cd-days');
-    var hoursEl = document.getElementById('cd-hours');
-    var minutesEl = document.getElementById('cd-minutes');
-    var secondsEl = document.getElementById('cd-seconds');
-    var endedEl = document.getElementById('countdown-ended');
-
-    function pad(n) { return n < 10 ? '0' + n : '' + n; }
-
-    function updateCountdown() {
-        var now = new Date().getTime();
-        var distance = eventDate.getTime() - now;
-
-        if (distance < 0) {
-            timerEl.style.display = 'none';
-            if (endedEl) endedEl.style.display = 'block';
-            return;
-        }
-
-        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        if (daysEl) daysEl.textContent = days;
-        if (hoursEl) hoursEl.textContent = pad(hours);
-        if (minutesEl) minutesEl.textContent = pad(minutes);
-        if (secondsEl) secondsEl.textContent = pad(seconds);
-    }
-
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-})();
-</script>
 {% endif %}
 {% endblock %}

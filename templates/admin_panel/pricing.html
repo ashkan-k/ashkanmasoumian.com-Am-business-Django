@@ -2,6 +2,16 @@
 {% load i18n_custom %}
 {% block content %}
 {% include "admin_panel/partials/_sections_hint.html" %}
+<div class="card" style="background:var(--bg-secondary,#f8f9fa);border:1px solid var(--border,#e2e8f0);margin-bottom:20px;">
+    <div style="padding:14px 20px;display:flex;align-items:flex-start;gap:12px;">
+        <i class="ph ph-info" style="font-size:22px;color:var(--accent,#6366f1);flex-shrink:0;margin-top:2px;"></i>
+        <p style="margin:0;color:var(--text-secondary,#666);line-height:1.6;">
+            {% tr "The section title defaults to «Packages». Change it (and the optional subheading) on the" "عنوان پیش‌فرض این بخش «Packages» است. برای تغییر عنوان (و زیرعنوان اختیاری) به صفحه" "عنوان القسم الافتراضي هو «Packages». غيّره (والعنوان الفرعي الاختياري) من" %}
+            <a href="{% url 'admin_sections' %}" style="color:var(--accent,#6366f1);font-weight:600;text-decoration:underline;">{% tr "Sections & Backgrounds" "بخش‌ها و پس‌زمینه‌ها" "الأقسام والخلفيات" %}</a>
+            {% tr "page. Each plan's price line is free text now — amounts, ranges, or option notes." "بروید. خط قیمت هر طرح اکنون متن آزاد است — مبلغ، بازه، یا توضیح گزینه‌ها." "صفحة. سطر السعر لكل خطة أصبح نصًا حرًا — مبلغ أو نطاق أو ملاحظات الخيارات." %}
+        </p>
+    </div>
+</div>
 <div class="card">
     <div class="card-header">
         <h3>{% tr "Pricing Plans" "قیمت‌گذاری" "الخطط السعرية" %}</h3>
@@ -17,7 +27,7 @@
                     <th>{% tr "Name (EN)" "نام (EN)" "الاسم (EN)" %}</th>
                     <th>{% tr "Name (FA)" "نام (FA)" "الاسم (FA)" %}</th>
                     <th>{% tr "Name (AR)" "نام (AR)" "الاسم (AR)" %}</th>
-                    <th>{% tr "Price" "قیمت" "السعر" %}</th>
+                    <th>{% tr "Price / Options" "قیمت / گزینه‌ها" "السعر / الخيارات" %}</th>
                     <th>{% tr "Popular" "محبوب" "مميّز" %}</th>
                     <th>{% tr "Status" "وضعیت" "الحالة" %}</th>
                     <th>{% tr "Actions" "عملیات" "الإجراءات" %}</th>
@@ -31,7 +41,7 @@
                     <td><strong>{{ item.name_en }}</strong></td>
                     <td dir="rtl">{{ item.name_fa }}</td>
                     <td dir="rtl">{{ item.name_ar|default:"—" }}</td>
-                    <td>{{ item.currency }}{{ item.price }}{{ item.cents }}</td>
+                    <td>{{ item.price_text_en|default:"—" }}</td>
                     <td>{% if item.is_popular %}<span class="badge badge-accent">{% tr "Popular" "محبوب" "مميّز" %}</span>{% else %}-{% endif %}</td>
                     <td>{% if item.is_active %}<span class="badge badge-success">{% tr "Active" "فعال" "مفعّل" %}</span>{% else %}<span class="badge badge-danger">{% tr "Inactive" "غیرفعال" "غير مفعّل" %}</span>{% endif %}</td>
                     <td>
@@ -55,9 +65,11 @@
 <div class="form-group"><label class="form-label">{% tr "Description (EN)" "توضیحات (EN)" "الوصف (EN)" %}</label><textarea name="description_en" class="form-control" rows="2" required></textarea></div>
 <div class="form-group"><label class="form-label">{% tr "Description (FA)" "توضیحات (FA)" "الوصف (FA)" %}</label><textarea name="description_fa" class="form-control" rows="2" required dir="rtl"></textarea></div>
 <div class="form-group"><label class="form-label">{% tr "Description (AR)" "توضیحات (AR)" "الوصف (AR)" %}</label><textarea name="description_ar" class="form-control" rows="2" dir="rtl"></textarea></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Price" "قیمت" "السعر" %}</label><input type="number" name="price" class="form-control" step="0.01" required></div><div class="form-group"><label class="form-label">{% tr "Currency" "واحد پول" "العملة" %}</label><input type="text" name="currency" class="form-control" value="$"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Cents" "سنت" "السنتات" %}</label><input type="text" name="cents" class="form-control" value=".99"></div><div class="form-group"><label class="form-label">{% tr "Order" "ترتیب" "الترتيب" %}</label><input type="number" name="order" class="form-control" value="0"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Button (EN)" "متن دکمه (EN)" "نص الزر (EN)" %}</label><input type="text" name="button_text_en" class="form-control" value="Buy"></div><div class="form-group"><label class="form-label">{% tr "Button (FA)" "متن دکمه (FA)" "نص الزر (FA)" %}</label><input type="text" name="button_text_fa" class="form-control" value="خرید" dir="rtl"></div></div>
+<div class="form-group"><label class="form-label">{% tr "Price / Options (EN)" "قیمت / گزینه‌ها (EN)" "السعر / الخيارات (EN)" %}</label><textarea name="price_text_en" class="form-control" rows="2" placeholder="$975 · Contact us · Option A / Option B"></textarea><small class="form-help">{% tr "Free text shown on the card. Leave empty to hide the price line." "متن آزاد روی کارت. خالی = بدون خط قیمت." "نص حر على البطاقة. فارغ = إخفاء سطر السعر." %}</small></div>
+<div class="form-group"><label class="form-label">{% tr "Price / Options (FA)" "قیمت / گزینه‌ها (FA)" "السعر / الخيارات (FA)" %}</label><textarea name="price_text_fa" class="form-control" rows="2" dir="rtl"></textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Price / Options (AR)" "قیمت / گزینه‌ها (AR)" "السعر / الخيارات (AR)" %}</label><textarea name="price_text_ar" class="form-control" rows="2" dir="rtl"></textarea></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Order" "ترتیب" "الترتيب" %}</label><input type="number" name="order" class="form-control" value="0"></div><div class="form-group"><label class="form-label">{% tr "Button URL" "لینک دکمه" "رابط الزر" %}</label><input type="text" name="button_url" class="form-control" value="#"></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Button (EN)" "متن دکمه (EN)" "نص الزر (EN)" %}</label><input type="text" name="button_text_en" class="form-control" value="Get Started"></div><div class="form-group"><label class="form-label">{% tr "Button (FA)" "متن دکمه (FA)" "نص الزر (FA)" %}</label><input type="text" name="button_text_fa" class="form-control" value="شروع کنید" dir="rtl"></div></div>
 <div class="form-group"><label class="form-label">{% tr "Button (AR)" "متن دکمه (AR)" "نص الزر (AR)" %}</label><input type="text" name="button_text_ar" class="form-control" dir="rtl"></div>
 <div class="form-row"><div class="form-group"><label class="form-check"><input type="checkbox" name="is_popular"><span>{% tr "Popular" "محبوب" "مميّز" %}</span></label></div><div class="form-group"><label class="form-check"><input type="checkbox" name="is_active" checked><span>{% tr "Active" "فعال" "مفعّل" %}</span></label></div></div>
 <div class="form-actions"><button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> {% tr "Save" "ذخیره" "حفظ" %}</button></div></form></div>
@@ -68,8 +80,10 @@
 <div class="form-group"><label class="form-label">{% tr "Description (EN)" "توضیحات (EN)" "الوصف (EN)" %}</label><textarea name="description_en" class="form-control" rows="2" required>{{ item.description_en }}</textarea></div>
 <div class="form-group"><label class="form-label">{% tr "Description (FA)" "توضیحات (FA)" "الوصف (FA)" %}</label><textarea name="description_fa" class="form-control" rows="2" required dir="rtl">{{ item.description_fa }}</textarea></div>
 <div class="form-group"><label class="form-label">{% tr "Description (AR)" "توضیحات (AR)" "الوصف (AR)" %}</label><textarea name="description_ar" class="form-control" rows="2" dir="rtl">{{ item.description_ar }}</textarea></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Price" "قیمت" "السعر" %}</label><input type="number" name="price" class="form-control" step="0.01" value="{{ item.price }}" required></div><div class="form-group"><label class="form-label">{% tr "Currency" "واحد پول" "العملة" %}</label><input type="text" name="currency" class="form-control" value="{{ item.currency }}"></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Cents" "سنت" "السنتات" %}</label><input type="text" name="cents" class="form-control" value="{{ item.cents }}"></div><div class="form-group"><label class="form-label">{% tr "Order" "ترتیب" "الترتيب" %}</label><input type="number" name="order" class="form-control" value="{{ item.order }}"></div></div>
+<div class="form-group"><label class="form-label">{% tr "Price / Options (EN)" "قیمت / گزینه‌ها (EN)" "السعر / الخيارات (EN)" %}</label><textarea name="price_text_en" class="form-control" rows="2">{{ item.price_text_en }}</textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Price / Options (FA)" "قیمت / گزینه‌ها (FA)" "السعر / الخيارات (FA)" %}</label><textarea name="price_text_fa" class="form-control" rows="2" dir="rtl">{{ item.price_text_fa }}</textarea></div>
+<div class="form-group"><label class="form-label">{% tr "Price / Options (AR)" "قیمت / گزینه‌ها (AR)" "السعر / الخيارات (AR)" %}</label><textarea name="price_text_ar" class="form-control" rows="2" dir="rtl">{{ item.price_text_ar }}</textarea></div>
+<div class="form-row"><div class="form-group"><label class="form-label">{% tr "Order" "ترتیب" "الترتيب" %}</label><input type="number" name="order" class="form-control" value="{{ item.order }}"></div><div class="form-group"><label class="form-label">{% tr "Button URL" "لینک دکمه" "رابط الزر" %}</label><input type="text" name="button_url" class="form-control" value="{{ item.button_url }}"></div></div>
 <div class="form-row"><div class="form-group"><label class="form-label">{% tr "Button (EN)" "متن دکمه (EN)" "نص الزر (EN)" %}</label><input type="text" name="button_text_en" class="form-control" value="{{ item.button_text_en }}"></div><div class="form-group"><label class="form-label">{% tr "Button (FA)" "متن دکمه (FA)" "نص الزر (FA)" %}</label><input type="text" name="button_text_fa" class="form-control" value="{{ item.button_text_fa }}" dir="rtl"></div></div>
 <div class="form-group"><label class="form-label">{% tr "Button (AR)" "متن دکمه (AR)" "نص الزر (AR)" %}</label><input type="text" name="button_text_ar" class="form-control" value="{{ item.button_text_ar }}" dir="rtl"></div>
 <div class="form-row"><div class="form-group"><label class="form-check"><input type="checkbox" name="is_popular" {% if item.is_popular %}checked{% endif %}><span>{% tr "Popular" "محبوب" "مميّز" %}</span></label></div><div class="form-group"><label class="form-check"><input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}><span>{% tr "Active" "فعال" "مفعّل" %}</span></label></div></div>

@@ -950,9 +950,9 @@ def pricing_view(request):
                 description_en=request.POST.get("description_en", ""),
                 description_fa=request.POST.get("description_fa", ""),
                 description_ar=request.POST.get("description_ar", ""),
-                price=safe_float(request.POST.get("price", 0)),
-                currency=request.POST.get("currency", "$"),
-                cents=request.POST.get("cents", ".99"),
+                price_text_en=request.POST.get("price_text_en", "").strip(),
+                price_text_fa=request.POST.get("price_text_fa", "").strip(),
+                price_text_ar=request.POST.get("price_text_ar", "").strip(),
                 is_popular="is_popular" in request.POST,
                 button_text_en=request.POST.get("button_text_en", "Buy"),
                 button_text_fa=request.POST.get("button_text_fa", "خرید"),
@@ -973,9 +973,9 @@ def pricing_view(request):
             obj.description_en = request.POST.get("description_en", obj.description_en)
             obj.description_fa = request.POST.get("description_fa", obj.description_fa)
             obj.description_ar = request.POST.get("description_ar", obj.description_ar)
-            obj.price = safe_float(request.POST.get("price", obj.price))
-            obj.currency = request.POST.get("currency", obj.currency)
-            obj.cents = request.POST.get("cents", obj.cents)
+            obj.price_text_en = request.POST.get("price_text_en", obj.price_text_en).strip()
+            obj.price_text_fa = request.POST.get("price_text_fa", obj.price_text_fa).strip()
+            obj.price_text_ar = request.POST.get("price_text_ar", obj.price_text_ar).strip()
             obj.is_popular = "is_popular" in request.POST
             obj.button_text_en = request.POST.get("button_text_en", obj.button_text_en)
             obj.button_text_fa = request.POST.get("button_text_fa", obj.button_text_fa)
@@ -1146,6 +1146,18 @@ def event_countdown_view(request):
 @login_required(login_url="/accounts/login/")
 def home_sections_view(request):
     lang = get_lang(request)
+    # Always expose both homepage picture slots so editors can upload the
+    # Why-section image without hunting for a missing row.
+    for section_type, defaults in (
+        ("home_about", {
+            "cta_text_en": "Read More", "cta_text_fa": "بیشتر بخوانید",
+            "cta_text_ar": "اقرأ المزيد", "cta_url": "/about/",
+        }),
+        ("home_why", {}),
+    ):
+        HomeSection.objects.get_or_create(section_type=section_type, defaults={
+            **defaults, "is_active": True,
+        })
     items = HomeSection.objects.all()
     if request.method == "POST":
         action = request.POST.get("action", "")
@@ -1163,6 +1175,8 @@ def home_sections_view(request):
             obj.is_active = "is_active" in request.POST
             if request.FILES.get("image"):
                 obj.image = request.FILES["image"]
+            elif "remove_image" in request.POST:
+                obj.image = None
             obj.save()
             messages.success(request, say(request, "Home section updated!", "بخش صفحه اصلی به‌روزرسانی شد!", "تم تحديث قسم الصفحة الرئيسية!"))
         return redirect("admin_home_sections")
@@ -1266,6 +1280,10 @@ def sections_view(request):
 
             if request.FILES.get("background_image"):
                 obj.background_image = request.FILES["background_image"]
+                # A seeded 92% purple overlay used to hide newly uploaded
+                # backgrounds completely — drop it to a readable tint.
+                if (obj.overlay_opacity or 0) >= 70:
+                    obj.overlay_opacity = 35
             elif "remove_background_image" in request.POST:
                 obj.background_image = None
 

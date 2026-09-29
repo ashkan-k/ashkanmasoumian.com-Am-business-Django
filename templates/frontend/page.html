@@ -39,7 +39,8 @@
     <div class="container">
         <div class="row mb-5"><div class="col-lg-6">
             {% with s=sections.services %}
-            <span class="subheading" style="color:#e2a83e;">{% sec_text s "subheading" "Services" "خدمات" "الخدمات" %}</span>
+            {% sec_text s "subheading" "" as services_eyebrow %}
+            {% if services_eyebrow %}<span class="subheading" style="color:#e2a83e;">{{ services_eyebrow }}</span>{% endif %}
             <h2 class="heading">{% sec_text s "title" "Our Services" "خدمات ما" "خدماتنا" %}</h2>
             {% endwith %}
         </div></div>

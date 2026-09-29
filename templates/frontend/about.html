@@ -68,7 +68,6 @@
 {% if services %}
 <div class="section section-3"><div class="container">
     <div class="row"><div class="col-lg-6 mb-5">
-        <span class="subheading" style="color:#e2a83e;">{% tr "Services" "خدمات" "الخدمات" %}</span>
         <h2 class="heading">{% tr "Our Services" "خدمات ما" "خدماتنا" %}</h2>
     </div></div>
     <div class="row features-wrap">
@@ -89,66 +88,19 @@
     </div>
 </div>
     {% get_why_title about as why_t %}{% if why_t %}
-    <div class="box-white pt-5 p-md-5 mx-md-5"><div class="container"><div class="row">
-        <div class="col-lg-6 align-self-center mb-5 mb-lg-0"><div class="text-wrap">
-            <span class="subheading" style="color:#e2a83e;">{% tr "Why AM Business" "چرا ما" "لماذا إي إم بيزنس" %}</span>
+    <div class="box-white pt-5 p-md-5 mx-md-5 am-why-section"><div class="container"><div class="row align-items-center">
+        <div class="col-lg-6 align-self-center mb-5 mb-lg-0"><div class="am-why-copy">
             <h2 class="heading mb-4" style="font-size:40px;">{{ why_t }}</h2>
-            <p>{% get_why_content about %}</p>
+            <p class="am-why-custom">{% get_why_content about %}</p>
             {% trans_field about "cta_text" as cta %}{% if cta %}
             <p class="mt-5"><a href="{{ about.cta_url }}" class="btn btn-primary-gradient-white-bg">{{ cta }}</a></p>{% endif %}
         </div></div>
         <div class="col-lg-6">
-            {% if about.why_choose_us_image %}<img src="{{ about.why_choose_us_image.url }}" alt="Why AM Business" class="img-fluid img-overlap">
-            {% else %}<img src="{% static 'frontend/images/why-am-business.jpg' %}" alt="Why AM Business" class="img-fluid img-overlap">{% endif %}
+            {% if about.why_choose_us_image %}<img src="{{ about.why_choose_us_image.url }}" alt="Why AM Business" class="img-fluid am-why-image" style="border-radius:8px;">
+            {% else %}<img src="{% static 'frontend/images/why-am-business.jpg' %}" alt="Why AM Business" class="img-fluid am-why-image" style="border-radius:8px;">{% endif %}
         </div>
     </div></div></div>
     {% endif %}
 </div>
-{% endif %}
-{% endblock %}
-
-{% block extra_js %}
-{% if countdown %}
-<script>
-(function() {
-    var timerEl = document.getElementById('countdown-timer');
-    if (!timerEl) return;
-    var eventDateStr = timerEl.dataset.eventDate;
-    if (!eventDateStr) return;
-    var eventDate = new Date(eventDateStr);
-
-    var daysEl = document.getElementById('cd-days');
-    var hoursEl = document.getElementById('cd-hours');
-    var minutesEl = document.getElementById('cd-minutes');
-    var secondsEl = document.getElementById('cd-seconds');
-    var endedEl = document.getElementById('countdown-ended');
-
-    function pad(n) { return n < 10 ? '0' + n : '' + n; }
-
-    function updateCountdown() {
-        var now = new Date().getTime();
-        var distance = eventDate.getTime() - now;
-
-        if (distance < 0) {
-            timerEl.style.display = 'none';
-            if (endedEl) endedEl.style.display = 'block';
-            return;
-        }
-
-        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        if (daysEl) daysEl.textContent = days;
-        if (hoursEl) hoursEl.textContent = pad(hours);
-        if (minutesEl) minutesEl.textContent = pad(minutes);
-        if (secondsEl) secondsEl.textContent = pad(seconds);
-    }
-
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-})();
-</script>
 {% endif %}
 {% endblock %}

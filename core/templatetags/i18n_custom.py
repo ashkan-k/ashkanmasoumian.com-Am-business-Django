@@ -151,6 +151,7 @@ get_description = _make_getter("description", "get_description")
 get_content = _make_getter("content", "get_content")
 get_name = _make_getter("name", "get_name")
 get_button_text = _make_getter("button_text", "get_button_text")
+get_price_text = _make_getter("price_text", "get_price_text")
 get_position = _make_getter("position", "get_position")
 get_bio = _make_getter("bio", "get_bio")
 get_quote = _make_getter("quote", "get_quote")
@@ -164,6 +165,33 @@ get_who_we_are = _make_getter("who_we_are", "get_who_we_are")
 get_we_are_expert = _make_getter("we_are_expert", "get_we_are_expert")
 get_meta_title = _make_getter("meta_title", "get_meta_title")
 get_meta_description = _make_getter("meta_description", "get_meta_description")
+
+
+@register.filter
+def why_points(text):
+    """Split a Why-section description into point blocks.
+
+    Editors often paste the six reasons as one field separated by line breaks
+    or ``<br>``.  Returning a list lets the template lay them out in two
+    columns instead of one tall paragraph.
+    """
+    if not text:
+        return []
+    normalized = (
+        str(text)
+        .replace("\r\n", "\n")
+        .replace("\r", "\n")
+        .replace("<br />", "\n")
+        .replace("<br/>", "\n")
+        .replace("<br>", "\n")
+        .replace("<BR>", "\n")
+    )
+    # Strip residual simple tags so each cell is plain text with optional
+    # leading "Title: body" which the template can still bold via CSS.
+    import re
+    normalized = re.sub(r"</?p[^>]*>", "\n", normalized, flags=re.I)
+    parts = [re.sub(r"<[^>]+>", "", p).strip() for p in normalized.split("\n")]
+    return [p for p in parts if p]
 
 
 @register.simple_tag(takes_context=True)

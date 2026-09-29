@@ -1898,7 +1898,8 @@ a {
 
 .section-3 {
   background-color: #efefef;
-  padding-bottom: 0; }
+  padding-bottom: 0;
+  position: relative; }
   .section-3 .box-white {
     background-color: #fff;
     position: relative;
