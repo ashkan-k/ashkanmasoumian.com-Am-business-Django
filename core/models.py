@@ -609,13 +609,13 @@ class PricingPlan(TimestampedModel):
         return pick_lang(self, "button_text", lang)
 
     def get_price_text(self, lang='en'):
-        """Visible price/options line for the active language."""
-        value = pick_lang(self, "price_text", lang)
-        if value:
-            return value
-        if self.price is not None:
-            return f"{self.currency or ''}{self.price:g}{self.cents or ''}"
-        return ""
+        """Visible price/options line for the active language.
+
+        Only the free-text fields are used.  An empty value means "hide the
+        price line" — legacy numeric fields must not resurrect a previous
+        amount (e.g. ``000`` from ``price=0`` + ``cents=00``).
+        """
+        return (pick_lang(self, "price_text", lang) or "").strip()
 
 
 class Testimonial(TimestampedModel):
@@ -869,18 +869,18 @@ class SectionStyle(TimestampedModel):
     subtitle_ar = models.TextField(blank=True, default="", verbose_name="Description (AR)")
 
     # ── Background & colours ──
-    background_color = models.CharField(max_length=20, blank=True, default="", verbose_name="Background Colour",
+    background_color = models.CharField(max_length=50, blank=True, default="", verbose_name="Background Colour",
                                         help_text="Pick from the palette or type a value such as #530e69")
     background_image = models.ImageField(upload_to="sections/backgrounds/", blank=True, null=True,
                                          verbose_name="Background Image",
                                          help_text="Overrides the background colour")
-    overlay_color = models.CharField(max_length=20, blank=True, default="", verbose_name="Overlay Colour")
+    overlay_color = models.CharField(max_length=50, blank=True, default="", verbose_name="Overlay Colour")
     overlay_opacity = models.PositiveIntegerField(default=0, verbose_name="Overlay Opacity (%)",
                                                   help_text="0 = no overlay, 90 = almost opaque")
-    text_color = models.CharField(max_length=20, blank=True, default="", verbose_name="Body Text Colour")
-    heading_color = models.CharField(max_length=20, blank=True, default="", verbose_name="Heading Colour")
-    card_background = models.CharField(max_length=20, blank=True, default="", verbose_name="Card Background")
-    card_text_color = models.CharField(max_length=20, blank=True, default="", verbose_name="Card Text Colour")
+    text_color = models.CharField(max_length=50, blank=True, default="", verbose_name="Body Text Colour")
+    heading_color = models.CharField(max_length=50, blank=True, default="", verbose_name="Heading Colour")
+    card_background = models.CharField(max_length=50, blank=True, default="", verbose_name="Card Background")
+    card_text_color = models.CharField(max_length=50, blank=True, default="", verbose_name="Card Text Colour")
 
     show_pattern = models.BooleanField(default=True, verbose_name="Show Decorative Pattern")
     item_limit = models.PositiveIntegerField(
@@ -936,12 +936,14 @@ class SectionStyle(TimestampedModel):
 
         Only sanitised colour values are emitted, so the result contains no
         characters that HTML escaping would alter.
+
+        ``--am-heading`` / ``--am-text`` are always set so a nested section
+        (e.g. Why inside Services) cannot inherit a parent section's colours.
         """
-        declarations = []
-        if self.title_color:
-            declarations.append(f"--am-heading:{self.title_color}")
-        if self.body_color:
-            declarations.append(f"--am-text:{self.body_color}")
+        declarations = [
+            f"--am-heading:{self.title_color or 'var(--am-heading-default)'}",
+            f"--am-text:{self.body_color or 'var(--am-text-default)'}",
+        ]
         if self.card_bg:
             declarations.append(f"--am-card-bg:{self.card_bg}")
         if self.card_text:

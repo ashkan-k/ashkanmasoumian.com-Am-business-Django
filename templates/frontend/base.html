@@ -99,6 +99,16 @@
         }
         .am-section .am-section-title {
             color: var(--am-heading, var(--am-heading-default, inherit));
+            /* One shared size for every homepage section title */
+            font-size: 48px;
+            line-height: 1.15;
+            font-weight: 700;
+        }
+        @media (max-width: 991.98px) {
+            .am-section .am-section-title { font-size: 36px; }
+        }
+        @media (max-width: 575.98px) {
+            .am-section .am-section-title { font-size: 28px; }
         }
         .am-section .am-section-subheading,
         .am-section .am-section-subtitle,
@@ -213,9 +223,19 @@
             background-color: #290734;
         }
 
-        /* Why block: undo the theme's 200px text-wrap shrink so width
-           matches the About section above, and lay out six points in two
-           columns. */
+        /* Why block: independent section (no longer nested in Services),
+           so its background/heading colours cannot leak into Pricing. */
+        .am-why-section {
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+        }
+        .am-services-section.section-3 {
+            padding-bottom: 7rem;
+        }
+        .am-services-section .features-wrap {
+            margin-bottom: 0;
+        }
         .am-why-section .am-why-copy,
         .am-why-section .text-wrap {
             margin-right: 0 !important;

@@ -17,13 +17,13 @@
 </div>
 {% endif %}
 
-{% if services or about %}
+{% if services %}
 {% with s=sections.services %}
 <div class="section section-3 am-section am-services-section"
      style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#efefef{% endif %};{% if s.background_image %}background-image:url('{{ s.background_image.url }}');background-size:cover;background-position:center;{% endif %}--am-heading-default:#222222;--am-text-default:#e2a83e;{% sec_bg_style s %}">
     {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
+    {% if s.show_pattern and not s.background_image %}<div class="am-section-pattern" style="background-image:url('{% static 'frontend/images/patterns/pattern-footer.svg' %}');background-size:300px;background-repeat:repeat;"></div>{% endif %}
     {% if s.overlay and s.overlay_opacity %}<div class="am-section-overlay"></div>{% endif %}
-    {% if services %}
     <div class="container am-section-inner">
     <div class="row"><div class="col-lg-6 mb-5">
         {% sec_text s "subheading" "" as services_eyebrow %}
@@ -54,35 +54,36 @@
         {% endfor %}
     </div>
     </div>
-    {% endif %}
-{% endwith %}
-    {% if about %}
-    {% with s=sections.why %}
-    <div class="box-white pt-5 p-md-5 mx-md-5 am-section am-why-section"
-         style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#fff{% endif %};{% if s.background_image %}background-image:url('{{ s.background_image.url }}');background-size:cover;background-position:center;{% endif %}--am-heading-default:#222222;--am-text-default:#555555;{% sec_bg_style s %}">
-        {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
-        {% if s.overlay and s.overlay_opacity %}<div class="am-section-overlay"></div>{% endif %}
-        <div class="container am-section-inner"><div class="row align-items-center">
-        <div class="col-lg-6 align-self-center mb-5 mb-lg-0"><div class="am-why-copy">
-            {% sec_text s "subheading" "" as why_eyebrow %}
-            {% if why_eyebrow %}<span class="subheading am-section-subheading">{{ why_eyebrow }}</span>{% endif %}
-            <h2 class="heading mb-4 am-section-title" style="font-size:40px;">
-                {% sec_text s "title" "" as why_title %}{% if why_title %}{{ why_title }}{% elif about %}{% get_why_title about %}{% else %}{% tr "Why AM Business?" "چرا ای ام بیزینس؟" "لماذا إي إم بيزنس؟" %}{% endif %}
-            </h2>
-            {% sec_text s "subtitle" "" as why_sub %}
-            <div class="am-section-text am-why-custom">
-            {% if why_sub %}{{ why_sub|linebreaks }}{% elif about %}<p>{% get_why_content about %}</p>{% endif %}
-            </div>
-            {% get_cta_text about as cta %}{% if cta %}
-            <p class="mt-5"><a href="{{ about.cta_url }}" class="btn btn-primary-gradient-white-bg">{{ cta }}</a></p>{% endif %}
-        </div></div>
-        <div class="col-lg-6">
-            {% if about.why_choose_us_image %}<img src="{{ about.why_choose_us_image.url }}?v={{ about.updated_at|date:'U' }}" alt="Why AM Business" class="img-fluid am-why-image" style="border-radius:8px;">
-            {% else %}<img src="{% static 'frontend/images/why-am-business.jpg' %}" alt="Why AM Business" class="img-fluid am-why-image" style="border-radius:8px;">{% endif %}
-        </div>
-    </div></div></div>
-    {% endwith %}
-    {% endif %}
 </div>
+{% endwith %}
+{% endif %}
+
+{% if about or sections.why %}
+{% with s=sections.why %}
+<div class="section am-section am-why-section"
+     style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#fff{% endif %};{% if s.background_image %}background-image:url('{{ s.background_image.url }}');background-size:cover;background-position:center;{% endif %}--am-heading-default:#222222;--am-text-default:#555555;{% sec_bg_style s %}">
+    {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
+    {% if s.show_pattern %}<div class="am-section-pattern" style="background-image:url('{% static 'frontend/images/patterns/pattern-footer.svg' %}');background-size:300px;background-repeat:repeat;{% if s.background_image %}opacity:0.35;{% endif %}"></div>{% endif %}
+    {% if s.overlay and s.overlay_opacity %}<div class="am-section-overlay"></div>{% endif %}
+    <div class="container am-section-inner"><div class="row align-items-center">
+    <div class="col-lg-6 align-self-center mb-5 mb-lg-0"><div class="am-why-copy">
+        {% sec_text s "subheading" "" as why_eyebrow %}
+        {% if why_eyebrow %}<span class="subheading am-section-subheading">{{ why_eyebrow }}</span>{% endif %}
+        <h2 class="heading mb-4 am-section-title">
+            {% sec_text s "title" "" as why_title %}{% if why_title %}{{ why_title }}{% elif about %}{% get_why_title about %}{% else %}{% tr "Why AM Business?" "چرا ای ام بیزینس؟" "لماذا إي إم بيزنس؟" %}{% endif %}
+        </h2>
+        {% sec_text s "subtitle" "" as why_sub %}
+        <div class="am-section-text am-why-custom">
+        {% if why_sub %}{{ why_sub|linebreaks }}{% elif about %}<p>{% get_why_content about %}</p>{% endif %}
+        </div>
+        {% if about %}{% get_cta_text about as cta %}{% if cta %}
+        <p class="mt-5"><a href="{{ about.cta_url }}" class="btn btn-primary-gradient-white-bg">{{ cta }}</a></p>{% endif %}{% endif %}
+    </div></div>
+    <div class="col-lg-6">
+        {% if about and about.why_choose_us_image %}<img src="{{ about.why_choose_us_image.url }}?v={{ about.updated_at|date:'U' }}" alt="Why AM Business" class="img-fluid am-why-image" style="border-radius:8px;">
+        {% else %}<img src="{% static 'frontend/images/why-am-business.jpg' %}" alt="Why AM Business" class="img-fluid am-why-image" style="border-radius:8px;">{% endif %}
+    </div>
+</div></div></div>
+{% endwith %}
 {% endif %}
 {% endblock %}

@@ -39,7 +39,7 @@
             <div class="col-lg-6 mb-5 mb-lg-0">
                 <div class="text-wrap">
                     <span class="subheading am-section-subheading">{% sec_text s "subheading" "About Us" "درباره ما" "من نحن" %}</span>
-                    <h2 class="heading mb-4 am-section-title" style="font-size:48px;">{% sec_text s "title" "About AM Business" "درباره ای ام بیزینس" "عن إي إم بيزنس" %}</h2>
+                    <h2 class="heading mb-4 am-section-title">{% sec_text s "title" "About AM Business" "درباره ای ام بیزینس" "عن إي إم بيزنس" %}</h2>
                     <p class="am-section-text" style="line-height:1.8;">
                         {% sec_text s "subtitle" "" as about_sub %}{% if about_sub %}{{ about_sub }}{% elif lang == 'ar' %}
                         إي إم بيزنس شركة متكاملة لنمو الأعمال والتحول مقرها مسقط، عُمان، وتخدم الشركات الطموحة والمؤسسين والمنظمات والمؤسسات في دول مجلس التعاون الخليجي.
@@ -75,13 +75,14 @@
 </div>
 {% endwith %}
 
-<!-- Services -->
+<!-- Services (standalone — Why is no longer nested here so colours/backgrounds cannot bleed into Pricing) -->
+{% if services %}
 {% with s=sections.services %}
 <div class="section section-3 am-section am-services-section"
      style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#efefef{% endif %};{% if s.background_image %}background-image:url('{{ s.background_image.url }}');background-size:cover;background-position:center;{% endif %}--am-heading-default:#222222;--am-text-default:#e2a83e;{% sec_bg_style s %}">
     {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
+    {% if s.show_pattern and not s.background_image %}<div class="am-section-pattern" style="background-image:url('{% static 'frontend/images/patterns/pattern-footer.svg' %}');background-size:300px;background-repeat:repeat;"></div>{% endif %}
     {% if s.overlay and s.overlay_opacity %}<div class="am-section-overlay"></div>{% endif %}
-    {% if services %}
     <div class="container am-section-inner">
         <div class="row">
             <div class="col-lg-6 mb-5">
@@ -115,67 +116,68 @@
             {% endfor %}
         </div>
     </div>
-    {% endif %}
+</div>
+{% endwith %}
+{% endif %}
 
-    <!-- Why AM Business (nested in section-3 so the white box overlap styles apply) -->
-    {% if sections.why or about %}
-    {% with s=sections.why %}
-    <div class="box-white pt-5 p-md-5 mx-md-5 am-section am-why-section"
-         style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#fff{% endif %};{% if s.background_image %}background-image:url('{{ s.background_image.url }}');background-size:cover;background-position:center;{% endif %}--am-heading-default:#222222;--am-text-default:#555555;{% sec_bg_style s %}">
-        {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
-        {% if s.overlay and s.overlay_opacity %}<div class="am-section-overlay"></div>{% endif %}
-        <div class="container am-section-inner">
-            <div class="row align-items-center">
-                <div class="col-lg-6 align-self-center mb-5 mb-lg-0">
-                    <div class="am-why-copy">
-                        {% sec_text s "subheading" "" as why_eyebrow %}
-                        {% if why_eyebrow %}<span class="subheading am-section-subheading">{{ why_eyebrow }}</span>{% endif %}
-                        <h2 class="heading mb-4 am-section-title" style="font-size:40px;">
-                            {% sec_text s "title" "" as why_custom_title %}{% if why_custom_title %}{{ why_custom_title }}{% else %}{% tr "Why AM Business?" "چرا ای ام بیزینس؟" "لماذا إي إم بيزنس؟" %}{% endif %}
-                        </h2>
-                        <div class="am-section-text am-why-points">
-                            {% sec_text s "subtitle" "" as why_custom_text %}
-                            {% if why_custom_text %}
-                            {% with points=why_custom_text|why_points %}
-                            {% if points|length > 1 %}
-                            <div class="row g-4">
-                                {% for point in points %}
-                                <div class="col-md-6"><p class="am-why-item">{{ point }}</p></div>
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                            <div class="am-why-custom">{{ why_custom_text|linebreaks }}</div>
-                            {% endif %}
-                            {% endwith %}
-                            {% else %}
-                            <div class="row g-4">
-                                <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Research Before Recommendation" "تحقیق قبل از توصیه" "البحث قبل التوصية" %}:</strong> {% tr "We understand the business, market, and challenge before recommending a solution." "ما کسب و کار، بازار و چالش را قبل از ارائه راهکار درک می‌کنیم." "نفهم النشاط والسوق والتحدي قبل أن نقترح حلًا." %}</p></div>
-                                <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Strategy Before Execution" "استراتژی قبل از اجرا" "الاستراتيجية قبل التنفيذ" %}:</strong> {% tr "Execution follows a clear direction and business logic." "اجرا از مسیر منطقی و منطق کسب و کار پیروی می‌کند." "التنفيذ يتبع اتجاهًا واضحًا ومنطقًا تجاريًا." %}</p></div>
-                                <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Integrated Capabilities" "قابلیت‌های یکپارچه" "قدرات متكاملة" %}:</strong> {% tr "Strategy, creative, marketing, digital, and AI capabilities work together as one coordinated solution." "استراتژی، خلاقیت، بازاریابی، دیجیتال و هوش مصنوعی به صورت یکپارچه کار می‌کنند." "الاستراتيجية والإبداع والتسويق والرقمي والذكاء الاصطناعي تعمل كحل واحد منسّق." %}</p></div>
-                                <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Business-First Creativity" "خلاقیت اول کسب و کار" "إبداع يخدم الأعمال أولًا" %}:</strong> {% tr "Creative work is designed to serve a business purpose." "طراحی خلاقانه برای خدمت به هدف کسب و کار است." "العمل الإبداعي مصمم لخدمة هدف تجاري." %}</p></div>
-                                <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Practical Digital & AI" "دیجیتال و هوش مصنوعی کاربردی" "الرقمي والذكاء الاصطناعي العملي" %}:</strong> {% tr "Technology and AI are applied where they can improve efficiency, decision-making, customer experience, or scalability." "فناوری و هوش مصنوعی در جایی استفاده می‌شوند که بهره‌وری را بهبود دهند." "تُستخدم التقنية والذكاء الاصطناعي حيث تحسّن الكفاءة أو اتخاذ القرار أو تجربة العميل أو قابلية التوسع." %}</p></div>
-                                <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Outcome-Oriented Partnership" "مشارکت نتیجه‌محور" "شراكة موجّهة بالنتائج" %}:</strong> {% tr "We focus on business value and meaningful outcomes with a long-term perspective." "ما بر ارزش کسب و کار و نتایج معنادار تمرکز داریم." "نركّز على قيمة الأعمال والنتائج الملموسة بمنظور طويل الأمد." %}</p></div>
-                            </div>
-                            {% endif %}
+<!-- Why AM Business (own section — heading/background controlled only from Sections & Backgrounds → Why) -->
+{% if sections.why or about %}
+{% with s=sections.why %}
+<div class="section am-section am-why-section"
+     style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#fff{% endif %};{% if s.background_image %}background-image:url('{{ s.background_image.url }}');background-size:cover;background-position:center;{% endif %}--am-heading-default:#222222;--am-text-default:#555555;{% sec_bg_style s %}">
+    {% if s.background_image %}<div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>{% endif %}
+    {% if s.show_pattern %}<div class="am-section-pattern" style="background-image:url('{% static 'frontend/images/patterns/pattern-footer.svg' %}');background-size:300px;background-repeat:repeat;{% if s.background_image %}opacity:0.35;{% endif %}"></div>{% endif %}
+    {% if s.overlay and s.overlay_opacity %}<div class="am-section-overlay"></div>{% endif %}
+    <div class="container am-section-inner">
+        <div class="row align-items-center">
+            <div class="col-lg-6 align-self-center mb-5 mb-lg-0">
+                <div class="am-why-copy">
+                    {% sec_text s "subheading" "" as why_eyebrow %}
+                    {% if why_eyebrow %}<span class="subheading am-section-subheading">{{ why_eyebrow }}</span>{% endif %}
+                    <h2 class="heading mb-4 am-section-title">
+                        {% sec_text s "title" "" as why_custom_title %}{% if why_custom_title %}{{ why_custom_title }}{% else %}{% tr "Why AM Business?" "چرا ای ام بیزینس؟" "لماذا إي إم بيزنس؟" %}{% endif %}
+                    </h2>
+                    <div class="am-section-text am-why-points">
+                        {% sec_text s "subtitle" "" as why_custom_text %}
+                        {% if why_custom_text %}
+                        {% with points=why_custom_text|why_points %}
+                        {% if points|length > 1 %}
+                        <div class="row g-4">
+                            {% for point in points %}
+                            <div class="col-md-6"><p class="am-why-item">{{ point }}</p></div>
+                            {% endfor %}
                         </div>
+                        {% else %}
+                        <div class="am-why-custom">{{ why_custom_text|linebreaks }}</div>
+                        {% endif %}
+                        {% endwith %}
+                        {% else %}
+                        <div class="row g-4">
+                            <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Research Before Recommendation" "تحقیق قبل از توصیه" "البحث قبل التوصية" %}:</strong> {% tr "We understand the business, market, and challenge before recommending a solution." "ما کسب و کار، بازار و چالش را قبل از ارائه راهکار درک می‌کنیم." "نفهم النشاط والسوق والتحدي قبل أن نقترح حلًا." %}</p></div>
+                            <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Strategy Before Execution" "استراتژی قبل از اجرا" "الاستراتيجية قبل التنفيذ" %}:</strong> {% tr "Execution follows a clear direction and business logic." "اجرا از مسیر منطقی و منطق کسب و کار پیروی می‌کند." "التنفيذ يتبع اتجاهًا واضحًا ومنطقًا تجاريًا." %}</p></div>
+                            <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Integrated Capabilities" "قابلیت‌های یکپارچه" "قدرات متكاملة" %}:</strong> {% tr "Strategy, creative, marketing, digital, and AI capabilities work together as one coordinated solution." "استراتژی، خلاقیت، بازاریابی، دیجیتال و هوش مصنوعی به صورت یکپارچه کار می‌کنند." "الاستراتيجية والإبداع والتسويق والرقمي والذكاء الاصطناعي تعمل كحل واحد منسّق." %}</p></div>
+                            <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Business-First Creativity" "خلاقیت اول کسب و کار" "إبداع يخدم الأعمال أولًا" %}:</strong> {% tr "Creative work is designed to serve a business purpose." "طراحی خلاقانه برای خدمت به هدف کسب و کار است." "العمل الإبداعي مصمم لخدمة هدف تجاري." %}</p></div>
+                            <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Practical Digital & AI" "دیجیتال و هوش مصنوعی کاربردی" "الرقمي والذكاء الاصطناعي العملي" %}:</strong> {% tr "Technology and AI are applied where they can improve efficiency, decision-making, customer experience, or scalability." "فناوری و هوش مصنوعی در جایی استفاده می‌شوند که بهره‌وری را بهبود دهند." "تُستخدم التقنية والذكاء الاصطناعي حيث تحسّن الكفاءة أو اتخاذ القرار أو تجربة العميل أو قابلية التوسع." %}</p></div>
+                            <div class="col-md-6"><p class="am-why-item"><strong>{% tr "Outcome-Oriented Partnership" "مشارکت نتیجه‌محور" "شراكة موجّهة بالنتائج" %}:</strong> {% tr "We focus on business value and meaningful outcomes with a long-term perspective." "ما بر ارزش کسب و کار و نتایج معنادار تمرکز داریم." "نركّز على قيمة الأعمال والنتائج الملموسة بمنظور طويل الأمد." %}</p></div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
-                <div class="col-lg-6">
-                    {% if home_why and home_why.image %}
-                    <img src="{{ home_why.image.url }}?v={{ home_why.updated_at|date:'U' }}" alt="Why AM Business" class="img-fluid am-why-image" style="border-radius:8px;">
-                    {% elif about and about.why_choose_us_image %}
-                    <img src="{{ about.why_choose_us_image.url }}?v={{ about.updated_at|date:'U' }}" alt="Why AM Business" class="img-fluid am-why-image" style="border-radius:8px;">
-                    {% else %}
-                    <img src="{% static 'frontend/images/why-am-business.jpg' %}" alt="Why AM Business" class="img-fluid am-why-image" style="border-radius:8px;">
-                    {% endif %}
-                </div>
+            </div>
+            <div class="col-lg-6">
+                {% if home_why and home_why.image %}
+                <img src="{{ home_why.image.url }}?v={{ home_why.updated_at|date:'U' }}" alt="Why AM Business" class="img-fluid am-why-image" style="border-radius:8px;">
+                {% elif about and about.why_choose_us_image %}
+                <img src="{{ about.why_choose_us_image.url }}?v={{ about.updated_at|date:'U' }}" alt="Why AM Business" class="img-fluid am-why-image" style="border-radius:8px;">
+                {% else %}
+                <img src="{% static 'frontend/images/why-am-business.jpg' %}" alt="Why AM Business" class="img-fluid am-why-image" style="border-radius:8px;">
+                {% endif %}
             </div>
         </div>
     </div>
-    {% endwith %}
-    {% endif %}
 </div>
 {% endwith %}
+{% endif %}
 
 <!-- Pricing (every active plan in the dashboard is rendered) -->
 {% if pricing_plans %}
@@ -184,7 +186,7 @@
      style="background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#530e69{% endif %};{% if s.background_image %}background-image:url('{{ s.background_image.url }}');background-size:cover;background-position:center;{% endif %}--am-heading-default:#e2a83e;--am-text-default:rgba(255,255,255,0.8);{% sec_bg_style s %}">
     {% if s.background_image %}
     <div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>
-    {% elif s.show_pattern or not s %}
+    {% elif s.show_pattern %}
     <div class="am-section-pattern" style="background-image:url('{% static 'frontend/images/patterns/pattern-footer.svg' %}');background-size:300px;background-repeat:repeat;"></div>
     {% endif %}
     {% if s.overlay and s.overlay_opacity %}<div class="am-section-overlay"></div>{% endif %}
@@ -208,7 +210,7 @@
                             <div class="line"></div>
                             {% get_price_text plan as plan_price %}
                             {% if plan_price %}
-                            <div class="price-text mb-4" style="font-size:22px;font-weight:600;line-height:1.45;white-space:pre-line;">{{ plan_price }}</div>
+                            <div class="price-text mb-4" style="font-size:22px;font-weight:600;line-height:1.45;white-space:pre-line;color:var(--am-card-text, #fff);">{{ plan_price }}</div>
                             {% endif %}
                             <p><a href="{{ plan.button_url }}" class="btn btn-primary-outline white px-5">{% get_button_text plan %}</a></p>
                         </div>

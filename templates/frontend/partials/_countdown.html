@@ -13,7 +13,7 @@ when opacity is above zero — a seeded 92% purple overlay used to hide uploads.
      style="padding:70px 0;background-color:{% if s.bg_color %}{{ s.bg_color }}{% else %}#530e69{% endif %};{% if s.background_image %}background-image:url('{{ s.background_image.url }}');background-size:cover;background-position:center;{% endif %}--am-heading-default:#e2a83e;--am-text-default:rgba(255,255,255,0.85);{% sec_bg_style s %}">
     {% if s.background_image %}
     <div class="am-section-bg" style="background-image:url('{{ s.background_image.url }}');"></div>
-    {% elif s.show_pattern or not s %}
+    {% elif s.show_pattern %}
     <div class="am-section-pattern" style="background-image:url('{% static 'frontend/images/patterns/pattern-footer.svg' %}');background-size:300px;background-repeat:repeat;"></div>
     {% endif %}
     {% if s.overlay and s.overlay_opacity %}<div class="am-section-overlay"></div>{% endif %}
@@ -33,7 +33,7 @@ when opacity is above zero — a seeded 92% purple overlay used to hide uploads.
                 <div class="{% if not countdown.image %}text-center{% endif %}">
                     {% sec_text s "subheading" "" as cd_eyebrow %}
                     {% if cd_eyebrow %}<h3 class="subheading am-section-subheading" style="margin-bottom:0.75rem;">{{ cd_eyebrow }}</h3>{% endif %}
-                    <h2 class="heading am-section-title" style="font-size:42px;line-height:1.15;margin-bottom:1.25rem;">
+                    <h2 class="heading am-section-title" style="line-height:1.15;margin-bottom:1.25rem;">
                         {% sec_text s "title" "About AM Business" "درباره ای ام بیزینس" "عن إي إم بيزنس" %}
                     </h2>
                     {% sec_text s "subtitle" "" as cd_desc %}

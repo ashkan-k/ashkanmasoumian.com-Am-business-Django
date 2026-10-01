@@ -953,6 +953,8 @@ def pricing_view(request):
                 price_text_en=request.POST.get("price_text_en", "").strip(),
                 price_text_fa=request.POST.get("price_text_fa", "").strip(),
                 price_text_ar=request.POST.get("price_text_ar", "").strip(),
+                # Free-text price is the only source of truth now.
+                price=None, currency="", cents="",
                 is_popular="is_popular" in request.POST,
                 button_text_en=request.POST.get("button_text_en", "Buy"),
                 button_text_fa=request.POST.get("button_text_fa", "خرید"),
@@ -976,6 +978,10 @@ def pricing_view(request):
             obj.price_text_en = request.POST.get("price_text_en", obj.price_text_en).strip()
             obj.price_text_fa = request.POST.get("price_text_fa", obj.price_text_fa).strip()
             obj.price_text_ar = request.POST.get("price_text_ar", obj.price_text_ar).strip()
+            # Drop legacy numeric fields so an emptied text line stays empty.
+            obj.price = None
+            obj.currency = ""
+            obj.cents = ""
             obj.is_popular = "is_popular" in request.POST
             obj.button_text_en = request.POST.get("button_text_en", obj.button_text_en)
             obj.button_text_fa = request.POST.get("button_text_fa", obj.button_text_fa)
